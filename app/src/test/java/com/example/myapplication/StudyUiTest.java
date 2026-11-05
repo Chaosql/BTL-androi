@@ -1,5 +1,9 @@
 package com.example.myapplication;
 
+import com.example.myapplication.ui.main.UiDialogs;
+import com.example.myapplication.ui.main.ScreenFactory;
+import com.example.myapplication.ui.main.UiScreen;
+import com.example.myapplication.ui.main.MainActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +33,7 @@ public class StudyUiTest {
             MainActivity activity = controller.get();
             for (UiScreen screen : UiScreen.values()) {
                 activity.getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.screenHost, StudyScreenFragment.create(screen)).commitNow();
+                        .replace(R.id.screenHost, ScreenFactory.create(screen)).commitNow();
                 Shadows.shadowOf(android.os.Looper.getMainLooper()).idle();
                 View root = activity.findViewById(R.id.screenHost);
                 int width = activity.getResources().getDisplayMetrics().widthPixels;

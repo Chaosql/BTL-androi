@@ -1,35 +1,24 @@
-package com.example.myapplication;
+package com.example.myapplication.ui.main;
 
+import com.example.myapplication.R;
 import android.os.Bundle;
-import android.graphics.Color;
 
-import androidx.activity.EdgeToEdge;
-import androidx.activity.SystemBarStyle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends com.example.myapplication.ui.base.BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this, SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
-                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT));
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            int keyboard = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
-            v.setPadding(bars.left, bars.top, bars.right, Math.max(bars.bottom, keyboard));
-            return WindowInsetsCompat.CONSUMED;
-        });
+        applyWindowInsets(findViewById(R.id.main));
         if (savedInstanceState == null) showScreen(UiScreen.LOGIN);
     }
 
-    public void showScreen(UiScreen screen) {
+    public void showScreen(UiScreen screen) { showScreen(screen, null); }
+
+    public void showScreen(UiScreen screen, Bundle arguments) {
         androidx.fragment.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction()
-                .replace(R.id.screenHost, StudyScreenFragment.create(screen));
+                .replace(R.id.screenHost, ScreenFactory.create(screen, arguments));
         if (getSupportFragmentManager().findFragmentById(R.id.screenHost) != null)
             transaction.addToBackStack(screen.name());
         transaction.commit();

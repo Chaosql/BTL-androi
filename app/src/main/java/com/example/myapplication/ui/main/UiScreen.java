@@ -1,5 +1,6 @@
-package com.example.myapplication;
+package com.example.myapplication.ui.main;
 
+import com.example.myapplication.R;
 public enum UiScreen {
     LOGIN(R.string.login, R.layout.fragment_login),
     REGISTER(R.string.ui_uiscreen_text_2, R.layout.fragment_register),
