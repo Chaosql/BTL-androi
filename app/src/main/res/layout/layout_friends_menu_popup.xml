@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_10sdp"
-            android:text="Tạo trò chuyện mới"
+            android:text="@string/ui_layout_friends_menu_popup_text_1"
             android:textColor="@color/brown"
             android:textSize="@dimen/_13ssp"
             android:textStyle="bold" />
@@ -63,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_10sdp"
-            android:text="Lời mời kết bạn"
+            android:text="@string/ui_fragment_pending_requests_text_1"
             android:textColor="@color/brown"
             android:textSize="@dimen/_13ssp"
             android:textStyle="bold" />

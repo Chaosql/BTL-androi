@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Chỉnh Sửa Giới Thiệu"
+        android:text="@string/ui_dialog_edit_introduction_text_1"
         android:textColor="@color/brown"
         android:textSize="@dimen/_16ssp"
         android:textStyle="bold" />
@@ -22,11 +22,12 @@
         android:layout_height="@dimen/_80sdp"
         android:layout_marginTop="@dimen/_12sdp"
         android:background="@drawable/bg_edittext"
+        android:backgroundTint="@null"
         android:gravity="top|start"
-        android:hint="Nhập lời giới thiệu bản thân..."
+        android:hint="@string/ui_dialog_edit_introduction_hint_2"
         android:inputType="textMultiLine"
         android:padding="@dimen/_12sdp"
-        android:textColor="@color/brown"
+        android:textColor="@color/input_text"
         android:textColorHint="@color/hint"
         android:textSize="@dimen/_12ssp" />
 
@@ -46,7 +47,7 @@
             android:background="@drawable/bg_card_retro"
             android:gravity="center"
             android:paddingHorizontal="@dimen/_18sdp"
-            android:text="Hủy"
+            android:text="@string/cancel"
             android:textColor="@color/brown"
             android:textSize="@dimen/_12ssp"
             android:textStyle="bold" />
@@ -58,7 +59,7 @@
             android:background="@drawable/bg_button"
             android:gravity="center"
             android:paddingHorizontal="@dimen/_18sdp"
-            android:text="Lưu"
+            android:text="@string/ui_dialog_edit_introduction_text_4"
             android:textColor="@color/brown"
             android:textSize="@dimen/_12ssp"
             android:textStyle="bold" />

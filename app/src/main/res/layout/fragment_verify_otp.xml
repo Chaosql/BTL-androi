@@ -95,10 +95,11 @@
                     android:layout_height="@dimen/_60sdp"
                     android:layout_marginEnd="@dimen/_10sdp"
                     android:background="@drawable/bg_editotp"
+                    android:backgroundTint="@null"
                     android:gravity="center"
                     android:inputType="number"
                     android:maxLength="1"
-                    android:textColor="@color/brown"
+                    android:textColor="@color/input_text"
                     android:textSize="@dimen/_20ssp"
                     android:textStyle="bold" />
 
@@ -108,10 +109,11 @@
                     android:layout_height="@dimen/_60sdp"
                     android:layout_marginEnd="@dimen/_10sdp"
                     android:background="@drawable/bg_editotp"
+                    android:backgroundTint="@null"
                     android:gravity="center"
                     android:inputType="number"
                     android:maxLength="1"
-                    android:textColor="@color/brown"
+                    android:textColor="@color/input_text"
                     android:textSize="@dimen/_20ssp"
                     android:textStyle="bold" />
 
@@ -121,10 +123,11 @@
                     android:layout_height="@dimen/_60sdp"
                     android:layout_marginEnd="@dimen/_10sdp"
                     android:background="@drawable/bg_editotp"
+                    android:backgroundTint="@null"
                     android:gravity="center"
                     android:inputType="number"
                     android:maxLength="1"
-                    android:textColor="@color/brown"
+                    android:textColor="@color/input_text"
                     android:textSize="@dimen/_20ssp"
                     android:textStyle="bold" />
 
@@ -134,10 +137,11 @@
                     android:layout_height="@dimen/_60sdp"
                     android:layout_marginEnd="@dimen/_10sdp"
                     android:background="@drawable/bg_editotp"
+                    android:backgroundTint="@null"
                     android:gravity="center"
                     android:inputType="number"
                     android:maxLength="1"
-                    android:textColor="@color/brown"
+                    android:textColor="@color/input_text"
                     android:textSize="@dimen/_20ssp"
                     android:textStyle="bold" />
 
@@ -146,10 +150,11 @@
                     android:layout_width="@dimen/_40sdp"
                     android:layout_height="@dimen/_60sdp"
                     android:background="@drawable/bg_editotp"
+                    android:backgroundTint="@null"
                     android:gravity="center"
                     android:inputType="number"
                     android:maxLength="1"
-                    android:textColor="@color/brown"
+                    android:textColor="@color/input_text"
                     android:textSize="@dimen/_24ssp"
                     android:textStyle="bold" />
 

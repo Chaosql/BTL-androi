@@ -11,7 +11,7 @@
 
     <string name="login">Đăng nhập</string>
 
-    <string name="register">Đăng kí ngay</string>
+    <string name="register">Đăng ký ngay</string>
 
     <string name="no_account">Chưa có tài khoản</string>
 
@@ -25,13 +25,13 @@
     <string name="date">Ngày sinh</string>
     <string name="choose_date">Chọn ngày sinh</string>
     <string name="had_account">Đã có tài khoản? Đăng nhập</string>
-    <string name="verify_otp">Xác thực Email</string>
-    <string name="otp_description">Chip đã gửi mã otp vào Email mà bạn đã đăng ký rồi đó!</string>
+    <string name="verify_otp">Xác thực email</string>
+    <string name="otp_description">Nhập mã OTP được gửi tới email của bạn.</string>
     <string name="input_otp">Vui lòng nhập mã OTP</string>
     <string name="verify">Xác thực</string>
     <string name="resend_otp">Gửi lại</string>
     <string name="verify_email">Bạn cần xác thực email!</string>
-    <string name="verify_your_email">Nhấn Nhận mã OTP để nhận mã nhé!\nChíp sẽ gửi OTP tới abc123@gmail.com</string>
+    <string name="verify_your_email">Nhấn Nhận mã OTP để tiếp tục xác thực email của bạn.</string>
     <string name="send_email">Nhận mã OTP</string>
     <string name="create_new_password">Hãy tạo mật khẩu mới!</string>
     <string name="new_password">Nhập mật khẩu mới</string>
@@ -150,4 +150,14 @@
     <string name="or_login_with">Hoặc đăng nhập bằng</string>
     <string name="google">Google</string>
     <string name="default_web_client_id">725853428782-u30n26t3bveqdf7p366q4ehe7cl4o79j.apps.googleusercontent.com</string>
+    <string name="hint_last_name">Nhập họ</string>
+    <string name="hint_first_name">Nhập tên</string>
+    <string name="hint_birth_date">Chọn ngày sinh (dd/MM/yyyy)</string>
+    <string name="hint_old_password">Nhập mật khẩu cũ</string>
+    <string name="hint_location_name">Nhập tên địa điểm</string>
+    <string name="hint_street">Nhập số nhà, tên đường</string>
+    <string name="hint_district">Nhập quận/huyện</string>
+    <string name="hint_province">Nhập tỉnh/thành phố</string>
+    <string name="login_success_message">Chào mừng bạn đến với Study Date.\nNhấn Bắt đầu ngay để tiếp tục.</string>
+    <string name="schedule_month_year">Tháng %1$d, %2$d</string>
 </resources>

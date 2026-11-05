@@ -14,7 +14,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Chỉnh Sửa Thông Tin"
+            android:text="@string/ui_dialog_edit_personal_info_text_1"
             android:textColor="@color/brown"
             android:textSize="@dimen/_16ssp"
             android:textStyle="bold" />
@@ -37,10 +37,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
                     android:background="@drawable/bg_edittext"
-                    android:hint="Họ"
+                    android:backgroundTint="@null"
+                    android:hint="@string/hint_last_name"
                     android:inputType="textPersonName"
                     android:paddingHorizontal="@dimen/_10sdp"
-                    android:textColor="@color/brown"
+                    android:textColor="@color/input_text"
                     android:textColorHint="@color/hint"
                     android:textSize="@dimen/_12ssp" />
 
@@ -66,10 +67,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
                     android:background="@drawable/bg_edittext"
-                    android:hint="Tên"
+                    android:backgroundTint="@null"
+                    android:hint="@string/hint_first_name"
                     android:inputType="textPersonName"
                     android:paddingHorizontal="@dimen/_10sdp"
-                    android:textColor="@color/brown"
+                    android:textColor="@color/input_text"
                     android:textColorHint="@color/hint"
                     android:textSize="@dimen/_12ssp" />
 
@@ -88,7 +90,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_10sdp"
-            android:text="Ngày sinh:"
+            android:text="@string/ui_dialog_edit_personal_info_text_2"
             android:textColor="@color/brown"
             android:textSize="@dimen/_11ssp"
             android:textStyle="bold" />
@@ -99,10 +101,11 @@
             android:layout_height="@dimen/_40sdp"
             android:layout_marginTop="@dimen/_4sdp"
             android:background="@drawable/bg_edittext"
-            android:hint="VD: 2002-05-15"
+            android:backgroundTint="@null"
+            android:hint="@string/hint_birth_date"
             android:inputType="date"
             android:paddingHorizontal="@dimen/_10sdp"
-            android:textColor="@color/brown"
+            android:textColor="@color/input_text"
             android:textColorHint="@color/hint"
             android:textSize="@dimen/_12ssp" />
 
@@ -119,7 +122,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_10sdp"
-            android:text="Giới tính:"
+            android:text="@string/sex"
             android:textColor="@color/brown"
             android:textSize="@dimen/_11ssp"
             android:textStyle="bold" />
@@ -136,7 +139,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/_12sdp"
-                android:text="Nam"
+                android:text="@string/ui_dialog_edit_personal_info_text_4"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_11ssp" />
 
@@ -145,7 +148,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/_12sdp"
-                android:text="Nữ"
+                android:text="@string/ui_dialog_edit_personal_info_text_5"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_11ssp" />
 
@@ -153,7 +156,7 @@
                 android:id="@+id/rbOther"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Khác"
+                android:text="@string/ui_dialog_edit_personal_info_text_6"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_11ssp" />
         </RadioGroup>
@@ -162,7 +165,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_10sdp"
-            android:text="Trường học:"
+            android:text="@string/school"
             android:textColor="@color/brown"
             android:textSize="@dimen/_11ssp"
             android:textStyle="bold" />
@@ -173,10 +176,11 @@
             android:layout_height="@dimen/_40sdp"
             android:layout_marginTop="@dimen/_4sdp"
             android:background="@drawable/bg_edittext"
-            android:hint="Nhập tên trường học"
+            android:backgroundTint="@null"
+            android:hint="@string/ui_dialog_edit_personal_info_hint_8"
             android:inputType="text"
             android:paddingHorizontal="@dimen/_10sdp"
-            android:textColor="@color/brown"
+            android:textColor="@color/input_text"
             android:textColorHint="@color/hint"
             android:textSize="@dimen/_12ssp" />
 
@@ -193,7 +197,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_10sdp"
-            android:text="Ngành học:"
+            android:text="@string/major"
             android:textColor="@color/brown"
             android:textSize="@dimen/_11ssp"
             android:textStyle="bold" />
@@ -204,10 +208,11 @@
             android:layout_height="@dimen/_40sdp"
             android:layout_marginTop="@dimen/_4sdp"
             android:background="@drawable/bg_edittext"
-            android:hint="Nhập tên ngành học"
+            android:backgroundTint="@null"
+            android:hint="@string/ui_dialog_edit_personal_info_hint_10"
             android:inputType="text"
             android:paddingHorizontal="@dimen/_10sdp"
-            android:textColor="@color/brown"
+            android:textColor="@color/input_text"
             android:textColorHint="@color/hint"
             android:textSize="@dimen/_12ssp" />
 
@@ -224,7 +229,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_10sdp"
-            android:text="Số điện thoại:"
+            android:text="@string/ui_dialog_edit_personal_info_text_11"
             android:textColor="@color/brown"
             android:textSize="@dimen/_11ssp"
             android:textStyle="bold" />
@@ -235,10 +240,11 @@
             android:layout_height="@dimen/_40sdp"
             android:layout_marginTop="@dimen/_4sdp"
             android:background="@drawable/bg_edittext"
-            android:hint="Số điện thoại"
+            android:backgroundTint="@null"
+            android:hint="@string/ui_dialog_edit_personal_info_hint_12"
             android:inputType="phone"
             android:paddingHorizontal="@dimen/_10sdp"
-            android:textColor="@color/brown"
+            android:textColor="@color/input_text"
             android:textColorHint="@color/hint"
             android:textSize="@dimen/_12ssp" />
 
@@ -246,7 +252,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_10sdp"
-            android:text="Địa điểm:"
+            android:text="@string/ui_dialog_edit_personal_info_text_13"
             android:textColor="@color/brown"
             android:textSize="@dimen/_11ssp"
             android:textStyle="bold" />
@@ -257,10 +263,11 @@
             android:layout_height="@dimen/_40sdp"
             android:layout_marginTop="@dimen/_4sdp"
             android:background="@drawable/bg_edittext"
-            android:hint="Nhập địa điểm"
+            android:backgroundTint="@null"
+            android:hint="@string/ui_dialog_edit_personal_info_hint_14"
             android:inputType="text"
             android:paddingHorizontal="@dimen/_10sdp"
-            android:textColor="@color/brown"
+            android:textColor="@color/input_text"
             android:textColorHint="@color/hint"
             android:textSize="@dimen/_12ssp" />
 
@@ -279,7 +286,7 @@
                 android:background="@drawable/bg_card_retro"
                 android:gravity="center"
                 android:paddingHorizontal="@dimen/_18sdp"
-                android:text="Hủy"
+                android:text="@string/cancel"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold" />
@@ -291,7 +298,7 @@
                 android:background="@drawable/bg_button"
                 android:gravity="center"
                 android:paddingHorizontal="@dimen/_18sdp"
-                android:text="Lưu"
+                android:text="@string/ui_dialog_edit_introduction_text_4"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold" />

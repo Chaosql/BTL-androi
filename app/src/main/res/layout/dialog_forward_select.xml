@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Chuyển tiếp tin nhắn"
+        android:text="@string/ui_dialog_forward_select_text_1"
         android:textColor="@color/brown"
         android:textSize="@dimen/_16ssp"
         android:textStyle="bold" />
@@ -22,10 +22,11 @@
         android:layout_height="@dimen/_40sdp"
         android:layout_marginTop="@dimen/_12sdp"
         android:background="@drawable/bg_edittext"
-        android:hint="Tìm kiếm cuộc trò chuyện..."
+        android:backgroundTint="@null"
+        android:hint="@string/ui_dialog_forward_select_hint_2"
         android:inputType="text"
         android:paddingHorizontal="@dimen/_12sdp"
-        android:textColor="@color/brown"
+        android:textColor="@color/input_text"
         android:textColorHint="@color/hint"
         android:textSize="@dimen/_12ssp" />
 
@@ -44,7 +45,7 @@
         android:background="@drawable/bg_card_retro"
         android:gravity="center"
         android:paddingHorizontal="@dimen/_18sdp"
-        android:text="Hủy"
+        android:text="@string/cancel"
         android:textColor="@color/brown"
         android:textSize="@dimen/_12ssp"
         android:textStyle="bold" />

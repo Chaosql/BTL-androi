@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Xác nhận"
+        android:text="@string/confirm"
         android:textColor="@color/brown"
         android:textSize="@dimen/_16ssp"
         android:textStyle="bold" />
@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_12sdp"
-        android:text="Bạn có chắc chắn muốn thực hiện hành động này?"
+        android:text="@string/ui_dialog_confirm_delete_text_2"
         android:textColor="@color/brown"
         android:textSize="@dimen/_12ssp" />
 
@@ -43,7 +43,7 @@
             android:background="@drawable/bg_card_retro"
             android:gravity="center"
             android:paddingHorizontal="@dimen/_18sdp"
-            android:text="Hủy"
+            android:text="@string/cancel"
             android:textColor="@color/brown"
             android:textSize="@dimen/_12ssp"
             android:textStyle="bold" />
@@ -55,7 +55,7 @@
             android:background="@drawable/bg_button"
             android:gravity="center"
             android:paddingHorizontal="@dimen/_18sdp"
-            android:text="Xóa"
+            android:text="@string/option_delete"
             android:textColor="@color/brown"
             android:textSize="@dimen/_12ssp"
             android:textStyle="bold" />

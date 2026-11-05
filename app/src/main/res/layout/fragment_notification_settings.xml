@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_8sdp"
-            android:text="Cài đặt thông báo"
+            android:text="@string/notification_settings"
             android:textColor="@color/brown"
             android:textSize="@dimen/_16ssp"
             android:textStyle="bold" />
@@ -59,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
-                android:text="Thông báo hệ thống"
+                android:text="@string/ui_fragment_notification_settings_text_2"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold" />
@@ -87,7 +87,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
-                android:text="Thông báo Lịch hẹn"
+                android:text="@string/ui_fragment_notification_settings_text_3"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold" />
@@ -115,7 +115,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
-                android:text="Thông báo thời gian biểu"
+                android:text="@string/ui_fragment_notification_settings_text_4"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold" />

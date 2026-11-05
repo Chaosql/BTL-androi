@@ -6,7 +6,11 @@ import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Gravity;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import java.time.LocalDate;
@@ -22,29 +26,39 @@ public final class UiDialogs {
             R.layout.dialog_subject_management, R.layout.dialog_user_info,
             R.layout.layout_friends_menu_popup, R.layout.layout_reaction_popup
     };
-    private static final String[] TITLES = {
-            "Thêm môn học", "Nhắc lịch hẹn", "Chi tiết lịch hẹn", "Lý do hủy lịch",
-            "Xác nhận", "Sửa giới thiệu", "Sửa thông tin cá nhân", "Chuyển tiếp tin nhắn",
-            "Tùy chọn bạn bè", "Đăng nhập thành công", "Quản lý môn học", "Thông tin người dùng",
-            "Menu bạn bè", "Cảm xúc và thao tác tin nhắn"
-    };
+    private static String[] titles(MainActivity activity) {
+        return new String[] {
+            activity.getString(R.string.ui_dialog_add_subject_text_1), activity.getString(R.string.ui_uidialogs_text_2), activity.getString(R.string.ui_uidialogs_text_3), activity.getString(R.string.ui_uidialogs_text_4),
+            activity.getString(R.string.confirm), activity.getString(R.string.ui_uidialogs_text_6), activity.getString(R.string.ui_uidialogs_text_7), activity.getString(R.string.ui_dialog_forward_select_text_1),
+            activity.getString(R.string.ui_uidialogs_text_9), activity.getString(R.string.ui_uidialogs_text_10), activity.getString(R.string.ui_dialog_subject_management_text_1), activity.getString(R.string.ui_uidialogs_text_12),
+            activity.getString(R.string.ui_uidialogs_text_13), activity.getString(R.string.ui_uidialogs_text_14)
+        };
+    }
 
     public static void showCatalog(MainActivity activity) {
-        new MaterialAlertDialogBuilder(activity).setTitle("Hộp thoại và menu")
-                .setItems(TITLES, (dialog, which) -> show(activity, LAYOUTS[which]))
-                .setNegativeButton("Đóng", null).show();
+        new MaterialAlertDialogBuilder(activity).setTitle(activity.getString(R.string.ui_mainactivity_text_1))
+                .setItems(titles(activity), (dialog, which) -> show(activity, LAYOUTS[which]))
+                .setNegativeButton(activity.getString(R.string.btn_close), null).show();
     }
 
     public static void show(MainActivity activity, int layout) {
         View content = LayoutInflater.from(activity).inflate(layout, null, false);
-        AlertDialog dialog = new MaterialAlertDialogBuilder(activity).setView(content).create();
+        View container = content;
+        if (!(content instanceof ScrollView)) {
+            ScrollView scroll = new ScrollView(activity);
+            scroll.setFillViewport(false);
+            scroll.addView(content, new ScrollView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            container = scroll;
+        }
+        AlertDialog dialog = new AlertDialog.Builder(activity).setView(container).create();
         for (int id : new int[]{R.id.btnCancel, R.id.btnCancelAdd, R.id.ivClose, R.id.btnClose})
             StudyScreenFragment.on(content, id, dialog::dismiss);
         for (int id : new int[]{R.id.btnSave, R.id.btnConfirm, R.id.btnConfirmAdd, R.id.btnConfirmCancel,
                 R.id.btnRate, R.id.btnAccept, R.id.btnReject, R.id.btnComplete, R.id.btnAddFriend,
                 R.id.tvOptionPin, R.id.tvOptionBlock, R.id.tvOptionDelete, R.id.tvRecall, R.id.tvDelete}) {
             StudyScreenFragment.on(content, id, () -> {
-                Toast.makeText(activity, "Thao tác minh họa giao diện, chưa lưu dữ liệu.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, activity.getString(R.string.ui_uidialogs_text_17), Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
             });
         }
@@ -58,59 +72,62 @@ public final class UiDialogs {
         StudyScreenFragment.on(content, R.id.btnAddSubject, () -> { dialog.dismiss(); show(activity, R.layout.dialog_add_subject); });
         StudyScreenFragment.on(content, R.id.btnCancel, dialog::dismiss);
         if (layout == R.layout.dialog_booking_detail) {
-            StudyScreenFragment.text(content, R.id.tvTitle, "Học Java cùng Minh Anh");
-            StudyScreenFragment.text(content, R.id.tvSubject, "Lập trình Java");
+            StudyScreenFragment.text(content, R.id.tvTitle, activity.getString(R.string.ui_uidialogs_text_18));
+            StudyScreenFragment.text(content, R.id.tvSubject, activity.getString(R.string.ui_uidialogs_text_19));
             StudyScreenFragment.text(content, R.id.tvPartnerName, "Minh Anh");
-            StudyScreenFragment.text(content, R.id.tvTimeAndDate, "14:30 – 15:30 · " + LocalDate.now());
-            StudyScreenFragment.text(content, R.id.tvStatus, "Đã xác nhận");
-            StudyScreenFragment.text(content, R.id.tvLocation, "Thư viện trường");
-            StudyScreenFragment.text(content, R.id.tvNote, "Mang theo máy tính và tài liệu ôn tập.");
+            StudyScreenFragment.text(content, R.id.tvTimeAndDate, activity.getString(R.string.ui_uidialogs_text_20)
+                    + LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            StudyScreenFragment.text(content, R.id.tvStatus, activity.getString(R.string.ui_uidialogs_text_21));
+            StudyScreenFragment.text(content, R.id.tvLocation, activity.getString(R.string.ui_uidialogs_text_22));
+            StudyScreenFragment.text(content, R.id.tvNote, activity.getString(R.string.ui_uidialogs_text_23));
             StudyScreenFragment.on(content, R.id.btnCancel, () -> { dialog.dismiss(); show(activity, R.layout.dialog_cancel_reason); });
             View rating = content.findViewById(R.id.layoutRatingSection);
-            if (rating != null) rating.setVisibility(View.VISIBLE);
+            if (rating != null) rating.setVisibility(View.GONE);
+            content.findViewById(R.id.btnComplete).setVisibility(View.VISIBLE);
+            content.findViewById(R.id.btnCancel).setVisibility(View.VISIBLE);
         }
         if (layout == R.layout.dialog_appointment_reminder) {
-            StudyScreenFragment.text(content, R.id.tvSubject, "Lập trình Android");
-            StudyScreenFragment.text(content, R.id.tvTime, "14:30 · Hôm nay");
-            StudyScreenFragment.text(content, R.id.tvLocation, "Thư viện trường");
+            StudyScreenFragment.text(content, R.id.tvSubject, activity.getString(R.string.ui_uidialogs_text_24));
+            StudyScreenFragment.text(content, R.id.tvTime, activity.getString(R.string.ui_uidialogs_text_25));
+            StudyScreenFragment.text(content, R.id.tvLocation, activity.getString(R.string.ui_uidialogs_text_22));
         }
         if (layout == R.layout.dialog_user_info) {
             StudyScreenFragment.text(content, R.id.tvUserName, "Minh Anh");
-            StudyScreenFragment.text(content, R.id.tvDistance, "Cách bạn 1,2 km");
-            StudyScreenFragment.text(content, R.id.tvOnlineStatus, "Đang hoạt động");
-            StudyScreenFragment.text(content, R.id.tvStatusTag, "Tìm bạn học Java");
-            StudyScreenFragment.text(content, R.id.tvSchool, "Đại học Công nghiệp Hà Nội");
-            StudyScreenFragment.text(content, R.id.tvMajor, "Công nghệ thông tin");
+            StudyScreenFragment.text(content, R.id.tvDistance, activity.getString(R.string.ui_uidialogs_text_27));
+            StudyScreenFragment.text(content, R.id.tvOnlineStatus, activity.getString(R.string.ui_studyscreenfragment_text_21));
+            StudyScreenFragment.text(content, R.id.tvStatusTag, activity.getString(R.string.ui_uidialogs_text_29));
+            StudyScreenFragment.text(content, R.id.tvSchool, activity.getString(R.string.ui_uidialogs_text_30));
+            StudyScreenFragment.text(content, R.id.tvMajor, activity.getString(R.string.ui_uidialogs_text_31));
         }
-        StudyScreenFragment.text(content, R.id.etStatusTag, "Cùng nhau học tốt hơn mỗi ngày.");
+        StudyScreenFragment.text(content, R.id.etStatusTag, activity.getString(R.string.ui_studyscreenfragment_text_14));
         if (layout == R.layout.dialog_edit_personal_info) {
-            StudyScreenFragment.text(content, R.id.etLastName, "Nguyễn");
+            StudyScreenFragment.text(content, R.id.etLastName, activity.getString(R.string.ui_studyscreenfragment_text_1));
             StudyScreenFragment.text(content, R.id.etFirstName, "Minh An");
             StudyScreenFragment.text(content, R.id.etDateOfBirth, "15/08/2005");
-            StudyScreenFragment.text(content, R.id.etUniversity, "Đại học Công nghiệp Hà Nội");
-            StudyScreenFragment.text(content, R.id.etMajorName, "Công nghệ thông tin");
+            StudyScreenFragment.text(content, R.id.etUniversity, activity.getString(R.string.ui_uidialogs_text_30));
+            StudyScreenFragment.text(content, R.id.etMajorName, activity.getString(R.string.ui_uidialogs_text_31));
             StudyScreenFragment.on(content, R.id.etDateOfBirth, () -> new DatePickerDialog(activity,
                     (picker, year, month, day) -> StudyScreenFragment.text(content, R.id.etDateOfBirth,
                             day + "/" + (month + 1) + "/" + year), 2005, 7, 15).show());
         }
         if (layout == R.layout.dialog_subject_management) {
-            subject(content, R.id.layoutStrengthSubjects, "Lập trình Java");
-            subject(content, R.id.layoutStrengthSubjects, "Lập trình Android");
-            subject(content, R.id.layoutReviewSubjects, "Cơ sở dữ liệu");
+            subject(content, R.id.layoutStrengthSubjects, activity.getString(R.string.ui_uidialogs_text_19));
+            subject(content, R.id.layoutStrengthSubjects, activity.getString(R.string.ui_uidialogs_text_24));
+            subject(content, R.id.layoutReviewSubjects, activity.getString(R.string.ui_uidialogs_text_38));
         }
         if (layout == R.layout.dialog_login_success) StudyScreenFragment.hide(content, R.id.pbLoading);
         if (layout == R.layout.dialog_forward_select) {
             androidx.fragment.app.Fragment current = activity.getSupportFragmentManager().findFragmentById(R.id.screenHost);
             if (current instanceof StudyScreenFragment) {
                 Runnable select = () -> {
-                    Toast.makeText(activity, "Đã chọn hội thoại minh họa, chưa gửi tin nhắn.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getString(R.string.ui_uidialogs_text_39), Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
                 };
                 UiRows.Adapter conversations = new UiRows.Adapter((StudyScreenFragment) current,
                         new UiRows.Row(R.layout.item_friend).with(R.id.tvFriendName, "Minh Anh")
-                                .with(R.id.tvLastMessage, "Hội thoại cá nhân").click(select),
-                        new UiRows.Row(R.layout.item_friend).with(R.id.tvFriendName, "Nhóm học Android")
-                                .with(R.id.tvLastMessage, "Hội thoại nhóm").click(select));
+                                .with(R.id.tvLastMessage, activity.getString(R.string.ui_uidialogs_text_40)).click(select),
+                        new UiRows.Row(R.layout.item_friend).with(R.id.tvFriendName, activity.getString(R.string.ui_studyscreenfragment_text_2))
+                                .with(R.id.tvLastMessage, activity.getString(R.string.ui_uidialogs_text_42)).click(select));
                 StudyScreenFragment.list(content, R.id.rvConversations, conversations);
             }
         }
@@ -121,11 +138,52 @@ public final class UiDialogs {
         dialog.setOnShowListener(ignored -> {
             if (dialog.getWindow() != null) {
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog.getWindow().setLayout((int) (activity.getResources().getDisplayMetrics().widthPixels * 0.92),
+                android.util.DisplayMetrics metrics = activity.getResources().getDisplayMetrics();
+                int width = Math.min((int) (metrics.widthPixels * 0.9f), (int) (560 * metrics.density));
+                dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                dialog.getWindow().setLayout(width,
                         ViewGroup.LayoutParams.WRAP_CONTENT);
             }
         });
         dialog.show();
+    }
+
+    public static void showPopup(MainActivity activity, View anchor, int layout) {
+        View content = LayoutInflater.from(activity).inflate(layout, null, false);
+        PopupWindow popup = new PopupWindow(content, ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        popup.setOutsideTouchable(true);
+        popup.setElevation(8 * activity.getResources().getDisplayMetrics().density);
+        StudyScreenFragment.on(content, R.id.btnMenuNewChat, () -> {
+            popup.dismiss(); activity.showScreen(UiScreen.SEARCH_USER);
+        });
+        StudyScreenFragment.on(content, R.id.btnMenuPendingRequests, () -> {
+            popup.dismiss(); activity.showScreen(UiScreen.PENDING_REQUESTS);
+        });
+        for (int id : new int[]{R.id.tvEmojiLike, R.id.tvEmojiHeart, R.id.tvEmojiLaugh, R.id.tvEmojiWow,
+                R.id.tvEmojiSad, R.id.tvEmojiPray, R.id.tvReply, R.id.tvRecall, R.id.tvDelete})
+            StudyScreenFragment.on(content, id, popup::dismiss);
+        StudyScreenFragment.on(content, R.id.tvForward, () -> {
+            popup.dismiss(); show(activity, R.layout.dialog_forward_select);
+        });
+        android.graphics.Rect bounds = new android.graphics.Rect();
+        anchor.getWindowVisibleDisplayFrame(bounds);
+        int maxWidth = Math.min(bounds.width(), (int) (360 * activity.getResources().getDisplayMetrics().density));
+        content.measure(View.MeasureSpec.makeMeasureSpec(maxWidth, View.MeasureSpec.AT_MOST),
+                View.MeasureSpec.makeMeasureSpec(bounds.height(), View.MeasureSpec.AT_MOST));
+        popup.setWidth(Math.min(maxWidth, content.getMeasuredWidth()));
+        popup.setHeight(Math.min(bounds.height(), content.getMeasuredHeight()));
+        if (layout == R.layout.layout_friends_menu_popup) {
+            popup.showAsDropDown(anchor, 0, 0, Gravity.END);
+        } else {
+            int[] point = new int[2];
+            anchor.getLocationOnScreen(point);
+            int x = Math.max(bounds.left, Math.min(point[0], bounds.right - popup.getWidth()));
+            int y = point[1] - popup.getHeight();
+            if (y < bounds.top) y = Math.min(point[1] + anchor.getHeight(), bounds.bottom - popup.getHeight());
+            popup.showAtLocation(anchor, Gravity.TOP | Gravity.LEFT, x, Math.max(bounds.top, y));
+        }
     }
 
     private static void subject(View root, int containerId, String name) {

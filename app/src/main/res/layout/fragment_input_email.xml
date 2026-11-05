@@ -55,10 +55,11 @@
         android:layout_marginHorizontal="@dimen/_15sdp"
         android:layout_marginTop="@dimen/_5sdp"
         android:background="@drawable/bg_edittext"
+        android:backgroundTint="@null"
         android:hint="@string/email_hint"
         android:inputType="textEmailAddress"
         android:paddingHorizontal="@dimen/_10sdp"
-        android:textColor="@color/brown"
+        android:textColor="@color/input_text"
         android:textColorHint="@color/hint"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvDescription" />

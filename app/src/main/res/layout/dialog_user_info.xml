@@ -181,7 +181,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/bg_button"
                 android:gravity="center"
-                android:text="Thêm bạn"
+                android:text="@string/ui_dialog_user_info_text_1"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_13ssp"
                 android:textStyle="bold" />
@@ -194,7 +194,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/bg_card_retro"
                 android:gravity="center"
-                android:text="Trang cá nhân"
+                android:text="@string/ui_dialog_user_info_text_2"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_13ssp"
                 android:textStyle="bold" />

@@ -85,7 +85,7 @@
             android:background="@drawable/bg_button"
             android:paddingHorizontal="@dimen/_10sdp"
             android:paddingVertical="@dimen/_5sdp"
-            android:text="Đồng ý"
+            android:text="@string/booking_accept"
             android:textColor="@color/brown"
             android:textSize="@dimen/_11ssp"
             android:textStyle="bold" />
@@ -98,7 +98,7 @@
             android:background="@drawable/bg_edittext"
             android:paddingHorizontal="@dimen/_10sdp"
             android:paddingVertical="@dimen/_5sdp"
-            android:text="Từ chối"
+            android:text="@string/btn_reject"
             android:textColor="@color/brown"
             android:textSize="@dimen/_11ssp"
             android:textStyle="bold" />

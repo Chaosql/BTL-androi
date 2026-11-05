@@ -1,8 +1,12 @@
 package com.example.myapplication;
 
 import android.os.Bundle;
+import android.graphics.Color;
 
+import androidx.activity.EdgeToEdge;
+import androidx.activity.SystemBarStyle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -11,11 +15,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this, SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
+                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT));
         setContentView(R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            int statusBarTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
-            v.setPadding(v.getPaddingLeft(), statusBarTop, v.getPaddingRight(), v.getPaddingBottom());
-            return insets;
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            int keyboard = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+            v.setPadding(bars.left, bars.top, bars.right, Math.max(bars.bottom, keyboard));
+            return WindowInsetsCompat.CONSUMED;
         });
         if (savedInstanceState == null) showScreen(UiScreen.LOGIN);
     }
@@ -31,13 +38,13 @@ public class MainActivity extends AppCompatActivity {
     public void showScreens() {
         UiScreen[] screens = UiScreen.values();
         String[] labels = new String[screens.length + 1];
-        for (int i = 0; i < screens.length; i++) labels[i] = screens[i].title;
-        labels[screens.length] = "Hộp thoại và menu";
+        for (int i = 0; i < screens.length; i++) labels[i] = getString(screens[i].title);
+        labels[screens.length] = getString(R.string.ui_mainactivity_text_1);
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle("Các màn hình Study Date")
+                .setTitle(getString(R.string.ui_mainactivity_text_2))
                 .setItems(labels, (dialog, which) -> {
                     if (which == screens.length) UiDialogs.showCatalog(this);
                     else showScreen(screens[which]);
-                }).setNegativeButton("Đóng", null).show();
+                }).setNegativeButton(getString(R.string.btn_close), null).show();
     }
 }

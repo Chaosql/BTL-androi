@@ -1,0 +1,161 @@
+<resources>
+    <string name="ui_dialog_add_subject_text_1" formatted="false">Thêm môn học</string>
+    <string name="ui_dialog_add_subject_hint_2" formatted="false">Tên môn học</string>
+    <string name="ui_dialog_add_subject_text_3" formatted="false">Loại môn học:</string>
+    <string name="ui_dialog_add_subject_text_4" formatted="false">Thế mạnh</string>
+    <string name="ui_dialog_add_subject_text_5" formatted="false">Cần ôn tập</string>
+    <string name="ui_dialog_cancel_reason_text_1" formatted="false">Hủy cuộc hẹn</string>
+    <string name="ui_dialog_cancel_reason_hint_2" formatted="false">Nhập lý do hủy hẹn...</string>
+    <string name="ui_dialog_confirm_delete_text_2" formatted="false">Bạn có chắc chắn muốn thực hiện hành động này?</string>
+    <string name="ui_dialog_edit_introduction_text_1" formatted="false">Chỉnh sửa giới thiệu</string>
+    <string name="ui_dialog_edit_introduction_hint_2" formatted="false">Nhập lời giới thiệu bản thân...</string>
+    <string name="ui_dialog_edit_introduction_text_4" formatted="false">Lưu</string>
+    <string name="ui_dialog_edit_personal_info_text_1" formatted="false">Chỉnh sửa thông tin</string>
+    <string name="ui_dialog_edit_personal_info_text_2" formatted="false">Ngày sinh:</string>
+    <string name="ui_dialog_edit_personal_info_text_4" formatted="false">Nam</string>
+    <string name="ui_dialog_edit_personal_info_text_5" formatted="false">Nữ</string>
+    <string name="ui_dialog_edit_personal_info_text_6" formatted="false">Khác</string>
+    <string name="ui_dialog_edit_personal_info_hint_8" formatted="false">Nhập tên trường học</string>
+    <string name="ui_dialog_edit_personal_info_hint_10" formatted="false">Nhập tên ngành học</string>
+    <string name="ui_dialog_edit_personal_info_text_11" formatted="false">Số điện thoại:</string>
+    <string name="ui_dialog_edit_personal_info_hint_12" formatted="false">Số điện thoại</string>
+    <string name="ui_dialog_edit_personal_info_text_13" formatted="false">Địa điểm:</string>
+    <string name="ui_dialog_edit_personal_info_hint_14" formatted="false">Nhập địa điểm</string>
+    <string name="ui_dialog_forward_select_text_1" formatted="false">Chuyển tiếp tin nhắn</string>
+    <string name="ui_dialog_forward_select_hint_2" formatted="false">Tìm kiếm cuộc trò chuyện...</string>
+    <string name="ui_dialog_login_success_text_1" formatted="false">Đăng nhập thành công!</string>
+    <string name="ui_dialog_login_success_text_2" formatted="false">Bắt đầu ngay</string>
+    <string name="ui_dialog_subject_management_text_1" formatted="false">Quản lý môn học</string>
+    <string name="ui_dialog_subject_management_text_2" formatted="false">Môn học thế mạnh:</string>
+    <string name="ui_dialog_subject_management_text_3" formatted="false">Môn học cần ôn tập:</string>
+    <string name="ui_dialog_user_info_text_1" formatted="false">Thêm bạn</string>
+    <string name="ui_dialog_user_info_text_2" formatted="false">Trang cá nhân</string>
+    <string name="ui_fragment_blocked_users_text_1" formatted="false">Không có người dùng bị chặn nào</string>
+    <string name="ui_fragment_change_password_text_2" formatted="false">Mật khẩu cũ</string>
+    <string name="ui_fragment_change_password_text_3" formatted="false">Mật khẩu mới</string>
+    <string name="ui_fragment_change_password_text_5" formatted="false">Mật khẩu không đúng. Vui lòng nhập lại.</string>
+    <string name="ui_fragment_create_appointment_text_1" formatted="false">:</string>
+    <string name="ui_fragment_create_appointment_text_2" formatted="false">Thời lượng cuộc hẹn</string>
+    <string name="ui_fragment_edit_profile_text_1" formatted="false">Trạng thái quét: Tắt</string>
+    <string name="ui_fragment_edit_profile_text_2" formatted="false">Địa điểm: Chưa cập nhật</string>
+    <string name="ui_fragment_map_hint_1" formatted="false">Khoảng cách (1-5 km)</string>
+    <string name="ui_fragment_notification_settings_text_2" formatted="false">Thông báo hệ thống</string>
+    <string name="ui_fragment_notification_settings_text_3" formatted="false">Thông báo lịch hẹn</string>
+    <string name="ui_fragment_notification_settings_text_4" formatted="false">Thông báo thời gian biểu</string>
+    <string name="ui_fragment_pending_requests_text_1" formatted="false">Lời mời kết bạn</string>
+    <string name="ui_fragment_pending_requests_text_2" formatted="false">Không có lời mời kết bạn nào</string>
+    <string name="ui_fragment_profile_text_3" formatted="false">100.0</string>
+    <string name="ui_fragment_profile_text_4" formatted="false">0</string>
+    <string name="ui_fragment_profile_text_5" formatted="false">Môn học</string>
+    <string name="ui_fragment_registration_info_text_1" formatted="false">Thông tin đăng ký</string>
+    <string name="ui_fragment_registration_info_hint_3" formatted="false">Email đăng ký</string>
+    <string name="ui_fragment_registration_info_text_4" formatted="false">ID</string>
+    <string name="ui_fragment_registration_info_hint_5" formatted="false">Mã ID người dùng</string>
+    <string name="ui_fragment_schedule_text_1" formatted="false">^</string>
+    <string name="ui_fragment_schedule_text_2" formatted="false">v</string>
+    <string name="ui_fragment_search_user_text_1" formatted="false">Tìm kiếm người dùng</string>
+    <string name="ui_fragment_search_user_hint_2" formatted="false">Nhập số điện thoại, email hoặc tên...</string>
+    <string name="ui_item_blocked_user_text_1" formatted="false">Bỏ chặn</string>
+    <string name="ui_layout_friends_menu_popup_text_1" formatted="false">Tạo trò chuyện mới</string>
+    <string name="ui_layout_reaction_popup_text_1" formatted="false">👍</string>
+    <string name="ui_layout_reaction_popup_text_2" formatted="false">❤️</string>
+    <string name="ui_layout_reaction_popup_text_3" formatted="false">😂</string>
+    <string name="ui_layout_reaction_popup_text_4" formatted="false">😮</string>
+    <string name="ui_layout_reaction_popup_text_5" formatted="false">😢</string>
+    <string name="ui_layout_reaction_popup_text_6" formatted="false">🙏</string>
+    <string name="ui_layout_reaction_popup_text_7" formatted="false">Trả lời</string>
+    <string name="ui_layout_reaction_popup_text_8" formatted="false">Chuyển tiếp</string>
+    <string name="ui_layout_reaction_popup_text_9" formatted="false">Thu hồi tin nhắn</string>
+    <string name="ui_layout_reaction_popup_text_10" formatted="false">Xóa phía tôi</string>
+    <string name="ui_mainactivity_text_1" formatted="false">Hộp thoại và menu</string>
+    <string name="ui_mainactivity_text_2" formatted="false">Các màn hình Study Date</string>
+    <string name="ui_studyscreenfragment_text_1" formatted="false">Nguyễn</string>
+    <string name="ui_studyscreenfragment_text_2" formatted="false">Nhóm học Android</string>
+    <string name="ui_studyscreenfragment_text_4" formatted="false">30 phút</string>
+    <string name="ui_studyscreenfragment_text_5" formatted="false">45 phút</string>
+    <string name="ui_studyscreenfragment_text_6" formatted="false">60 phút (1 giờ)</string>
+    <string name="ui_studyscreenfragment_text_7" formatted="false">90 phút (1.5 giờ)</string>
+    <string name="ui_studyscreenfragment_text_8" formatted="false">120 phút (2 giờ)</string>
+    <string name="ui_studyscreenfragment_text_9" formatted="false">180 phút (3 giờ)</string>
+    <string name="ui_studyscreenfragment_text_10" formatted="false">240 phút (4 giờ)</string>
+    <string name="ui_studyscreenfragment_text_13" formatted="false">Trạng thái quét: Bật</string>
+    <string name="ui_studyscreenfragment_text_14" formatted="false">Cùng nhau học tốt hơn mỗi ngày.</string>
+    <string name="ui_studyscreenfragment_text_15" formatted="false">Tuổi: 21</string>
+    <string name="ui_studyscreenfragment_text_16" formatted="false">Giới tính: Nam</string>
+    <string name="ui_studyscreenfragment_text_17" formatted="false">Trường học: Đại học Công nghiệp Hà Nội</string>
+    <string name="ui_studyscreenfragment_text_18" formatted="false">Ngành học: Công nghệ thông tin</string>
+    <string name="ui_studyscreenfragment_text_19" formatted="false">Địa điểm: Hà Nội</string>
+    <string name="ui_studyscreenfragment_text_20" formatted="false">Điểm tin cậy: 100.0</string>
+    <string name="ui_studyscreenfragment_text_21" formatted="false">Đang hoạt động</string>
+    <string name="ui_studyscreenfragment_text_22" formatted="false">Bản giao diện minh họa, chưa kết nối dữ liệu.</string>
+    <string name="ui_uidialogs_text_2" formatted="false">Nhắc lịch hẹn</string>
+    <string name="ui_uidialogs_text_3" formatted="false">Chi tiết lịch hẹn</string>
+    <string name="ui_uidialogs_text_4" formatted="false">Lý do hủy lịch</string>
+    <string name="ui_uidialogs_text_6" formatted="false">Sửa giới thiệu</string>
+    <string name="ui_uidialogs_text_7" formatted="false">Sửa thông tin cá nhân</string>
+    <string name="ui_uidialogs_text_9" formatted="false">Tùy chọn bạn bè</string>
+    <string name="ui_uidialogs_text_10" formatted="false">Đăng nhập thành công</string>
+    <string name="ui_uidialogs_text_12" formatted="false">Thông tin người dùng</string>
+    <string name="ui_uidialogs_text_13" formatted="false">Menu bạn bè</string>
+    <string name="ui_uidialogs_text_14" formatted="false">Cảm xúc và thao tác tin nhắn</string>
+    <string name="ui_uidialogs_text_17" formatted="false">Thao tác minh họa giao diện, chưa lưu dữ liệu.</string>
+    <string name="ui_uidialogs_text_18" formatted="false">Học Java cùng Minh Anh</string>
+    <string name="ui_uidialogs_text_19" formatted="false">Lập trình Java</string>
+    <string name="ui_uidialogs_text_20" formatted="false">14:30 – 15:30 · </string>
+    <string name="ui_uidialogs_text_21" formatted="false">Đã xác nhận</string>
+    <string name="ui_uidialogs_text_22" formatted="false">Thư viện trường</string>
+    <string name="ui_uidialogs_text_23" formatted="false">Mang theo máy tính và tài liệu ôn tập.</string>
+    <string name="ui_uidialogs_text_24" formatted="false">Lập trình Android</string>
+    <string name="ui_uidialogs_text_25" formatted="false">14:30 · Hôm nay</string>
+    <string name="ui_uidialogs_text_27" formatted="false">Cách bạn 1,2 km</string>
+    <string name="ui_uidialogs_text_29" formatted="false">Tìm bạn học Java</string>
+    <string name="ui_uidialogs_text_30" formatted="false">Đại học Công nghiệp Hà Nội</string>
+    <string name="ui_uidialogs_text_31" formatted="false">Công nghệ thông tin</string>
+    <string name="ui_uidialogs_text_38" formatted="false">Cơ sở dữ liệu</string>
+    <string name="ui_uidialogs_text_39" formatted="false">Đã chọn hội thoại minh họa, chưa gửi tin nhắn.</string>
+    <string name="ui_uidialogs_text_40" formatted="false">Hội thoại cá nhân</string>
+    <string name="ui_uidialogs_text_42" formatted="false">Hội thoại nhóm</string>
+    <string name="ui_uirows_text_1" formatted="false">Vừa xong</string>
+    <string name="ui_uirows_text_2" formatted="false">Chiều nay học cùng nhau nhé?</string>
+    <string name="ui_uirows_text_3" formatted="false">Tuấn Minh</string>
+    <string name="ui_uirows_text_4" formatted="false">Mình gửi bạn tài liệu Android.</string>
+    <string name="ui_uirows_text_5" formatted="false">Lan Phương</string>
+    <string name="ui_uirows_text_7" formatted="false">Thành viên</string>
+    <string name="ui_uirows_text_8" formatted="false">Hẹn mọi người tại thư viện.</string>
+    <string name="ui_uirows_text_9" formatted="false">Hôm qua</string>
+    <string name="ui_uirows_text_11" formatted="false">Công nghệ thông tin · Hà Nội</string>
+    <string name="ui_uirows_text_12" formatted="false">Kết bạn</string>
+    <string name="ui_uirows_text_13" formatted="false">Hoàng Nam</string>
+    <string name="ui_uirows_text_14" formatted="false">Kỹ thuật phần mềm · Hà Nội</string>
+    <string name="ui_uirows_text_16" formatted="false">Người dùng mẫu</string>
+    <string name="ui_uirows_text_17" formatted="false">Tài khoản đang bị chặn</string>
+    <string name="ui_uirows_text_18" formatted="false">Minh Anh đã chấp nhận lời mời học cùng bạn.</string>
+    <string name="ui_uirows_text_19" formatted="false">Bạn đã hoàn thành cuộc hẹn học Java.</string>
+    <string name="ui_uirows_text_20" formatted="false">5 phút trước</string>
+    <string name="ui_uirows_text_22" formatted="false">Lan Phương đã gửi lời mời kết bạn.</string>
+    <string name="ui_uirows_text_23" formatted="false">Chào mừng bạn đến với Study Date!</string>
+    <string name="ui_uirows_text_24" formatted="false">30 phút trước</string>
+    <string name="ui_uirows_text_25" formatted="false">2 ngày trước</string>
+    <string name="ui_uirows_text_26" formatted="false">Ôn lập trình Java cùng Minh Anh</string>
+    <string name="ui_uirows_text_27" formatted="false">Học nhóm Android tại thư viện</string>
+    <string name="ui_uirows_text_28" formatted="false">Chiều nay bạn có rảnh ôn Java không?</string>
+    <string name="ui_uirows_text_29" formatted="false">Có nhé, mình gặp nhau ở thư viện!</string>
+    <string name="ui_uirows_text_30" formatted="false">Lời mời học Java</string>
+    <string name="ui_uirows_text_31" formatted="false">14:30 · Thư viện · 60 phút</string>
+    <string name="ui_uirows_text_32" formatted="false">Lịch học Android</string>
+    <string name="ui_uirows_text_33" formatted="false">17:00 · Phòng tự học</string>
+    <string name="ui_uiscreen_text_2" formatted="false">Đăng ký</string>
+    <string name="ui_uiscreen_text_3" formatted="false">Xác thực email</string>
+    <string name="ui_uiscreen_text_4" formatted="false">Nhập email khôi phục</string>
+    <string name="ui_uiscreen_text_5" formatted="false">Nhập mã OTP</string>
+    <string name="ui_uiscreen_text_6" formatted="false">Đặt lại mật khẩu</string>
+    <string name="ui_uiscreen_text_7" formatted="false">Bản đồ / Radar</string>
+    <string name="ui_uiscreen_text_9" formatted="false">Chỉnh sửa hồ sơ</string>
+    <string name="ui_uiscreen_text_14" formatted="false">Người dùng đã chặn</string>
+    <string name="ui_uiscreen_text_15" formatted="false">Bạn bè / Hội thoại</string>
+    <string name="ui_uiscreen_text_16" formatted="false">Tìm người dùng</string>
+    <string name="ui_uiscreen_text_18" formatted="false">Trò chuyện</string>
+    <string name="ui_uiscreen_text_19" formatted="false">Chi tiết nhóm</string>
+    <string name="ui_uiscreen_text_21" formatted="false">Lịch hẹn</string>
+    <string name="ui_uiscreen_text_22" formatted="false">Tạo lịch hẹn</string>
+</resources>

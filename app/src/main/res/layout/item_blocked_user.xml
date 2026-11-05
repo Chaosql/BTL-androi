@@ -76,7 +76,7 @@
         android:background="@drawable/bg_button"
         android:paddingHorizontal="@dimen/_12sdp"
         android:paddingVertical="@dimen/_6sdp"
-        android:text="Bỏ chặn"
+        android:text="@string/ui_item_blocked_user_text_1"
         android:textColor="@color/brown"
         android:textSize="@dimen/_11ssp"
         android:textStyle="bold"

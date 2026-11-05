@@ -217,7 +217,7 @@
                 android:layout_marginBottom="@dimen/_3sdp"
                 android:background="@drawable/bg_arrow_button"
                 android:gravity="center"
-                android:text="^"
+                android:text="@string/ui_fragment_schedule_text_1"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_13ssp"
                 android:textStyle="bold" />
@@ -320,7 +320,7 @@
                 android:layout_marginTop="@dimen/_3sdp"
                 android:background="@drawable/bg_arrow_button"
                 android:gravity="center"
-                android:text="v"
+                android:text="@string/ui_fragment_schedule_text_2"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_11ssp"
                 android:textStyle="bold" />

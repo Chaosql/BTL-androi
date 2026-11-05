@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_8sdp"
-            android:text="Thông tin đăng ký"
+            android:text="@string/ui_fragment_registration_info_text_1"
             android:textColor="@color/brown"
             android:textSize="@dimen/_16ssp"
             android:textStyle="bold" />
@@ -56,7 +56,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Email"
+                android:text="@string/email"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold" />
@@ -67,10 +67,11 @@
                 android:layout_height="@dimen/_42sdp"
                 android:layout_marginTop="@dimen/_6sdp"
                 android:background="@drawable/bg_edittext"
-                android:hint="Email đăng ký"
+                android:backgroundTint="@null"
+                android:hint="@string/ui_fragment_registration_info_hint_3"
                 android:inputType="textEmailAddress"
                 android:paddingHorizontal="@dimen/_12sdp"
-                android:textColor="@color/brown"
+                android:textColor="@color/input_text"
                 android:textColorHint="@color/hint"
                 android:textSize="@dimen/_12ssp" />
 
@@ -78,7 +79,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_14sdp"
-                android:text="ID"
+                android:text="@string/ui_fragment_registration_info_text_4"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold" />
@@ -89,10 +90,11 @@
                 android:layout_height="@dimen/_42sdp"
                 android:layout_marginTop="@dimen/_6sdp"
                 android:background="@drawable/bg_edittext"
-                android:hint="Mã ID người dùng"
+                android:backgroundTint="@null"
+                android:hint="@string/ui_fragment_registration_info_hint_5"
                 android:inputType="text"
                 android:paddingHorizontal="@dimen/_12sdp"
-                android:textColor="@color/brown"
+                android:textColor="@color/input_text"
                 android:textColorHint="@color/hint"
                 android:textSize="@dimen/_12ssp" />
 
@@ -112,7 +114,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Họ"
+                        android:text="@string/last_name"
                         android:textColor="@color/brown"
                         android:textSize="@dimen/_12ssp"
                         android:textStyle="bold" />
@@ -123,10 +125,11 @@
                         android:layout_height="@dimen/_42sdp"
                         android:layout_marginTop="@dimen/_6sdp"
                         android:background="@drawable/bg_edittext"
-                        android:hint="Tô"
+                        android:backgroundTint="@null"
+                        android:hint="@string/hint_last_name"
                         android:inputType="textPersonName"
                         android:paddingHorizontal="@dimen/_12sdp"
-                        android:textColor="@color/brown"
+                        android:textColor="@color/input_text"
                         android:textColorHint="@color/hint"
                         android:textSize="@dimen/_12ssp" />
                 </LinearLayout>
@@ -141,7 +144,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tên"
+                        android:text="@string/first_name"
                         android:textColor="@color/brown"
                         android:textSize="@dimen/_12ssp"
                         android:textStyle="bold" />
@@ -152,10 +155,11 @@
                         android:layout_height="@dimen/_42sdp"
                         android:layout_marginTop="@dimen/_6sdp"
                         android:background="@drawable/bg_edittext"
-                        android:hint="Thanh Thư"
+                        android:backgroundTint="@null"
+                        android:hint="@string/hint_first_name"
                         android:inputType="textPersonName"
                         android:paddingHorizontal="@dimen/_12sdp"
-                        android:textColor="@color/brown"
+                        android:textColor="@color/input_text"
                         android:textColorHint="@color/hint"
                         android:textSize="@dimen/_12ssp" />
                 </LinearLayout>
@@ -177,7 +181,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Giới Tính"
+                        android:text="@string/gender"
                         android:textColor="@color/brown"
                         android:textSize="@dimen/_12ssp"
                         android:textStyle="bold" />
@@ -217,7 +221,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Ngày sinh"
+                        android:text="@string/date"
                         android:textColor="@color/brown"
                         android:textSize="@dimen/_12ssp"
                         android:textStyle="bold" />
@@ -234,10 +238,10 @@
                             android:layout_height="match_parent"
                             android:background="@null"
                             android:focusable="false"
-                            android:hint="02/04/2006"
+                            android:hint="@string/hint_birth_date"
                             android:paddingStart="@dimen/_12sdp"
                             android:paddingEnd="@dimen/_32sdp"
-                            android:textColor="@color/brown"
+                            android:textColor="@color/input_text"
                             android:textColorHint="@color/hint"
                             android:textSize="@dimen/_12ssp" />
 

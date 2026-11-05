@@ -80,10 +80,11 @@
                         android:layout_height="@dimen/_45sdp"
                         android:layout_marginTop="@dimen/_5sdp"
                         android:background="@drawable/bg_edittext"
-                        android:hint="@string/last_name"
+                        android:backgroundTint="@null"
+                        android:hint="@string/hint_last_name"
                         android:inputType="textPersonName"
                         android:paddingHorizontal="@dimen/_10sdp"
-                        android:textColor="@color/brown"
+                        android:textColor="@color/input_text"
                         android:textColorHint="@color/hint" />
                 </LinearLayout>
 
@@ -110,10 +111,11 @@
                         android:layout_height="@dimen/_45sdp"
                         android:layout_marginTop="@dimen/_5sdp"
                         android:background="@drawable/bg_edittext"
-                        android:hint="@string/first_name"
+                        android:backgroundTint="@null"
+                        android:hint="@string/hint_first_name"
                         android:inputType="textPersonName"
                         android:paddingHorizontal="@dimen/_10sdp"
-                        android:textColor="@color/brown"
+                        android:textColor="@color/input_text"
                         android:textColorHint="@color/hint" />
                 </LinearLayout>
 
@@ -191,10 +193,11 @@
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/_45sdp"
                             android:background="@drawable/bg_edittext"
-                            android:hint="@string/choose_date"
+                            android:backgroundTint="@null"
+                            android:hint="@string/hint_birth_date"
                             android:paddingStart="@dimen/_10sdp"
                             android:paddingEnd="@dimen/_50sdp"
-                            android:textColor="@color/brown"
+                            android:textColor="@color/input_text"
                             android:textColorHint="@color/hint" />
 
                         <ImageView
@@ -227,10 +230,11 @@
                 android:layout_height="@dimen/_45sdp"
                 android:layout_marginTop="@dimen/_5sdp"
                 android:background="@drawable/bg_edittext"
+                android:backgroundTint="@null"
                 android:hint="@string/email_hint"
                 android:inputType="textEmailAddress"
                 android:paddingHorizontal="@dimen/_10sdp"
-                android:textColor="@color/brown"
+                android:textColor="@color/input_text"
                 android:textColorHint="@color/hint" />
 
             <TextView
@@ -253,11 +257,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_45sdp"
                     android:background="@drawable/bg_edittext"
+                    android:backgroundTint="@null"
                     android:hint="@string/password_hint"
                     android:inputType="textPassword"
                     android:paddingStart="@dimen/_10sdp"
                     android:paddingEnd="@dimen/_50sdp"
-                    android:textColor="@color/brown"
+                    android:textColor="@color/input_text"
                     android:textColorHint="@color/hint" />
 
                 <ImageView
@@ -292,11 +297,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_45sdp"
                     android:background="@drawable/bg_edittext"
-                    android:hint="@string/password_hint"
+                    android:backgroundTint="@null"
+                    android:hint="@string/confirm_password"
                     android:inputType="textPassword"
                     android:paddingStart="@dimen/_10sdp"
                     android:paddingEnd="@dimen/_50sdp"
-                    android:textColor="@color/brown"
+                    android:textColor="@color/input_text"
                     android:textColorHint="@color/hint" />
 
                 <ImageView

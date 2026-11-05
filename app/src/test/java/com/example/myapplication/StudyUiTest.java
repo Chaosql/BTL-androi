@@ -4,6 +4,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.NumberPicker;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,9 +32,11 @@ public class StudyUiTest {
                         .replace(R.id.screenHost, StudyScreenFragment.create(screen)).commitNow();
                 Shadows.shadowOf(android.os.Looper.getMainLooper()).idle();
                 View root = activity.findViewById(R.id.screenHost);
-                root.measure(View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY),
-                        View.MeasureSpec.makeMeasureSpec(1800, View.MeasureSpec.EXACTLY));
-                root.layout(0, 0, 1080, 1800);
+                int width = activity.getResources().getDisplayMetrics().widthPixels;
+                int height = activity.getResources().getDisplayMetrics().heightPixels;
+                root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));
+                root.layout(0, 0, width, height);
                 renderRows(root);
                 assertNotNull(screen.name(), activity.getSupportFragmentManager().findFragmentById(R.id.screenHost).getView());
             }
@@ -38,6 +45,54 @@ public class StudyUiTest {
                 UiDialogs.show(activity, layout);
                 org.robolectric.shadows.ShadowDialog.getLatestDialog().dismiss();
             }
+        }
+    }
+
+    @Test @Config(qualifiers = "w360dp-h640dp-xhdpi")
+    public void allScreensRenderOnCompactPhone() { allScreensAndRowsRender(); }
+
+    @Test @Config(qualifiers = "w412dp-h915dp-xxhdpi")
+    public void allScreensRenderOnTallPhone() { allScreensAndRowsRender(); }
+
+    @Test public void systemInsetsAndKeyboardAreAppliedOnlyOnce() {
+        try (ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup()) {
+            View root = controller.get().findViewById(R.id.main);
+            WindowInsetsCompat keyboard = new WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.systemBars(), Insets.of(0, 24, 0, 32))
+                    .setInsets(WindowInsetsCompat.Type.ime(), Insets.of(0, 0, 0, 300)).build();
+            ViewCompat.dispatchApplyWindowInsets(root, keyboard);
+            ViewCompat.dispatchApplyWindowInsets(root, keyboard);
+            assertEquals(24, root.getPaddingTop());
+            assertEquals(300, root.getPaddingBottom());
+            WindowInsetsCompat closed = new WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.systemBars(), Insets.of(0, 24, 0, 32)).build();
+            ViewCompat.dispatchApplyWindowInsets(root, closed);
+            assertEquals(32, root.getPaddingBottom());
+        }
+    }
+
+    @Test public void scheduleTabsAndAppointmentFieldsMatchPresentation() {
+        try (ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = controller.get();
+            activity.getSupportFragmentManager().executePendingTransactions();
+            activity.showScreen(UiScreen.SCHEDULE);
+            activity.getSupportFragmentManager().executePendingTransactions();
+            activity.findViewById(R.id.tabWed).performClick();
+            assertTrue(activity.findViewById(R.id.tabWed).isSelected());
+            assertEquals(1f, activity.findViewById(R.id.tabMon).getAlpha(), 0f);
+            String firstDate = ((TextView) activity.findViewById(R.id.tvDateTag)).getText().toString();
+            activity.findViewById(R.id.btnWeekNext).performClick();
+            assertTrue(!firstDate.equals(((TextView) activity.findViewById(R.id.tvDateTag)).getText().toString()));
+            activity.showScreen(UiScreen.CREATE_APPOINTMENT);
+            activity.getSupportFragmentManager().executePendingTransactions();
+            assertEquals("Tạo cuộc hẹn", ((TextView) activity.findViewById(R.id.tvScreenTitle)).getText().toString());
+            assertEquals(activity.getColor(R.color.brown), ((NumberPicker) activity.findViewById(R.id.npHour)).getTextColor());
+            UiDialogs.show(activity, R.layout.dialog_booking_detail);
+            android.app.Dialog dialog = org.robolectric.shadows.ShadowDialog.getLatestDialog();
+            assertEquals(View.GONE, dialog.findViewById(R.id.layoutRatingSection).getVisibility());
+            assertEquals(View.VISIBLE, dialog.findViewById(R.id.btnComplete).getVisibility());
+            assertEquals(View.VISIBLE, dialog.findViewById(R.id.btnCancel).getVisibility());
+            dialog.dismiss();
         }
     }
 
@@ -60,6 +115,35 @@ public class StudyUiTest {
             activity.findViewById(R.id.btnSend).performClick();
             assertEquals(before + 1, list.getAdapter().getItemCount());
             assertTrue(input.getText().toString().isEmpty());
+        }
+    }
+
+    @Test public void inputHintsAndBackgroundsAreConsistent() {
+        try (ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = controller.get();
+            View subject = LayoutInflater.from(activity).inflate(R.layout.dialog_add_subject, null, false);
+            EditText subjectName = subject.findViewById(R.id.etSubjectName);
+            assertEquals("Tên môn học", subjectName.getHint().toString());
+            assertTrue(subjectName.getText().toString().isEmpty());
+            assertNotNull(subjectName.getBackground());
+            assertEquals(activity.getColor(R.color.hint), subjectName.getCurrentHintTextColor());
+            subjectName.setText("Java");
+            assertEquals("Java", subjectName.getText().toString());
+
+            View registration = LayoutInflater.from(activity).inflate(R.layout.fragment_register, null, false);
+            assertEquals("Nhập lại mật khẩu", ((EditText) registration.findViewById(R.id.edtConfirmPassword)).getHint().toString());
+            assertEquals("Nhập họ", ((EditText) registration.findViewById(R.id.edtLastName)).getHint().toString());
+            View personal = LayoutInflater.from(activity).inflate(R.layout.dialog_edit_personal_info, null, false);
+            assertEquals(activity.getString(R.string.hint_birth_date),
+                    ((EditText) personal.findViewById(R.id.etDateOfBirth)).getHint().toString());
+            View info = LayoutInflater.from(activity).inflate(R.layout.fragment_registration_info, null, false);
+            assertEquals(activity.getString(R.string.hint_birth_date),
+                    ((EditText) info.findViewById(R.id.etDateOfBirth)).getHint().toString());
+            View password = LayoutInflater.from(activity).inflate(R.layout.fragment_forgot_password, null, false);
+            assertEquals(activity.getColor(R.color.input_text), ((EditText) password.findViewById(R.id.edtNewPassword)).getCurrentTextColor());
+            View success = LayoutInflater.from(activity).inflate(R.layout.dialog_login_success, null, false);
+            assertTrue(((TextView) success.findViewById(R.id.tvMessage)).getText().toString().contains("Study Date"));
+            assertTrue(!activity.getString(R.string.verify_your_email).contains("abc123@gmail.com"));
         }
     }
 

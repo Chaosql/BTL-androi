@@ -113,7 +113,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="@dimen/_10sdp"
-                    android:text=":"
+                    android:text="@string/ui_fragment_create_appointment_text_1"
                     android:textColor="@color/brown"
                     android:textSize="@dimen/_20ssp"
                     android:textStyle="bold" />
@@ -129,7 +129,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_10sdp"
-                android:text="Thời lượng cuộc hẹn"
+                android:text="@string/ui_fragment_create_appointment_text_2"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_15ssp"
                 android:textStyle="bold" />
@@ -170,13 +170,16 @@
 
                 <EditText
                     android:id="@+id/etLocationName"
+                    android:hint="@string/hint_location_name"
+                    android:textColorHint="@color/hint"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
                     android:layout_marginTop="@dimen/_3sdp"
                     android:background="@drawable/bg_edittext"
+                    android:backgroundTint="@null"
                     android:inputType="text"
                     android:paddingHorizontal="@dimen/_10sdp"
-                    android:textColor="@color/brown"
+                    android:textColor="@color/input_text"
                     android:textSize="@dimen/_11ssp" />
 
                 <TextView
@@ -189,13 +192,16 @@
 
                 <EditText
                     android:id="@+id/etStreet"
+                    android:hint="@string/hint_street"
+                    android:textColorHint="@color/hint"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
                     android:layout_marginTop="@dimen/_3sdp"
                     android:background="@drawable/bg_edittext"
+                    android:backgroundTint="@null"
                     android:inputType="text"
                     android:paddingHorizontal="@dimen/_10sdp"
-                    android:textColor="@color/brown"
+                    android:textColor="@color/input_text"
                     android:textSize="@dimen/_10ssp" />
 
                 <TextView
@@ -208,13 +214,16 @@
 
                 <EditText
                     android:id="@+id/etDistrict"
+                    android:hint="@string/hint_district"
+                    android:textColorHint="@color/hint"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
                     android:layout_marginTop="@dimen/_3sdp"
                     android:background="@drawable/bg_edittext"
+                    android:backgroundTint="@null"
                     android:inputType="text"
                     android:paddingHorizontal="@dimen/_10sdp"
-                    android:textColor="@color/brown"
+                    android:textColor="@color/input_text"
                     android:textSize="@dimen/_10ssp" />
 
                 <TextView
@@ -227,13 +236,16 @@
 
                 <EditText
                     android:id="@+id/etProvince"
+                    android:hint="@string/hint_province"
+                    android:textColorHint="@color/hint"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
                     android:layout_marginTop="@dimen/_3sdp"
                     android:background="@drawable/bg_edittext"
+                    android:backgroundTint="@null"
                     android:inputType="text"
                     android:paddingHorizontal="@dimen/_10sdp"
-                    android:textColor="@color/brown"
+                    android:textColor="@color/input_text"
                     android:textSize="@dimen/_10ssp" />
             </LinearLayout>
 

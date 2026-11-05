@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="@dimen/_8sdp"
-            android:text="Quản Lý Môn Học"
+            android:text="@string/ui_dialog_subject_management_text_1"
             android:textColor="@color/brown"
             android:textSize="@dimen/_16ssp"
             android:textStyle="bold" />
@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_12sdp"
             android:layout_marginBottom="@dimen/_8sdp"
-            android:text="Môn học thế mạnh:"
+            android:text="@string/ui_dialog_subject_management_text_2"
             android:textColor="@color/brown"
             android:textSize="@dimen/_12ssp"
             android:textStyle="bold" />
@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_16sdp"
             android:layout_marginBottom="@dimen/_8sdp"
-            android:text="Môn học cần ôn tập:"
+            android:text="@string/ui_dialog_subject_management_text_3"
             android:textColor="@color/brown"
             android:textSize="@dimen/_12ssp"
             android:textStyle="bold" />
@@ -69,7 +69,7 @@
                 android:background="@drawable/bg_card_retro"
                 android:gravity="center"
                 android:paddingHorizontal="@dimen/_18sdp"
-                android:text="Đóng"
+                android:text="@string/btn_close"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold" />
@@ -81,7 +81,7 @@
                 android:background="@drawable/bg_button"
                 android:gravity="center"
                 android:paddingHorizontal="@dimen/_18sdp"
-                android:text="Thêm môn học"
+                android:text="@string/ui_dialog_add_subject_text_1"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold" />

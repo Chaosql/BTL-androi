@@ -180,7 +180,7 @@
                 android:imeOptions="actionSend"
                 android:inputType="textMultiLine"
                 android:maxLines="3"
-                android:textColor="@color/brown"
+                android:textColor="@color/input_text"
                 android:textColorHint="@color/hint"
                 android:textSize="@dimen/_15ssp" />
 

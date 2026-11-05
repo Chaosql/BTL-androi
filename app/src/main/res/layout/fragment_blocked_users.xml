@@ -50,7 +50,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/_20sdp"
-        android:text="Không có người dùng bị chặn nào"
+        android:text="@string/ui_fragment_blocked_users_text_1"
         android:textColor="@color/brown"
         android:textSize="@dimen/_13ssp"
         android:visibility="gone" />

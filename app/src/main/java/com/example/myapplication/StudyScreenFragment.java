@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
@@ -20,6 +21,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.DayOfWeek;
+import java.time.temporal.TemporalAdjusters;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Locale;
@@ -27,6 +31,7 @@ import java.util.Locale;
 public class StudyScreenFragment extends Fragment {
     private UiScreen screen;
     private boolean resetPassword;
+    private LocalDate selectedScheduleDate = LocalDate.now();
 
     public static StudyScreenFragment create(UiScreen screen) {
         StudyScreenFragment fragment = new StudyScreenFragment();
@@ -56,8 +61,8 @@ public class StudyScreenFragment extends Fragment {
         hide(root, R.id.progressBar);
         toggle(root, R.id.ivTogglePassword, R.id.edtPassword);
         toggle(root, R.id.ivToggleConfirmPassword, R.id.edtConfirmPassword);
-        spinner(root, R.id.spGender, "Nam", "Nữ", "Khác");
-        spinner(root, R.id.spinnerGender, "Nam", "Nữ", "Khác");
+        genderSpinner(root, R.id.spGender);
+        genderSpinner(root, R.id.spinnerGender);
         date(root, R.id.edtDate);
         date(root, R.id.etDateOfBirth);
         on(root, R.id.ivCalendar, () -> pickDate(root, R.id.edtDate));
@@ -119,7 +124,7 @@ public class StudyScreenFragment extends Fragment {
             case REGISTRATION_INFO:
                 text(root, R.id.etEmail, "minhan@example.com");
                 text(root, R.id.etId, "STUDY-001");
-                text(root, R.id.etLastName, "Nguyễn");
+                text(root, R.id.etLastName, getString(R.string.ui_studyscreenfragment_text_1));
                 text(root, R.id.etFirstName, "Minh An");
                 text(root, R.id.etDateOfBirth, "15/08/2005");
                 on(root, R.id.btnSave, this::previewNotice);
@@ -133,8 +138,9 @@ public class StudyScreenFragment extends Fragment {
                 UiRows.Adapter friends = UiRows.friends(this, screen == UiScreen.GROUP_DETAIL);
                 list(root, R.id.rvFriendsList, friends);
                 filter(root, R.id.etSearchFriends, friends);
-                on(root, R.id.btnHeaderMenu, () -> dialog(R.layout.layout_friends_menu_popup));
-                if (screen == UiScreen.GROUP_DETAIL) text(root, R.id.tvHeaderTitle, "Nhóm học Android");
+                on(root, R.id.btnHeaderMenu, () -> UiDialogs.showPopup((MainActivity) requireActivity(),
+                        root.findViewById(R.id.btnHeaderMenu), R.layout.layout_friends_menu_popup));
+                if (screen == UiScreen.GROUP_DETAIL) text(root, R.id.tvHeaderTitle, getString(R.string.ui_studyscreenfragment_text_2));
                 break;
             case SEARCH_USER:
                 UiRows.Adapter results = UiRows.users(this, false);
@@ -161,25 +167,30 @@ public class StudyScreenFragment extends Fragment {
                 on(root, R.id.tvMarkAllRead, this::previewNotice);
                 break;
             case SCHEDULE:
-                text(root, R.id.tvMonthYear, LocalDate.now().format(DateTimeFormatter.ofPattern("MM / yyyy")));
-                text(root, R.id.tvDateTag, LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM")));
                 list(root, R.id.rvScheduleList, UiRows.schedule(this));
-                for (int id : new int[]{R.id.tabMon, R.id.tabTue, R.id.tabWed, R.id.tabThu, R.id.tabFri, R.id.tabSat, R.id.tabSun}) {
+                int[] tabs = {R.id.tabMon, R.id.tabTue, R.id.tabWed, R.id.tabThu, R.id.tabFri, R.id.tabSat, R.id.tabSun};
+                for (int index = 0; index < tabs.length; index++) {
+                    int day = index;
+                    int id = tabs[index];
                     on(root, id, () -> {
-                        for (int tab : new int[]{R.id.tabMon, R.id.tabTue, R.id.tabWed, R.id.tabThu, R.id.tabFri, R.id.tabSat, R.id.tabSun})
-                            root.findViewById(tab).setAlpha(tab == id ? 1f : 0.5f);
+                        selectedScheduleDate = selectedScheduleDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).plusDays(day);
+                        updateSchedule(root);
                     });
                 }
-                on(root, R.id.btnWeekPrev, this::previewNotice);
-                on(root, R.id.btnWeekNext, this::previewNotice);
+                on(root, R.id.btnWeekPrev, () -> { selectedScheduleDate = selectedScheduleDate.minusWeeks(1); updateSchedule(root); });
+                on(root, R.id.btnWeekNext, () -> { selectedScheduleDate = selectedScheduleDate.plusWeeks(1); updateSchedule(root); });
+                updateSchedule(root);
                 on(root, R.id.imgMascot, () -> go(UiScreen.CREATE_APPOINTMENT));
                 break;
             case CREATE_APPOINTMENT:
+                text(root, R.id.tvScreenTitle, getString(R.string.title_create_appointment));
                 NumberPicker hours = root.findViewById(R.id.npHour);
-                hours.setMinValue(0); hours.setMaxValue(23); hours.setValue(14);
                 NumberPicker minutes = root.findViewById(R.id.npMinute);
-                minutes.setMinValue(0); minutes.setMaxValue(59); minutes.setValue(30);
-                spinner(root, R.id.spDuration, "30 phút", "60 phút", "90 phút", "120 phút");
+                LocalTime startTime = LocalTime.now().plusMinutes(30);
+                setupTimePicker(hours, 23, startTime.getHour());
+                setupTimePicker(minutes, 59, startTime.getMinute());
+                spinner(root, R.id.spDuration, getString(R.string.ui_studyscreenfragment_text_4), getString(R.string.ui_studyscreenfragment_text_5), getString(R.string.ui_studyscreenfragment_text_6),
+                        getString(R.string.ui_studyscreenfragment_text_7), getString(R.string.ui_studyscreenfragment_text_8), getString(R.string.ui_studyscreenfragment_text_9), getString(R.string.ui_studyscreenfragment_text_10));
                 text(root, R.id.tvSelectedDate, LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                 on(root, R.id.layoutDateField, () -> pickDate(root, R.id.tvSelectedDate));
                 on(root, R.id.btnCreate, () -> dialog(R.layout.dialog_booking_detail));
@@ -189,16 +200,60 @@ public class StudyScreenFragment extends Fragment {
         }
     }
 
+    private void updateSchedule(View root) {
+        text(root, R.id.tvMonthYear, getString(R.string.schedule_month_year,
+                selectedScheduleDate.getMonthValue(), selectedScheduleDate.getYear()));
+        text(root, R.id.tvDateTag, selectedScheduleDate.format(DateTimeFormatter.ofPattern("dd/M")));
+        int[] tabs = {R.id.tabMon, R.id.tabTue, R.id.tabWed, R.id.tabThu, R.id.tabFri, R.id.tabSat, R.id.tabSun};
+        int selected = selectedScheduleDate.getDayOfWeek().getValue() - 1;
+        for (int i = 0; i < tabs.length; i++) {
+            View tab = root.findViewById(tabs[i]);
+            tab.setSelected(i == selected);
+            tab.setBackgroundResource(i == selected ? R.drawable.bg_tab_selected : R.drawable.bg_tab_unselected);
+            tab.setAlpha(1f);
+        }
+        View tag = root.findViewById(R.id.tvDateTag);
+        root.post(() -> {
+            if (!isAdded() || getView() != root) return;
+            View selectedTab = root.findViewById(tabs[selected]);
+            View tabColumn = root.findViewById(R.id.layoutDayTabs);
+            tag.setTranslationY(tabColumn.getTop() + selectedTab.getTop()
+                    + (selectedTab.getHeight() - tag.getHeight()) / 2f - tag.getTop());
+        });
+    }
+
+    private void setupTimePicker(NumberPicker picker, int max, int value) {
+        picker.setMinValue(0);
+        picker.setMaxValue(max);
+        picker.setFormatter(number -> String.format(Locale.getDefault(), "%02d", number));
+        picker.setValue(value);
+        int color = requireContext().getColor(R.color.brown);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) picker.setTextColor(color);
+        picker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        for (int i = 0; i < picker.getChildCount(); i++) {
+            if (picker.getChildAt(i) instanceof EditText) ((EditText) picker.getChildAt(i)).setTextColor(color);
+        }
+    }
+
+    private void genderSpinner(View root, int id) {
+        View view = root.findViewById(id);
+        if (!(view instanceof Spinner)) return;
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(root.getContext(), R.layout.item_spinner_gender,
+                Arrays.asList("Nam", getString(R.string.ui_dialog_edit_personal_info_text_5), getString(R.string.ui_dialog_edit_personal_info_text_6)));
+        adapter.setDropDownViewResource(R.layout.item_spinner_gender_dropdown);
+        ((Spinner) view).setAdapter(adapter);
+    }
+
     private void profile(View root) {
         text(root, R.id.tvUsername, "Minh An");
-        text(root, R.id.tvBuddyStatus, "Trạng thái quét: Bật");
-        text(root, R.id.tvIntroduction, "Cùng nhau học tốt hơn mỗi ngày.");
-        text(root, R.id.tvAge, "Tuổi: 21");
-        text(root, R.id.tvGender, "Giới tính: Nam");
-        text(root, R.id.tvSchool, "Trường học: Đại học Công nghiệp Hà Nội");
-        text(root, R.id.tvMajor, "Ngành học: Công nghệ thông tin");
-        text(root, R.id.tvLocation, "Địa điểm: Hà Nội");
-        text(root, R.id.tvFriendsCount, "Điểm tin cậy: 100.0");
+        text(root, R.id.tvBuddyStatus, getString(R.string.ui_studyscreenfragment_text_13));
+        text(root, R.id.tvIntroduction, getString(R.string.ui_studyscreenfragment_text_14));
+        text(root, R.id.tvAge, getString(R.string.ui_studyscreenfragment_text_15));
+        text(root, R.id.tvGender, getString(R.string.ui_studyscreenfragment_text_16));
+        text(root, R.id.tvSchool, getString(R.string.ui_studyscreenfragment_text_17));
+        text(root, R.id.tvMajor, getString(R.string.ui_studyscreenfragment_text_18));
+        text(root, R.id.tvLocation, getString(R.string.ui_studyscreenfragment_text_19));
+        text(root, R.id.tvFriendsCount, getString(R.string.ui_studyscreenfragment_text_20));
         text(root, R.id.tvFavoriteRating, "100.0");
         text(root, R.id.tvAppointmentCount, "8");
         text(root, R.id.tvSubjectCount, "3");
@@ -217,7 +272,7 @@ public class StudyScreenFragment extends Fragment {
 
     private void chat(View root) {
         text(root, R.id.tvChatTitle, "Minh Anh");
-        text(root, R.id.tvOnlineStatus, "Đang hoạt động");
+        text(root, R.id.tvOnlineStatus, getString(R.string.ui_studyscreenfragment_text_21));
         UiRows.Adapter messages = UiRows.messages(this);
         list(root, R.id.rvChatMessages, messages);
         on(root, R.id.btnSend, () -> {
@@ -239,7 +294,7 @@ public class StudyScreenFragment extends Fragment {
     public void go(UiScreen next) { ((MainActivity) requireActivity()).showScreen(next); }
     public void dialog(int layout) { UiDialogs.show((MainActivity) requireActivity(), layout); }
     public void previewNotice() {
-        Toast.makeText(requireContext(), "Bản giao diện minh họa, chưa kết nối dữ liệu.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), getString(R.string.ui_studyscreenfragment_text_22), Toast.LENGTH_SHORT).show();
     }
     private void back() { requireActivity().getOnBackPressedDispatcher().onBackPressed(); }
 
@@ -269,9 +324,11 @@ public class StudyScreenFragment extends Fragment {
     static void list(View root, int id, UiRows.Adapter adapter) {
         RecyclerView list = root.findViewById(id);
         if (list == null) return;
-        list.setLayoutManager(new LinearLayoutManager(root.getContext()));
+        LinearLayoutManager manager = new LinearLayoutManager(root.getContext());
+        if (id == R.id.rvChatMessages) manager.setStackFromEnd(true);
+        list.setLayoutManager(manager);
         list.setAdapter(adapter);
-        list.setNestedScrollingEnabled(false);
+        list.setNestedScrollingEnabled(id != R.id.rvRecentNotifications && id != R.id.rvEarlierNotifications);
     }
     private void filter(View root, int id, UiRows.Adapter adapter) {
         EditText input = root.findViewById(id);

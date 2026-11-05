@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="Lời mời kết bạn"
+            android:text="@string/ui_fragment_pending_requests_text_1"
             android:textColor="@color/brown"
             android:textSize="@dimen/_20ssp"
             android:textStyle="bold" />
@@ -50,7 +50,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/_20sdp"
-        android:text="Không có lời mời kết bạn nào"
+        android:text="@string/ui_fragment_pending_requests_text_2"
         android:textColor="@color/brown"
         android:textSize="@dimen/_13ssp"
         android:visibility="gone" />

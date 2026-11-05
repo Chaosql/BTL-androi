@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="Tìm kiếm người dùng"
+            android:text="@string/ui_fragment_search_user_text_1"
             android:textColor="@color/brown"
             android:textSize="@dimen/_20ssp"
             android:textStyle="bold" />
@@ -56,10 +56,10 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@null"
-                android:hint="Nhập SĐT, Email hoặc Tên..."
+                android:hint="@string/ui_fragment_search_user_hint_2"
                 android:imeOptions="actionSearch"
                 android:inputType="text"
-                android:textColor="@color/brown"
+                android:textColor="@color/input_text"
                 android:textColorHint="@color/brown"
                 android:textSize="@dimen/_13ssp" />
 
