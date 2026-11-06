@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_action_error">Không thể cập nhật thông báo. Vui lòng thử lại.</string>
+    <string name="notification_title_count">Thông báo (%1$d)</string>
+    <string name="notification_loading">Đang tải thông báo…</string>
+    <string name="notification_more">Xem thông báo cũ hơn</string>
+    <string name="notification_retry">%1$s\nBấm để thử lại</string>
+    <string name="notification_invalid">Dữ liệu thông báo không hợp lệ.</string>
+    <string name="notification_login">Đăng nhập để xem thông báo.</string>
+    <string name="notification_no_target">Thông báo này chưa có nội dung liên kết.</string>
+</resources>

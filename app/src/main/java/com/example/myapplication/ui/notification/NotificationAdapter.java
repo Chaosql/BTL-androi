@@ -1,17 +1,43 @@
 package com.example.myapplication.ui.notification;
 
+import android.view.*;
+import android.graphics.Typeface;
+import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
-import com.example.myapplication.ui.base.BaseFragment;
-import com.example.myapplication.ui.base.BasePreviewAdapter;
-import com.example.myapplication.ui.base.PreviewRow;
-import com.example.myapplication.ui.main.UiScreen;
+import com.example.myapplication.data.remote.dto.response.NotificationDto;
+import com.example.myapplication.databinding.ItemNotificationBinding;
+import com.example.myapplication.ui.chat.ChatUi;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.function.Consumer;
 
-public class NotificationAdapter extends BasePreviewAdapter {
-    public NotificationAdapter(BaseFragment owner, boolean recent) {
-        super(owner,
-                new PreviewRow(R.layout.item_notification).with(R.id.tvContent, recent ? owner.getString(R.string.ui_uirows_text_18) : owner.getString(R.string.ui_uirows_text_19))
-                        .with(R.id.tvTimeAgo, recent ? owner.getString(R.string.ui_uirows_text_20) : owner.getString(R.string.ui_uirows_text_9)).click(() -> owner.go(UiScreen.SCHEDULE)),
-                new PreviewRow(R.layout.item_notification).with(R.id.tvContent, recent ? owner.getString(R.string.ui_uirows_text_22) : owner.getString(R.string.ui_uirows_text_23))
-                        .with(R.id.tvTimeAgo, recent ? owner.getString(R.string.ui_uirows_text_24) : owner.getString(R.string.ui_uirows_text_25)).click(() -> owner.go(UiScreen.PENDING_REQUESTS)));
+public final class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.Holder> {
+    private final List<NotificationDto> items = new ArrayList<>();
+    private final Consumer<NotificationDto> click;
+    public NotificationAdapter(Consumer<NotificationDto> click) { this.click = click; }
+    public void submit(List<NotificationDto> data) { items.clear(); items.addAll(data); notifyDataSetChanged(); }
+    @Override public int getItemCount() { return items.size(); }
+    @Override public Holder onCreateViewHolder(ViewGroup parent, int type) {
+        return new Holder(ItemNotificationBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+    }
+    @Override public void onBindViewHolder(Holder holder, int position) {
+        NotificationDto item = items.get(position);
+        ItemNotificationBinding b = holder.binding;
+        boolean unread = !Boolean.TRUE.equals(item.isRead);
+        b.tvContent.setText(ChatUi.value(item.content));
+        b.tvContent.setTypeface(null, unread ? Typeface.BOLD : Typeface.NORMAL);
+        b.viewUnreadDot.setVisibility(unread ? View.VISIBLE : View.GONE);
+        java.time.Instant time = ChatUi.instant(item.createdDate);
+        b.tvTimeAgo.setText(time.equals(java.time.Instant.EPOCH) ? "" : DateTimeFormatter
+                .ofPattern("dd/MM/yyyy HH:mm").withZone(ZoneId.of("Asia/Ho_Chi_Minh")).format(time));
+        Glide.with(b.imgAvatar).load(item.actorAvatar).placeholder(R.drawable.ic_launcher_foreground)
+                .error(R.drawable.ic_launcher_foreground).circleCrop().into(b.imgAvatar);
+        b.getRoot().setOnClickListener(view -> click.accept(item));
+    }
+    static final class Holder extends RecyclerView.ViewHolder {
+        final ItemNotificationBinding binding;
+        Holder(ItemNotificationBinding binding) { super(binding.getRoot()); this.binding = binding; }
     }
 }

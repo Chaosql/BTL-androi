@@ -153,6 +153,7 @@
 
     <ImageView
         android:id="@+id/btnNotification"
+        android:contentDescription="@string/title_notification"
         android:layout_width="@dimen/_40sdp"
         android:layout_height="@dimen/_40sdp"
         android:layout_marginEnd="@dimen/_75sdp"
@@ -176,4 +177,18 @@
         android:padding="@dimen/_12sdp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+    <TextView
+        android:id="@+id/tvNotificationBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="18dp"
+        android:gravity="center"
+        android:background="@drawable/bg_unread_dot"
+        android:padding="3dp"
+        android:textColor="@android:color/white"
+        android:textSize="10sp"
+        android:visibility="gone"
+        android:importantForAccessibility="no"
+        app:layout_constraintTop_toTopOf="@id/btnNotification"
+        app:layout_constraintEnd_toEndOf="@id/btnNotification" />
 </androidx.constraintlayout.widget.ConstraintLayout>

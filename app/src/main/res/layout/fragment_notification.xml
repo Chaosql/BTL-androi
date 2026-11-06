@@ -56,7 +56,7 @@
         android:gravity="center"
         android:orientation="vertical"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/tvNotificationStatus"
         app:layout_constraintTop_toBottomOf="@id/layoutHeader">
 
         <ImageView
@@ -81,7 +81,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/tvNotificationStatus"
         app:layout_constraintTop_toBottomOf="@id/layoutHeader">
 
         <LinearLayout
@@ -146,7 +146,27 @@
                     tools:listitem="@layout/item_notification" />
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/tvNotificationMore"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="@string/notification_more"
+                android:textColor="@color/brown"
+                android:visibility="gone" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <TextView
+        android:id="@+id/tvNotificationStatus"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="12dp"
+        android:textColor="@color/brown"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
