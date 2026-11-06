@@ -80,10 +80,21 @@
             android:layout_marginTop="@dimen/_15sdp"
             android:visibility="gone" />
 
+        <TextView
+            android:id="@+id/tvEmptyState"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="@string/social_no_results"
+            android:textColor="@color/brown"
+            android:visibility="gone" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvSearchResults"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:clipToPadding="false"
             android:paddingTop="@dimen/_10sdp"
             android:paddingBottom="@dimen/_15sdp"

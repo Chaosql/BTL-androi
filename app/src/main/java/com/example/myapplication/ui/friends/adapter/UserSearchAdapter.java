@@ -1,21 +1,27 @@
 package com.example.myapplication.ui.friends.adapter;
 
 import com.example.myapplication.R;
-import com.example.myapplication.ui.base.BaseFragment;
-import com.example.myapplication.ui.base.BasePreviewAdapter;
-import com.example.myapplication.ui.base.PreviewRow;
-import android.view.View;
+import com.example.myapplication.data.remote.dto.response.UserSearchDto;
+import com.example.myapplication.databinding.ItemUserSearchResultBinding;
+import com.example.myapplication.ui.friends.SocialUi;
+import java.util.function.Consumer;
 
-public class UserSearchAdapter extends BasePreviewAdapter {
-    public UserSearchAdapter(BaseFragment owner) {
-        super(owner,
-                new PreviewRow(R.layout.item_user_search_result).with(R.id.tvUserName, owner.getString(R.string.ui_uirows_text_5)).with(R.id.tvUserPhone, owner.getString(R.string.ui_uirows_text_11))
-                        .with(R.id.btnAction, owner.getString(R.string.ui_uirows_text_12)).click(() -> owner.dialog(R.layout.dialog_user_info)),
-                new PreviewRow(R.layout.item_user_search_result).with(R.id.tvUserName, owner.getString(R.string.ui_uirows_text_13)).with(R.id.tvUserPhone, owner.getString(R.string.ui_uirows_text_14))
-                        .with(R.id.btnAction, owner.getString(R.string.ui_uirows_text_12)).click(() -> owner.dialog(R.layout.dialog_user_info)));
+public class UserSearchAdapter extends SocialAdapter<UserSearchDto, ItemUserSearchResultBinding> {
+    private final Consumer<UserSearchDto> click;
+    private final Consumer<UserSearchDto> add;
+    public UserSearchAdapter(Consumer<UserSearchDto> click, Consumer<UserSearchDto> add) {
+        super(ItemUserSearchResultBinding::inflate); this.click = click; this.add = add;
     }
-
-    @Override protected void bindActions(View root, PreviewRow row) {
-        BaseFragment.on(root, R.id.btnAction, owner::previewNotice);
+    @Override protected void bind(ItemUserSearchResultBinding binding, UserSearchDto item) {
+        binding.tvUserName.setText(SocialUi.name(item.firstName, item.lastName));
+        binding.tvUserPhone.setText(SocialUi.value(item.phone));
+        SocialUi.avatar(binding.ivAvatar, item.avatar);
+        boolean friend = SocialUi.friend(item.friendshipStatus);
+        boolean pending = SocialUi.pending(item.friendshipStatus);
+        binding.btnAction.setText(friend ? R.string.social_friend : pending ? R.string.social_sent : R.string.social_add);
+        binding.btnAction.setEnabled(!friend && !pending && !busy.contains(item.id) && item.id != null && !item.id.isEmpty());
+        binding.btnAction.setAlpha(binding.btnAction.isEnabled() ? 1f : 0.6f);
+        binding.getRoot().setOnClickListener(view -> click.accept(item));
+        binding.btnAction.setOnClickListener(view -> add.accept(item));
     }
 }

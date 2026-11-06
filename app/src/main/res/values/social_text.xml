@@ -1,0 +1,16 @@
+<resources>
+    <string name="social_add">Kết bạn</string>
+    <string name="social_sent">Đã gửi yêu cầu</string>
+    <string name="social_friend">Bạn bè</string>
+    <string name="social_request_sent">Đã gửi lời mời kết bạn.</string>
+    <string name="social_success">Đã cập nhật danh sách.</string>
+    <string name="social_empty">Chưa có bạn bè.</string>
+    <string name="social_no_results">Không tìm thấy người dùng phù hợp.</string>
+    <string name="social_retry">Không tải được danh sách. Nhấn để thử lại.</string>
+    <string name="social_empty_response">Máy chủ trả về danh sách không hợp lệ.</string>
+    <string name="social_block_confirm">Chặn %1$s?</string>
+    <string name="social_unblock_confirm">Bỏ chặn %1$s?</string>
+    <string name="social_unfriend_confirm">Hủy kết bạn với %1$s?</string>
+    <string name="social_online">Đang hoạt động</string>
+    <string name="social_offline">Không hoạt động</string>
+</resources>

@@ -40,6 +40,11 @@ public abstract class BaseFragment<B extends androidx.viewbinding.ViewBinding> e
         request(call, success, error -> Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show());
     }
 
+    protected void cancelRequest(retrofit2.Call<?> call) {
+        call.cancel();
+        requests.remove(call);
+    }
+
     protected <T> void request(retrofit2.Call<T> call, java.util.function.Consumer<T> success,
             java.util.function.Consumer<com.example.myapplication.data.remote.network.ApiError> failure) {
         requests.add(call);

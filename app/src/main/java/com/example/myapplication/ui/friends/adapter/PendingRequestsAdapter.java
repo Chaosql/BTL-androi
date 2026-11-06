@@ -1,22 +1,26 @@
 package com.example.myapplication.ui.friends.adapter;
 
-import com.example.myapplication.R;
-import com.example.myapplication.ui.base.BaseFragment;
-import com.example.myapplication.ui.base.BasePreviewAdapter;
-import com.example.myapplication.ui.base.PreviewRow;
-import android.view.View;
+import com.example.myapplication.data.remote.dto.response.FriendDto;
+import com.example.myapplication.databinding.ItemPendingRequestBinding;
+import com.example.myapplication.ui.friends.SocialUi;
+import java.util.function.Consumer;
 
-public class PendingRequestsAdapter extends BasePreviewAdapter {
-    public PendingRequestsAdapter(BaseFragment owner) {
-        super(owner,
-                new PreviewRow(R.layout.item_pending_request).with(R.id.tvUserName, owner.getString(R.string.ui_uirows_text_5)).with(R.id.tvUserPhone, owner.getString(R.string.ui_uirows_text_11))
-                        .with(R.id.btnAction, owner.getString(R.string.ui_uirows_text_12)).click(() -> owner.dialog(R.layout.dialog_user_info)),
-                new PreviewRow(R.layout.item_pending_request).with(R.id.tvUserName, owner.getString(R.string.ui_uirows_text_13)).with(R.id.tvUserPhone, owner.getString(R.string.ui_uirows_text_14))
-                        .with(R.id.btnAction, owner.getString(R.string.ui_uirows_text_12)).click(() -> owner.dialog(R.layout.dialog_user_info)));
+public class PendingRequestsAdapter extends SocialAdapter<FriendDto, ItemPendingRequestBinding> {
+    private final Consumer<FriendDto> click;
+    private final Consumer<FriendDto> accept;
+    private final Consumer<FriendDto> reject;
+    public PendingRequestsAdapter(Consumer<FriendDto> click, Consumer<FriendDto> accept, Consumer<FriendDto> reject) {
+        super(ItemPendingRequestBinding::inflate); this.click = click; this.accept = accept; this.reject = reject;
     }
-
-    @Override protected void bindActions(View root, PreviewRow row) {
-        BaseFragment.on(root, R.id.btnAccept, owner::previewNotice);
-        BaseFragment.on(root, R.id.btnReject, owner::previewNotice);
+    @Override protected void bind(ItemPendingRequestBinding binding, FriendDto item) {
+        binding.tvUserName.setText(SocialUi.name(item.firstName, item.lastName));
+        binding.tvUserPhone.setText(SocialUi.value(item.phone));
+        SocialUi.avatar(binding.ivAvatar, item.avatar);
+        boolean enabled = item.requestId != null && !item.requestId.isEmpty() && !busy.contains(item.requestId);
+        binding.btnAccept.setEnabled(enabled);
+        binding.btnReject.setEnabled(enabled);
+        binding.getRoot().setOnClickListener(view -> click.accept(item));
+        binding.btnAccept.setOnClickListener(view -> accept.accept(item));
+        binding.btnReject.setOnClickListener(view -> reject.accept(item));
     }
 }

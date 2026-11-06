@@ -1,18 +1,20 @@
 package com.example.myapplication.ui.friends.adapter;
 
-import com.example.myapplication.R;
-import com.example.myapplication.ui.base.BaseFragment;
-import com.example.myapplication.ui.base.BasePreviewAdapter;
-import com.example.myapplication.ui.base.PreviewRow;
-import android.view.View;
+import com.example.myapplication.data.remote.dto.response.BlockedUserDto;
+import com.example.myapplication.databinding.ItemBlockedUserBinding;
+import com.example.myapplication.ui.friends.SocialUi;
+import java.util.function.Consumer;
 
-public class BlockedUsersAdapter extends BasePreviewAdapter {
-    public BlockedUsersAdapter(BaseFragment owner) {
-        super(owner, new PreviewRow(R.layout.item_blocked_user)
-                .with(R.id.tvUserName, owner.getString(R.string.ui_uirows_text_16)).with(R.id.tvUserPhone, owner.getString(R.string.ui_uirows_text_17)));
+public class BlockedUsersAdapter extends SocialAdapter<BlockedUserDto, ItemBlockedUserBinding> {
+    private final Consumer<BlockedUserDto> unblock;
+    public BlockedUsersAdapter(Consumer<BlockedUserDto> unblock) {
+        super(ItemBlockedUserBinding::inflate); this.unblock = unblock;
     }
-
-    @Override protected void bindActions(View root, PreviewRow row) {
-        BaseFragment.on(root, R.id.btnUnblock, () -> owner.dialog(R.layout.dialog_confirm_delete));
+    @Override protected void bind(ItemBlockedUserBinding binding, BlockedUserDto item) {
+        binding.tvUserName.setText(SocialUi.name(item.firstName, item.lastName));
+        binding.tvUserPhone.setText(SocialUi.value(item.phone));
+        SocialUi.avatar(binding.ivAvatar, item.avatar);
+        binding.btnUnblock.setEnabled(item.id != null && !item.id.isEmpty() && !busy.contains(item.id));
+        binding.btnUnblock.setOnClickListener(view -> unblock.accept(item));
     }
 }
