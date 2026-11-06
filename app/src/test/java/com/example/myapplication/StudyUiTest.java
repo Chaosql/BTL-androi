@@ -104,7 +104,7 @@ public class StudyUiTest {
         try (ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup()) {
             MainActivity activity = controller.get();
             activity.getSupportFragmentManager().executePendingTransactions();
-            activity.findViewById(R.id.tvLogin).performClick();
+            activity.showScreen(UiScreen.MAP);
             activity.getSupportFragmentManager().executePendingTransactions();
             assertNotNull(activity.findViewById(R.id.mapView));
             activity.findViewById(R.id.btnFriend).performClick();

@@ -3,16 +3,30 @@ package com.example.myapplication.ui.auth;
 import android.os.Bundle;
 import android.view.View;
 import com.example.myapplication.R;
-import com.example.myapplication.ui.base.BaseFragment;
+import com.example.myapplication.databinding.FragmentLoginBinding;
 import com.example.myapplication.ui.main.UiScreen;
+import android.widget.Toast;
+import com.example.myapplication.data.local.PreferenceManager;
+import com.example.myapplication.data.remote.dto.request.LoginRequest;
+import com.example.myapplication.ui.main.MainActivity;
 
-public class LoginFragment extends BaseFragment {
-    public LoginFragment() { super(R.layout.fragment_login); }
-
+public class LoginFragment extends BaseAuthFragment<FragmentLoginBinding> {
+    public LoginFragment() { super(FragmentLoginBinding::inflate); }
     @Override protected void onScreenCreated(View root, Bundle state) {
-        on(root, R.id.tvLogin, () -> go(UiScreen.MAP));
-        on(root, R.id.btnGoogleLogin, () -> go(UiScreen.MAP));
-        on(root, R.id.tvRegister, () -> go(UiScreen.REGISTER));
-        on(root, R.id.tvForgot, () -> go(UiScreen.INPUT_EMAIL));
+        binding.tvLogin.setOnClickListener(view -> {
+            if (!validEmail(binding.edtEmail) || !required(binding.edtPassword)) return;
+            String email = value(binding.edtEmail);
+            submit(repository().login(new LoginRequest(email, binding.edtPassword.getText().toString())), binding.tvLogin, response -> {
+                try { new PreferenceManager(requireContext()).saveLogin(response.data, email); }
+                catch (IllegalArgumentException error) {
+                    Toast.makeText(requireContext(), R.string.api_invalid_login, Toast.LENGTH_LONG).show(); return;
+                }
+                ((MainActivity) requireActivity()).showRootScreen(UiScreen.MAP);
+            });
+        });
+        binding.btnGoogleLogin.setOnClickListener(view ->
+                Toast.makeText(requireContext(), R.string.api_google_setup, Toast.LENGTH_LONG).show());
+        binding.tvRegister.setOnClickListener(view -> go(UiScreen.REGISTER));
+        binding.tvForgot.setOnClickListener(view -> go(UiScreen.INPUT_EMAIL));
     }
 }

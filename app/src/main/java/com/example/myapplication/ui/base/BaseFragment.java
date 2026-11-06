@@ -24,8 +24,44 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Locale;
 
-public abstract class BaseFragment extends Fragment {
-    protected BaseFragment(int layout) { super(layout); }
+public abstract class BaseFragment<B extends androidx.viewbinding.ViewBinding> extends Fragment {
+    protected B binding;
+    private final BindingInflater<B> bindingInflater;
+    private final java.util.List<retrofit2.Call<?>> requests = new java.util.ArrayList<>();
+
+    protected BaseFragment(BindingInflater<B> bindingInflater) { this.bindingInflater = bindingInflater; }
+
+    @Override public View onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup parent, Bundle state) {
+        binding = bindingInflater.inflate(inflater, parent, false);
+        return binding.getRoot();
+    }
+
+    protected <T> void request(retrofit2.Call<T> call, java.util.function.Consumer<T> success) {
+        request(call, success, error -> Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show());
+    }
+
+    protected <T> void request(retrofit2.Call<T> call, java.util.function.Consumer<T> success,
+            java.util.function.Consumer<com.example.myapplication.data.remote.network.ApiError> failure) {
+        requests.add(call);
+        com.example.myapplication.data.remote.network.ApiRequests.enqueue(call,
+                new com.example.myapplication.data.remote.network.ApiCallback<T>() {
+                    @Override public void onSuccess(T result) {
+                        requests.remove(call);
+                        if (binding != null && isAdded()) success.accept(result);
+                    }
+                    @Override public void onError(com.example.myapplication.data.remote.network.ApiError error) {
+                        requests.remove(call);
+                        if (binding != null && isAdded()) failure.accept(error);
+                    }
+                });
+    }
+
+    @Override public void onDestroyView() {
+        for (retrofit2.Call<?> call : requests) call.cancel();
+        requests.clear();
+        binding = null;
+        super.onDestroyView();
+    }
 
     @Override public final void onViewCreated(@NonNull View root, @Nullable Bundle state) {
         super.onViewCreated(root, state);

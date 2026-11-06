@@ -38,7 +38,7 @@ public class ScreenStructureTest {
         assertTrue(fragment.requireArguments().getBoolean(VerifyOtpFragment.ARG_RESET_PASSWORD));
     }
 
-    @Test public void passwordResetKeepsArgumentsAndBackNavigation() {
+    @Test public void passwordResetRequiresEmailAndKeepsBackNavigation() {
         try (ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup()) {
             MainActivity activity = controller.get();
             activity.getSupportFragmentManager().executePendingTransactions();
@@ -47,14 +47,11 @@ public class ScreenStructureTest {
             assertTrue(current(activity) instanceof InputEmailFragment);
             activity.findViewById(R.id.btnSendEmail).performClick();
             activity.getSupportFragmentManager().executePendingTransactions();
-            assertTrue(current(activity) instanceof VerifyOtpFragment);
-            assertTrue(current(activity).requireArguments().getBoolean(VerifyOtpFragment.ARG_RESET_PASSWORD));
-            activity.findViewById(R.id.btnVerify).performClick();
-            activity.getSupportFragmentManager().executePendingTransactions();
-            assertTrue(current(activity) instanceof ForgotPasswordFragment);
+            assertTrue(current(activity) instanceof InputEmailFragment);
+            assertTrue(((android.widget.EditText) activity.findViewById(R.id.edtEmail)).getError() != null);
             activity.getOnBackPressedDispatcher().onBackPressed();
             activity.getSupportFragmentManager().executePendingTransactions();
-            assertTrue(current(activity) instanceof VerifyOtpFragment);
+            assertTrue(current(activity) instanceof com.example.myapplication.ui.auth.LoginFragment);
         }
     }
 

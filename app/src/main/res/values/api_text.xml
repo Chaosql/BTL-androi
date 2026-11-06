@@ -1,0 +1,14 @@
+<resources>
+    <string name="api_invalid_email">Vui lòng nhập email hợp lệ.</string>
+    <string name="api_required">Vui lòng nhập đầy đủ thông tin.</string>
+    <string name="api_password_mismatch">Mật khẩu xác nhận không khớp.</string>
+    <string name="api_invalid_date">Vui lòng chọn ngày sinh hợp lệ.</string>
+    <string name="api_invalid_login">Máy chủ trả về phiên đăng nhập không hợp lệ.</string>
+    <string name="api_google_setup">Đăng nhập Google cần cấu hình OAuth và chữ ký ứng dụng.</string>
+    <string name="api_verified">Xác thực thành công. Vui lòng đăng nhập.</string>
+    <string name="api_reset_success">Đặt lại mật khẩu thành công. Vui lòng đăng nhập.</string>
+    <string name="api_otp_sent">Đã gửi mã OTP tới email của bạn.</string>
+    <string name="api_invalid_otp">Vui lòng nhập đủ mã OTP.</string>
+    <string name="api_verify_email_description">Nhận mã OTP để xác thực email %1$s.</string>
+    <string name="api_password_changed">Đổi mật khẩu thành công.</string>
+</resources>

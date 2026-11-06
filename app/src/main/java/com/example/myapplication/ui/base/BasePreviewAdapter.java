@@ -23,7 +23,7 @@ public class BasePreviewAdapter extends RecyclerView.Adapter<BasePreviewAdapter.
     }
     @Override public int getItemViewType(int position) { return visible.get(position).layout; }
     @NonNull @Override public Holder onCreateViewHolder(@NonNull ViewGroup parent, int layout) {
-        return new Holder(LayoutInflater.from(parent.getContext()).inflate(layout, parent, false));
+        return new Holder(RowBindings.inflate(layout, LayoutInflater.from(parent.getContext()), parent));
     }
     @Override public void onBindViewHolder(@NonNull Holder holder, int position) {
         PreviewRow row = visible.get(position);
@@ -54,5 +54,8 @@ public class BasePreviewAdapter extends RecyclerView.Adapter<BasePreviewAdapter.
         notifyItemInserted(visible.size() - 1);
     }
     protected void bindActions(View root, PreviewRow row) { }
-    public static class Holder extends RecyclerView.ViewHolder { Holder(View view) { super(view); } }
+    public static class Holder extends RecyclerView.ViewHolder {
+        public final androidx.viewbinding.ViewBinding binding;
+        Holder(androidx.viewbinding.ViewBinding binding) { super(binding.getRoot()); this.binding = binding; }
+    }
 }

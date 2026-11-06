@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.chat;
 
+import com.example.myapplication.databinding.DialogForwardSelectBinding;
 import com.example.myapplication.R;
 import com.example.myapplication.ui.base.BasePreviewDialog;
 import com.example.myapplication.ui.main.MainActivity;
@@ -10,8 +11,8 @@ import com.example.myapplication.ui.base.BasePreviewAdapter;
 import com.example.myapplication.ui.base.PreviewRow;
 import com.example.myapplication.ui.base.BaseFragment;
 
-public class ForwardMessageDialog extends BasePreviewDialog {
-    public ForwardMessageDialog(MainActivity activity) { super(activity, R.layout.dialog_forward_select); }
+public class ForwardMessageDialog extends BasePreviewDialog<DialogForwardSelectBinding> {
+    public ForwardMessageDialog(MainActivity activity) { super(activity, DialogForwardSelectBinding::inflate); }
 
     @Override protected void bind(View content, AlertDialog dialog) {
 

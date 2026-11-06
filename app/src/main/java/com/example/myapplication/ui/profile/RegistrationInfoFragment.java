@@ -1,19 +1,20 @@
 package com.example.myapplication.ui.profile;
 
+import com.example.myapplication.databinding.FragmentRegistrationInfoBinding;
 import android.os.Bundle;
 import android.view.View;
 import com.example.myapplication.R;
 import com.example.myapplication.ui.base.BaseFragment;
 
-public class RegistrationInfoFragment extends BaseFragment {
-    public RegistrationInfoFragment() { super(R.layout.fragment_registration_info); }
+public class RegistrationInfoFragment extends BaseFragment<FragmentRegistrationInfoBinding> {
+    public RegistrationInfoFragment() { super(FragmentRegistrationInfoBinding::inflate); }
 
     @Override protected void onScreenCreated(View root, Bundle state) {
-        text(root, R.id.etEmail, "minhan@example.com");
-        text(root, R.id.etId, "STUDY-001");
-        text(root, R.id.etLastName, getString(R.string.ui_studyscreenfragment_text_1));
-        text(root, R.id.etFirstName, "Minh An");
-        text(root, R.id.etDateOfBirth, "15/08/2005");
-        on(root, R.id.btnSave, this::previewNotice);
+        binding.etEmail.setText("minhan@example.com");
+        binding.etId.setText("STUDY-001");
+        binding.etLastName.setText(getString(R.string.ui_studyscreenfragment_text_1));
+        binding.etFirstName.setText("Minh An");
+        binding.etDateOfBirth.setText("15/08/2005");
+        binding.btnSave.setOnClickListener(bindingView -> this.previewNotice());
     }
 }

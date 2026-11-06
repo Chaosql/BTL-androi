@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.schedule;
 
+import com.example.myapplication.databinding.FragmentScheduleBinding;
 import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.NonNull;
@@ -11,13 +12,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 
-public class ScheduleFragment extends BaseFragment {
+public class ScheduleFragment extends BaseFragment<FragmentScheduleBinding> {
     private LocalDate selectedScheduleDate = LocalDate.now();
 
     private void updateSchedule(View root) {
-        text(root, R.id.tvMonthYear, getString(R.string.schedule_month_year,
+        binding.tvMonthYear.setText(getString(R.string.schedule_month_year,
                 selectedScheduleDate.getMonthValue(), selectedScheduleDate.getYear()));
-        text(root, R.id.tvDateTag, selectedScheduleDate.format(DateTimeFormatter.ofPattern("dd/M")));
+        binding.tvDateTag.setText(selectedScheduleDate.format(DateTimeFormatter.ofPattern("dd/M")));
         int[] tabs = {R.id.tabMon, R.id.tabTue, R.id.tabWed, R.id.tabThu, R.id.tabFri, R.id.tabSat, R.id.tabSun};
         int selected = selectedScheduleDate.getDayOfWeek().getValue() - 1;
         for (int i = 0; i < tabs.length; i++) {
@@ -26,11 +27,11 @@ public class ScheduleFragment extends BaseFragment {
             tab.setBackgroundResource(i == selected ? R.drawable.bg_tab_selected : R.drawable.bg_tab_unselected);
             tab.setAlpha(1f);
         }
-        View tag = root.findViewById(R.id.tvDateTag);
+        View tag = binding.tvDateTag;
         root.post(() -> {
             if (!isAdded() || getView() != root) return;
             View selectedTab = root.findViewById(tabs[selected]);
-            View tabColumn = root.findViewById(R.id.layoutDayTabs);
+            View tabColumn = binding.layoutDayTabs;
             tag.setTranslationY(tabColumn.getTop() + selectedTab.getTop()
                     + (selectedTab.getHeight() - tag.getHeight()) / 2f - tag.getTop());
         });
@@ -41,7 +42,7 @@ public class ScheduleFragment extends BaseFragment {
         super.onSaveInstanceState(state);
     }
 
-    public ScheduleFragment() { super(R.layout.fragment_schedule); }
+    public ScheduleFragment() { super(FragmentScheduleBinding::inflate); }
 
     @Override protected void onScreenCreated(View root, Bundle state) {
         if (state != null) selectedScheduleDate = LocalDate.parse(state.getString("selected_date", LocalDate.now().toString()));
@@ -55,9 +56,9 @@ public class ScheduleFragment extends BaseFragment {
                 updateSchedule(root);
             });
         }
-        on(root, R.id.btnWeekPrev, () -> { selectedScheduleDate = selectedScheduleDate.minusWeeks(1); updateSchedule(root); });
-        on(root, R.id.btnWeekNext, () -> { selectedScheduleDate = selectedScheduleDate.plusWeeks(1); updateSchedule(root); });
+        binding.btnWeekPrev.setOnClickListener(bindingView -> { selectedScheduleDate = selectedScheduleDate.minusWeeks(1); updateSchedule(root); });
+        binding.btnWeekNext.setOnClickListener(bindingView -> { selectedScheduleDate = selectedScheduleDate.plusWeeks(1); updateSchedule(root); });
         updateSchedule(root);
-        on(root, R.id.imgMascot, () -> go(UiScreen.CREATE_APPOINTMENT));
+        binding.imgMascot.setOnClickListener(bindingView -> go(UiScreen.CREATE_APPOINTMENT));
     }
 }

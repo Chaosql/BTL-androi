@@ -3,6 +3,10 @@ plugins {
 }
 
 android {
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
+    }
     namespace = "com.example.myapplication"
     compileSdk {
         version = release(36) {
@@ -16,6 +20,9 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+        val apiBaseUrl = providers.gradleProperty("studydateApiBaseUrl")
+            .getOrElse("https://api.chiikaiwa.me/")
+        buildConfigField("String", "API_BASE_URL", "\"${apiBaseUrl}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -40,6 +47,10 @@ android {
 }
 
 dependencies {
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation("androidx.fragment:fragment:1.8.9")
     implementation("androidx.cardview:cardview:1.0.0")

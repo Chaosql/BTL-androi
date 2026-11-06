@@ -5,8 +5,8 @@ import com.example.myapplication.R;
 import com.example.myapplication.ui.base.BaseFragment;
 import com.example.myapplication.ui.main.UiScreen;
 
-public abstract class BaseProfileFragment extends BaseFragment {
-    protected BaseProfileFragment(int layout) { super(layout); }
+public abstract class BaseProfileFragment<B extends androidx.viewbinding.ViewBinding> extends BaseFragment<B> {
+    protected BaseProfileFragment(com.example.myapplication.ui.base.BindingInflater<B> inflater) { super(inflater); }
 
     protected void bindProfile(View root, boolean editingProfile) {
         text(root, R.id.tvUsername, "Minh An");

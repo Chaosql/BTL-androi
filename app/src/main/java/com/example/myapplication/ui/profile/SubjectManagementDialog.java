@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.profile;
 
+import com.example.myapplication.databinding.DialogSubjectManagementBinding;
 import com.example.myapplication.R;
 import com.example.myapplication.ui.base.BasePreviewDialog;
 import com.example.myapplication.ui.main.MainActivity;
@@ -9,8 +10,8 @@ import android.widget.LinearLayout;
 import android.view.LayoutInflater;
 import com.example.myapplication.ui.base.BaseFragment;
 
-public class SubjectManagementDialog extends BasePreviewDialog {
-    public SubjectManagementDialog(MainActivity activity) { super(activity, R.layout.dialog_subject_management); }
+public class SubjectManagementDialog extends BasePreviewDialog<DialogSubjectManagementBinding> {
+    public SubjectManagementDialog(MainActivity activity) { super(activity, DialogSubjectManagementBinding::inflate); }
 
     @Override protected void bind(View content, AlertDialog dialog) {
 
@@ -21,9 +22,10 @@ public class SubjectManagementDialog extends BasePreviewDialog {
 
     private static void subject(View root, int containerId, String name) {
         LinearLayout container = root.findViewById(containerId);
-        View row = LayoutInflater.from(root.getContext()).inflate(R.layout.item_dialog_subject, container, false);
-        BaseFragment.text(row, R.id.tvSubjectName, name);
-        BaseFragment.on(row, R.id.btnDeleteSubject, () -> container.removeView(row));
-        container.addView(row);
+        com.example.myapplication.databinding.ItemDialogSubjectBinding row =
+                com.example.myapplication.databinding.ItemDialogSubjectBinding.inflate(LayoutInflater.from(root.getContext()), container, false);
+        row.tvSubjectName.setText(name);
+        row.btnDeleteSubject.setOnClickListener(view -> container.removeView(row.getRoot()));
+        container.addView(row.getRoot());
     }
 }

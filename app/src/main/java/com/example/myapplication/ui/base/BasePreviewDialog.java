@@ -14,17 +14,19 @@ import com.example.myapplication.ui.main.MainActivity;
 import com.example.myapplication.ui.main.UiDialogs;
 import com.example.myapplication.ui.main.UiScreen;
 
-public abstract class BasePreviewDialog {
+public abstract class BasePreviewDialog<B extends androidx.viewbinding.ViewBinding> {
     protected final MainActivity activity;
-    private final int layout;
+    protected B binding;
+    private final BindingInflater<B> inflater;
 
-    protected BasePreviewDialog(MainActivity activity, int layout) {
+    protected BasePreviewDialog(MainActivity activity, BindingInflater<B> inflater) {
         this.activity = activity;
-        this.layout = layout;
+        this.inflater = inflater;
     }
 
     public final void show() {
-        View content = LayoutInflater.from(activity).inflate(layout, null, false);
+        binding = inflater.inflate(LayoutInflater.from(activity), null, false);
+        View content = binding.getRoot();
         View container = content;
         if (!(content instanceof ScrollView)) {
             ScrollView scroll = new ScrollView(activity);
@@ -69,6 +71,7 @@ public abstract class BasePreviewDialog {
                         ViewGroup.LayoutParams.WRAP_CONTENT);
             }
         });
+        dialog.setOnDismissListener(ignored -> binding = null);
         dialog.show();
         }
 

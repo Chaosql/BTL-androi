@@ -1,13 +1,14 @@
 package com.example.myapplication.ui.friends;
 
+import com.example.myapplication.databinding.LayoutFriendsMenuPopupBinding;
 import com.example.myapplication.R;
 import com.example.myapplication.ui.base.BasePreviewDialog;
 import com.example.myapplication.ui.main.MainActivity;
 import android.view.View;
 import androidx.appcompat.app.AlertDialog;
 
-public class FriendsMenuDialog extends BasePreviewDialog {
-    public FriendsMenuDialog(MainActivity activity) { super(activity, R.layout.layout_friends_menu_popup); }
+public class FriendsMenuDialog extends BasePreviewDialog<LayoutFriendsMenuPopupBinding> {
+    public FriendsMenuDialog(MainActivity activity) { super(activity, LayoutFriendsMenuPopupBinding::inflate); }
 
     @Override protected void bind(View content, AlertDialog dialog) {
 

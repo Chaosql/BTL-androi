@@ -83,7 +83,13 @@ public final class UiDialogs {
     }
 
     public static void showPopup(MainActivity activity, View anchor, int layout) {
-        View content = LayoutInflater.from(activity).inflate(layout, null, false);
+        androidx.viewbinding.ViewBinding binding;
+        if (layout == R.layout.layout_friends_menu_popup)
+            binding = com.example.myapplication.databinding.LayoutFriendsMenuPopupBinding.inflate(LayoutInflater.from(activity));
+        else if (layout == R.layout.layout_reaction_popup)
+            binding = com.example.myapplication.databinding.LayoutReactionPopupBinding.inflate(LayoutInflater.from(activity));
+        else throw new IllegalArgumentException("Unknown popup layout: " + layout);
+        View content = binding.getRoot();
         PopupWindow popup = new PopupWindow(content, ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, true);
         popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));

@@ -3,14 +3,24 @@ package com.example.myapplication.ui.auth;
 import android.os.Bundle;
 import android.view.View;
 import com.example.myapplication.R;
-import com.example.myapplication.ui.base.BaseFragment;
+import com.example.myapplication.databinding.FragmentForgotPasswordBinding;
 import com.example.myapplication.ui.main.UiScreen;
+import android.widget.Toast;
+import com.example.myapplication.data.remote.dto.request.ResetPasswordRequest;
 
-public class ForgotPasswordFragment extends BaseFragment {
-    public ForgotPasswordFragment() { super(R.layout.fragment_forgot_password); }
-
+public class ForgotPasswordFragment extends BaseAuthFragment<FragmentForgotPasswordBinding> {
+    public ForgotPasswordFragment() { super(FragmentForgotPasswordBinding::inflate); }
     @Override protected void onScreenCreated(View root, Bundle state) {
         toggle(root, R.id.ivTogglePassword, R.id.edtNewPassword);
-        on(root, R.id.tvConfirm, () -> go(UiScreen.LOGIN));
+        binding.tvConfirm.setOnClickListener(view -> {
+            if (email().isEmpty()) { go(UiScreen.INPUT_EMAIL); return; }
+            if (!passwordPair(binding.edtNewPassword, binding.edtConfirmPassword)) return;
+            ResetPasswordRequest request = new ResetPasswordRequest(email(), binding.edtNewPassword.getText().toString(),
+                    binding.edtConfirmPassword.getText().toString());
+            submit(repository().resetPassword(request), binding.tvConfirm, response -> {
+                Toast.makeText(requireContext(), R.string.api_reset_success, Toast.LENGTH_LONG).show();
+                go(UiScreen.LOGIN);
+            });
+        });
     }
 }

@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.chat;
 
+import com.example.myapplication.databinding.FragmentChatBinding;
 import com.example.myapplication.ui.chat.adapter.MessageAdapter;
 import android.os.Bundle;
 import android.view.View;
@@ -8,29 +9,29 @@ import com.example.myapplication.R;
 import com.example.myapplication.ui.base.BaseFragment;
 import com.example.myapplication.ui.main.UiScreen;
 
-public class ChatFragment extends BaseFragment {
+public class ChatFragment extends BaseFragment<FragmentChatBinding> {
     private void bindChat(View root) {
-        text(root, R.id.tvChatTitle, "Minh Anh");
-        text(root, R.id.tvOnlineStatus, getString(R.string.ui_studyscreenfragment_text_21));
+        binding.tvChatTitle.setText("Minh Anh");
+        binding.tvOnlineStatus.setText(getString(R.string.ui_studyscreenfragment_text_21));
         MessageAdapter messages = new MessageAdapter(this);
         list(root, R.id.rvChatMessages, messages);
-        on(root, R.id.btnSend, () -> {
-            String message = value(root, R.id.etMessage).trim();
+        binding.btnSend.setOnClickListener(bindingView -> {
+            String message = binding.etMessage.getText().toString().trim();
             if (message.isEmpty()) return;
             messages.addMessage(message);
-            text(root, R.id.etMessage, "");
-            ((RecyclerView) root.findViewById(R.id.rvChatMessages)).scrollToPosition(messages.getItemCount() - 1);
+            binding.etMessage.setText("");
+            ((RecyclerView) binding.rvChatMessages).scrollToPosition(messages.getItemCount() - 1);
         });
-        on(root, R.id.btnCreateSchedule, () -> go(UiScreen.CREATE_APPOINTMENT));
-        on(root, R.id.tvChatTitle, () -> go(UiScreen.GROUP_DETAIL));
-        on(root, R.id.btnSticker, () -> dialog(R.layout.layout_reaction_popup));
-        on(root, R.id.btnGallery, this::previewNotice);
-        on(root, R.id.btnFolder, this::previewNotice);
-        on(root, R.id.btnMic, this::previewNotice);
-        on(root, R.id.btnCancelReply, () -> hide(root, R.id.layoutReplyPreview));
+        binding.btnCreateSchedule.setOnClickListener(bindingView -> go(UiScreen.CREATE_APPOINTMENT));
+        binding.tvChatTitle.setOnClickListener(bindingView -> go(UiScreen.GROUP_DETAIL));
+        binding.btnSticker.setOnClickListener(bindingView -> dialog(R.layout.layout_reaction_popup));
+        binding.btnGallery.setOnClickListener(bindingView -> this.previewNotice());
+        binding.btnFolder.setOnClickListener(bindingView -> this.previewNotice());
+        binding.btnMic.setOnClickListener(bindingView -> this.previewNotice());
+        binding.btnCancelReply.setOnClickListener(bindingView -> binding.layoutReplyPreview.setVisibility(android.view.View.GONE));
     }
 
-    public ChatFragment() { super(R.layout.fragment_chat); }
+    public ChatFragment() { super(FragmentChatBinding::inflate); }
 
     @Override protected void onScreenCreated(View root, Bundle state) {
         bindChat(root);
