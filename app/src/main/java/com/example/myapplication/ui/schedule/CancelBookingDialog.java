@@ -30,6 +30,7 @@ public class CancelBookingDialog extends BasePreviewDialog<DialogCancelReasonBin
             binding.etCancelReason.setEnabled(false); dialog.setCancelable(false);
             String reason = binding.etCancelReason.getText().toString().trim();
             request(new BookingRepository(activity).cancelBooking(bookingId, new CancelBookingRequest(reason)), response -> {
+                BookingReminders.cancel(activity, bookingId);
                 BookingUi.updated(activity);
                 Toast.makeText(activity, R.string.booking_updated, Toast.LENGTH_SHORT).show();
                 dialog.dismiss(); cancelled.run();

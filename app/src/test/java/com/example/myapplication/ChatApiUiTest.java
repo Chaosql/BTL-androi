@@ -41,7 +41,6 @@ public class ChatApiUiTest {
     private final List<String> mutations = new java.util.concurrent.CopyOnWriteArrayList<>();
     private final List<String> frames = new java.util.concurrent.CopyOnWriteArrayList<>();
     private final List<String> requests = new java.util.concurrent.CopyOnWriteArrayList<>();
-    private final List<String> forwardedTargets = new java.util.concurrent.CopyOnWriteArrayList<>();
     private final List<String> uploads = new java.util.concurrent.CopyOnWriteArrayList<>();
     private volatile boolean autoEcho = true;
     private volatile boolean failAction;
@@ -129,30 +128,14 @@ public class ChatApiUiTest {
                     return response(JsonParser.parseString("{\"status\":true}"));
                 }
                 if (path.equals("/api/v1/chat/conversations/direct")) return response(conversation("c1"));
-                if (path.endsWith("/reply")) {
-                    JsonObject reply = message("reply-1", "self", request.getRequestUrl().queryParameter("content"));
-                    JsonObject quote = new JsonObject(); quote.addProperty("id", "m1"); quote.addProperty("senderName", "Peer"); quote.addProperty("content", "Hello");
-                    reply.add("replyToMessage", quote); history.add(reply); return response(reply);
-                }
-                if (path.endsWith("/forward")) {
-                    forwardedTargets.add(JsonParser.parseString(request.getBody().readUtf8()).getAsJsonObject().get("targetConversationId").getAsString());
-                    JsonObject forwarded = message("forward-1", "self", "Hello"); forwarded.addProperty("conversationId", "c2"); return response(forwarded);
-                }
+
+
                 if (path.endsWith("/recall")) synchronized (history) {
                     for (JsonObject value : history) if (value.get("id").getAsString().equals("m2")) value.addProperty("isRecalled", true);
                 }
                 if (path.equals("/api/v1/chat/messages/m1") && request.getMethod().equals("DELETE"))
                     history.removeIf(value -> value.get("id").getAsString().equals("m1"));
-                if (path.endsWith("/reactions")) synchronized (history) {
-                    for (JsonObject value : history) if (value.get("id").getAsString().equals("m1")) {
-                        JsonArray reactions = new JsonArray();
-                        if (request.getMethod().equals("POST")) {
-                            JsonObject reaction = new JsonObject(); reaction.addProperty("emoji", request.getRequestUrl().queryParameter("emoji")); reaction.addProperty("count", 1);
-                            JsonArray ids = new JsonArray(); ids.add("self"); reaction.add("userIds", ids); reactions.add(reaction);
-                        }
-                        value.add("reactions", reactions);
-                    }
-                }
+
                 return response(JsonParser.parseString("{\"status\":true}"));
             }
         });
@@ -222,14 +205,17 @@ public class ChatApiUiTest {
         open(); JsonObject foreign = message("foreign", "peer", "Wrong conversation"); foreign.addProperty("conversationId", "other"); push(foreign);
         Thread.sleep(50); Shadows.shadowOf(Looper.getMainLooper()).idle(); assertEquals(2, adapter().getItemCount());
     }
-    @Test public void replyUsesOriginalMessageIdAndShowsQuote() throws Exception {
-        open(); action("m1", R.id.tvReply);
-        assertEquals(View.VISIBLE, activity.findViewById(R.id.layoutReplyPreview).getVisibility());
-        ((EditText) activity.findViewById(R.id.etMessage)).setText("Reply text"); activity.findViewById(R.id.btnSend).performClick();
-        await(() -> adapter().contains("reply-1"));
-        assertTrue(mutations.contains("POST /api/v1/chat/messages/m1/reply"));
-        assertEquals(View.VISIBLE, row("reply-1").findViewById(R.id.layoutReplyInBubble).getVisibility());
+
+    @Test public void messageMenuOnlyOffersRecallAndDelete() throws Exception {
+        open(); row("m2").performLongClick();
+        android.app.Dialog menu = ShadowDialog.getLatestDialog();
+        assertEquals(View.VISIBLE, menu.findViewById(R.id.tvRecall).getVisibility());
+        assertEquals(View.VISIBLE, menu.findViewById(R.id.tvDelete).getVisibility());
+        android.view.ViewGroup options = (android.view.ViewGroup) menu.findViewById(R.id.tvDelete).getParent();
+        assertEquals(2, options.getChildCount());
+        assertTrue(mutations.isEmpty());
     }
+
     @Test public void recallHandlesApplicationErrorThenRetries() throws Exception {
         open(); failAction = true; action("m2", R.id.tvRecall);
         ((AlertDialog) ShadowDialog.getLatestDialog()).getButton(AlertDialog.BUTTON_POSITIVE).performClick();
@@ -246,25 +232,8 @@ public class ChatApiUiTest {
         ((AlertDialog) ShadowDialog.getLatestDialog()).getButton(AlertDialog.BUTTON_POSITIVE).performClick();
         await(() -> !adapter().contains("m1")); assertTrue(mutations.contains("DELETE /api/v1/chat/messages/m1"));
     }
-    @Test public void reactionCanBeAddedAndRemoved() throws Exception {
-        open(); action("m1", R.id.tvEmojiLike);
-        await(() -> adapter().messages().stream().anyMatch(message -> "m1".equals(message.id) && message.reactions != null && !message.reactions.isEmpty()));
-        action("m1", R.id.tvEmojiLike);
-        await(() -> mutations.contains("DELETE /api/v1/chat/messages/m1/reactions"));
-        assertTrue(mutations.contains("POST /api/v1/chat/messages/m1/reactions"));
-    }
-    @Test public void forwardingUsesChosenConversation() throws Exception {
-        open(); action("m1", R.id.tvForward);
-        android.app.Dialog dialog = ShadowDialog.getLatestDialog();
-        RecyclerView choices = dialog.findViewById(R.id.rvConversations);
-        await(() -> choices.getAdapter().getItemCount() == 1);
-        @SuppressWarnings("rawtypes") RecyclerView.Adapter adapter = choices.getAdapter();
-        RecyclerView.ViewHolder holder = adapter.createViewHolder(choices, adapter.getItemViewType(0));
-        adapter.bindViewHolder(holder, 0); holder.itemView.performClick();
-        await(() -> !dialog.isShowing());
-        assertTrue(mutations.contains("POST /api/v1/chat/messages/m1/forward"));
-        assertEquals(Collections.singletonList("c2"), forwardedTargets);
-    }
+
+
     @Test public void historyFailureSupportsRetry() throws Exception {
         failHistory = true;
         activity.showScreen(UiScreen.CHAT, ChatUi.args("c1", "Peer", ""));

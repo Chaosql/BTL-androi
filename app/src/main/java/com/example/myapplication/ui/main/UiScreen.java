@@ -2,6 +2,7 @@ package com.example.myapplication.ui.main;
 
 import com.example.myapplication.R;
 public enum UiScreen {
+    ADMIN_USERS(R.string.admin_title, R.layout.fragment_admin_users),
     LOGIN(R.string.login, R.layout.fragment_login),
     REGISTER(R.string.ui_uiscreen_text_2, R.layout.fragment_register),
     VERIFY_EMAIL(R.string.ui_uiscreen_text_3, R.layout.fragment_verify_email),
@@ -21,7 +22,6 @@ public enum UiScreen {
     PENDING_REQUESTS(R.string.ui_fragment_pending_requests_text_1, R.layout.fragment_pending_requests),
     CHAT(R.string.ui_uiscreen_text_18, R.layout.fragment_chat),
     CONVERSATIONS(R.string.chat_conversations, R.layout.fragment_friends_list),
-    GROUP_DETAIL(R.string.ui_uiscreen_text_19, R.layout.fragment_friends_list),
     NOTIFICATIONS(R.string.title_notification, R.layout.fragment_notification),
     SCHEDULE(R.string.ui_uiscreen_text_21, R.layout.fragment_schedule),
     CREATE_APPOINTMENT(R.string.ui_uiscreen_text_22, R.layout.fragment_create_appointment);

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_enable_permission">Cho phép thông báo</string>
+    <string name="reminder_channel">Nhắc lịch học</string>
+    <string name="reminder_body">Cuộc hẹn tại %1$s bắt đầu lúc %2$s.</string>
+    <string name="reminder_setting">Nhắc lịch trên thiết bị</string>
+    <string name="reminder_permission">Cần cho phép thông báo trong cài đặt điện thoại để nhận nhắc lịch.</string>
+    <string name="reminder_scope">Nhắc trước 30 phút cho lịch đã xác nhận. Điện thoại có thể hiển thị muộn nếu chưa cho phép báo thức chính xác.</string>
+    <string name="reset_password_policy">Mật khẩu cần ít nhất 8 ký tự, có chữ, số và ký tự @$!%*?&amp;; không chứa khoảng trắng.</string>
+    <string name="feature_actions">Thao tác khác</string>
+    <string name="admin_title">Quản lý người dùng</string>
+    <string name="admin_denied">Tài khoản không có quyền quản trị.</string>
+    <string name="feature_loading">Đang tải…</string>
+    <string name="feature_retry">%1$s\nBấm để thử lại.</string>
+    <string name="feature_invalid">Dữ liệu máy chủ không hợp lệ.</string>
+    <string name="feature_more">Xem thêm</string>
+    <string name="admin_empty">Chưa có người dùng.</string>
+    <string name="admin_lock">Khóa tài khoản</string>
+    <string name="admin_unlock">Mở khóa tài khoản</string>
+    <string name="admin_locked">Đã khóa</string>
+    <string name="admin_active">Hoạt động</string>
+    <string name="admin_unverified">Chưa xác thực</string>
+    <string name="admin_unknown">Chưa rõ trạng thái</string>
+    <string name="admin_confirm">%1$s: %2$s?</string>
+    <string name="admin_detail">Email: %1$s\nĐiện thoại: %2$s\nTrường: %3$s\nChuyên ngành: %4$s\nVai trò: %5$s\nTrạng thái: %6$s</string>
+    <string name="admin_self">Bạn không thể khóa tài khoản của mình.</string>
+    <string name="admin_reload">Tải lại</string>
+    <string name="feature_logout">Đăng xuất</string>
+    <string name="notification_delete">Xóa thông báo</string>
+    <string name="notification_delete_all">Xóa tất cả</string>
+    <string name="notification_delete_confirm">Xóa thông báo đã chọn?</string>
+    <string name="notification_delete_all_confirm">Xóa tất cả thông báo, bao gồm các nhóm đang ẩn?</string>
+    <string name="buddy_confirm">%1$s tìm bạn học? Khi tắt, bạn sẽ ngừng xuất hiện trên radar.</string>
+    <string name="feature_enable">Bật</string>
+    <string name="feature_disable">Tắt</string>
+    <string name="password_policy">Mật khẩu cần ít nhất 8 ký tự, có chữ thường và chữ số, không chứa khoảng trắng.</string>
+</resources>

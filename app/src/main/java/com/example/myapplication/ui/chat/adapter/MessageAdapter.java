@@ -81,25 +81,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Holder> 
             });
             image.setOnLongClickListener(view -> { actions.accept(item); return true; });
         }
-        visible(root, R.id.layoutReplyInBubble, !recalled && item.replyToMessage != null);
-        visible(root, R.id.tvForwardedHeader, !recalled && item.forwardedFrom != null);
-        if (item.replyToMessage != null) {
-            BaseFragment.text(root, R.id.tvReplySender, ChatUi.value(item.replyToMessage.senderName));
-            BaseFragment.text(root, R.id.tvReplyContent, ChatUi.value(item.replyToMessage.content));
-        }
-        LinearLayout reactions = root.findViewById(R.id.layoutReactions);
-        if (reactions != null) {
-            reactions.removeAllViews();
-            if (!recalled && item.reactions != null) for (ReactionResponse reaction : item.reactions) {
-                if (reaction == null || reaction.emoji == null) continue;
-                TextView label = new TextView(root.getContext());
-                label.setText(root.getContext().getString(R.string.chat_reaction_count, reaction.emoji, reaction.count == null ? 0 : reaction.count));
-                label.setTextColor(root.getContext().getColor(R.color.brown));
-                label.setPadding(6, 0, 6, 0);
-                label.setOnClickListener(view -> actions.accept(item)); reactions.addView(label);
-            }
-            reactions.setVisibility(reactions.getChildCount() == 0 ? View.GONE : View.VISIBLE);
-        }
         String bookingId = ChatUi.bookingId(item);
         BaseFragment.text(root, R.id.tvBookingTitle, root.getContext().getString(R.string.title_booking_detail));
         BaseFragment.text(root, R.id.tvBookingReason, "");

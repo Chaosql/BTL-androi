@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
     <exclude domain="sharedpref" path="studydate_session.xml" />
+    <exclude domain="sharedpref" path="studydate_push.xml" />
+    <exclude domain="sharedpref" path="studydate_reminders.xml" />
     
 </full-backup-content>

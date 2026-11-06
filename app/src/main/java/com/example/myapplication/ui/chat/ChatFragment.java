@@ -46,7 +46,6 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
     private boolean loading;
     private boolean loaded;
     private boolean last;
-    private boolean sendingReply;
     private boolean forceRefresh;
     private boolean preparingImage;
     private boolean pickingImage;
@@ -60,7 +59,6 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
             });
     private int page;
     private Call<?> historyCall;
-    private MessageResponse reply;
     private String pendingText;
     private long pendingSince;
     private boolean timedOut;
@@ -83,7 +81,7 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
         name = arguments.getString(ChatUi.NAME, "");
         self = new PreferenceManager(requireContext()).getUserId();
         disabled = arguments.getBoolean("is_disabled", false);
-        connected = false; loaded = false; loading = false; last = false; page = -1; sendingReply = false;
+        connected = false; loaded = false; loading = false; last = false; page = -1;
         preparingImage = false; pickingImage = false; imageDialogVisible = false;
         imageWorker = java.util.concurrent.Executors.newSingleThreadExecutor();
         mutations.clear();
@@ -97,7 +95,6 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
                 message -> new ImageViewerDialog((MainActivity) requireActivity(), ChatUi.imageUrl(message)).show(getViewLifecycleOwner()));
         LinearLayoutManager manager = new LinearLayoutManager(requireContext()); manager.setStackFromEnd(true);
         binding.rvChatMessages.setLayoutManager(manager); binding.rvChatMessages.setAdapter(adapter);
-        binding.layoutReplyPreview.setVisibility(View.GONE); reply = null;
         binding.tvChatTitle.setText(name.isEmpty() ? getString(R.string.chat_conversations) : name);
         binding.layoutOnlineStatus.setVisibility(View.VISIBLE);
         binding.btnSend.setOnClickListener(view -> send());
@@ -106,7 +103,6 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
             else if (!loading) load(loaded && !last ? page + 1 : 0);
         });
         binding.tvOnlineStatus.setOnClickListener(view -> load(0));
-        binding.btnCancelReply.setOnClickListener(view -> clearReply());
         binding.tvChatTitle.setOnClickListener(view -> {
             if (!target.isEmpty()) new UserInfoDialog((MainActivity) requireActivity(), target, "FRIEND").show();
         });
@@ -115,14 +111,11 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
             Bundle args = new Bundle(); args.putString(CreateAppointmentFragment.CONVERSATION_ID, conversation);
             args.putString(CreateAppointmentFragment.TARGET_NAME, name); go(UiScreen.CREATE_APPOINTMENT, args);
         });
-        binding.btnSticker.setOnClickListener(view -> new MaterialAlertDialogBuilder(requireContext())
-                .setItems(new String[]{"👍", "❤", "😂", "😮", "😢", "🙏"}, (dialog, which) ->
-                        binding.etMessage.append(new String[]{"👍", "❤", "😂", "😮", "😢", "🙏"}[which])).show());
+
         binding.btnGallery.setOnClickListener(view -> {
             if (!binding.btnGallery.isEnabled()) return;
             pickingImage = true; updateControls(); imagePicker.launch("image/*");
         });
-        binding.btnFolder.setEnabled(false); binding.btnMic.setEnabled(false);
         binding.rvChatMessages.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override public void onScrolled(RecyclerView list, int dx, int dy) {
                 if (dy < 0 && manager.findFirstVisibleItemPosition() <= 3 && !last && !loading) load(page + 1);
@@ -135,11 +128,11 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
     private boolean valid() { return !conversation.isEmpty() && !self.isEmpty(); }
     private void updateControls() {
         if (binding == null) return;
-        binding.btnSend.setEnabled(valid() && loaded && connected && !disabled && pendingText == null && !sendingReply
+        binding.btnSend.setEnabled(valid() && loaded && connected && !disabled && pendingText == null
                 && !preparingImage && !imageDialogVisible && !pickingImage);
-        binding.btnGallery.setEnabled(valid() && loaded && !disabled && pendingText == null && !sendingReply
+        binding.btnGallery.setEnabled(valid() && loaded && !disabled && pendingText == null
                 && !preparingImage && !imageDialogVisible && !pickingImage);
-        binding.etMessage.setEnabled(valid() && !disabled && pendingText == null && !sendingReply);
+        binding.etMessage.setEnabled(valid() && !disabled && pendingText == null);
         binding.btnCreateSchedule.setEnabled(valid() && !disabled);
         binding.tvOnlineStatus.setText(disabled ? R.string.chat_disabled : connected ? R.string.chat_connected : R.string.chat_disconnected);
         binding.viewOnlineIndicator.setVisibility(connected ? View.VISIBLE : View.GONE);
@@ -211,20 +204,7 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
         if (!binding.btnSend.isEnabled()) return;
         String text = binding.etMessage.getText().toString().trim();
         if (text.isEmpty()) return;
-        if (reply != null) {
-            String id = reply.id; sendingReply = true; updateControls();
-            request(messages().replyToMessage(id, text), response -> {
-                sendingReply = false;
-                if (response.data == null || response.data.id == null
-                        || (response.data.conversationId != null && !conversation.equals(response.data.conversationId))) {
-                    notice(R.string.chat_missing_data); updateControls(); return;
-                }
-                adapter.merge(Collections.singletonList(response.data)); binding.etMessage.setText(""); clearReply();
-                binding.rvChatMessages.scrollToPosition(adapter.getItemCount() - 1);
-                updateControls(); empty(); ChatUi.updated(requireActivity());
-            }, failure -> { sendingReply = false; updateControls(); Toast.makeText(requireContext(), failure.message, Toast.LENGTH_LONG).show(); });
-            return;
-        }
+
         pendingText = text; pendingSince = System.currentTimeMillis(); timedOut = false;
         knownBeforeSend.clear(); for (MessageResponse item : adapter.messages()) knownBeforeSend.add(item.id);
         updateControls();
@@ -294,7 +274,6 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
             boolean newMessage = !adapter.contains(incoming.id);
             if (pendingText != null && newMessage && self.equals(incoming.senderId) && pendingText.equals(incoming.content)) confirmed();
             adapter.merge(Collections.singletonList(incoming));
-            if (reply != null && reply.id.equals(incoming.id) && Boolean.TRUE.equals(incoming.isRecalled)) clearReply();
             if (stick && adapter.getItemCount() > 0) binding.rvChatMessages.scrollToPosition(adapter.getItemCount() - 1);
             empty();
             if (newMessage && socket != null) socket.signal("/app/chat.read", new JsonObject());
@@ -314,33 +293,24 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
     }
     private void actions(MessageResponse message) {
         if (message.id == null) return;
-        new MessageActionsDialog((MainActivity) requireActivity(), message, self, (action, emoji) -> {
+        new MessageActionsDialog((MainActivity) requireActivity(), message, self, action -> {
             if (binding == null) return;
-            if ("reply".equals(action)) {
-                reply = message; binding.layoutReplyPreview.setVisibility(View.VISIBLE);
-                binding.tvReplySenderName.setText(ChatUi.value(message.senderName));
-                binding.tvReplyMessageContent.setText(ChatUi.value(message.content)); binding.etMessage.requestFocus();
-            } else if ("forward".equals(action)) new ForwardMessageDialog((MainActivity) requireActivity(), message.id).show();
-            else if ("recall".equals(action) || "delete".equals(action))
-                new MaterialAlertDialogBuilder(requireContext()).setMessage("recall".equals(action) ? R.string.chat_recall_confirm : R.string.chat_delete_confirm)
-                        .setNegativeButton(R.string.cancel, null).setPositiveButton(R.string.confirm, (dialog, which) -> {
-                            if ("recall".equals(action)) mutate(message, messages().recallMessage(message.id), result -> adapter.recall(message.id));
-                            else mutate(message, messages().deleteMessage(message.id), result -> adapter.remove(message.id));
-                        }).show();
-            else if ("reaction".equals(action)) {
-                boolean mine = false;
-                if (message.reactions != null) for (ReactionResponse reaction : message.reactions)
-                    if (reaction != null && emoji.equals(reaction.emoji) && reaction.userIds != null && reaction.userIds.contains(self)) mine = true;
-                mutate(message, mine ? messages().removeReaction(message.id) : messages().addReaction(message.id, emoji), result -> load(0));
-            }
-        }).show();
+            boolean recall = "recall".equals(action);
+            new MaterialAlertDialogBuilder(requireContext()).setMessage(recall ? R.string.chat_recall_confirm : R.string.chat_delete_confirm)
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                        if (binding == null) return;
+                        if (recall) mutate(message, messages().recallMessage(message.id), result -> adapter.recall(message.id));
+                        else mutate(message, messages().deleteMessage(message.id), result -> adapter.remove(message.id));
+                    }).show();
+        }).show(getViewLifecycleOwner());
     }
     private <T> void mutate(MessageResponse message, Call<T> call, Consumer<T> success) {
         if (!mutations.add(message.id)) { call.cancel(); return; }
         request(call, response -> { mutations.remove(message.id); success.accept(response); empty(); ChatUi.updated(requireActivity()); },
                 failure -> { mutations.remove(message.id); Toast.makeText(requireContext(), failure.message, Toast.LENGTH_LONG).show(); });
     }
-    private void clearReply() { reply = null; binding.layoutReplyPreview.setVisibility(View.GONE); }
+
     @Override public void onSaveInstanceState(@NonNull Bundle state) {
         state.putString("pending_text", pendingText); state.putLong("pending_since", pendingSince);
         state.putStringArrayList("known_ids", new ArrayList<>(knownBeforeSend)); super.onSaveInstanceState(state);

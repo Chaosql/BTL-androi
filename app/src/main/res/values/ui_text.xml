@@ -21,8 +21,6 @@
     <string name="ui_dialog_edit_personal_info_hint_12" formatted="false">Số điện thoại</string>
     <string name="ui_dialog_edit_personal_info_text_13" formatted="false">Địa điểm:</string>
     <string name="ui_dialog_edit_personal_info_hint_14" formatted="false">Nhập địa điểm</string>
-    <string name="ui_dialog_forward_select_text_1" formatted="false">Chuyển tiếp tin nhắn</string>
-    <string name="ui_dialog_forward_select_hint_2" formatted="false">Tìm kiếm cuộc trò chuyện...</string>
     <string name="ui_dialog_login_success_text_1" formatted="false">Đăng nhập thành công!</string>
     <string name="ui_dialog_login_success_text_2" formatted="false">Bắt đầu ngay</string>
     <string name="ui_dialog_subject_management_text_1" formatted="false">Quản lý môn học</string>
@@ -57,16 +55,6 @@
     <string name="ui_fragment_search_user_hint_2" formatted="false">Nhập số điện thoại, email hoặc tên...</string>
     <string name="ui_item_blocked_user_text_1" formatted="false">Bỏ chặn</string>
     <string name="ui_layout_friends_menu_popup_text_1" formatted="false">Tạo trò chuyện mới</string>
-    <string name="ui_layout_reaction_popup_text_1" formatted="false">👍</string>
-    <string name="ui_layout_reaction_popup_text_2" formatted="false">❤️</string>
-    <string name="ui_layout_reaction_popup_text_3" formatted="false">😂</string>
-    <string name="ui_layout_reaction_popup_text_4" formatted="false">😮</string>
-    <string name="ui_layout_reaction_popup_text_5" formatted="false">😢</string>
-    <string name="ui_layout_reaction_popup_text_6" formatted="false">🙏</string>
-    <string name="ui_layout_reaction_popup_text_7" formatted="false">Trả lời</string>
-    <string name="ui_layout_reaction_popup_text_8" formatted="false">Chuyển tiếp</string>
-    <string name="ui_layout_reaction_popup_text_9" formatted="false">Thu hồi tin nhắn</string>
-    <string name="ui_layout_reaction_popup_text_10" formatted="false">Xóa phía tôi</string>
     <string name="ui_mainactivity_text_1" formatted="false">Hộp thoại và menu</string>
     <string name="ui_mainactivity_text_2" formatted="false">Các màn hình Study Date</string>
     <string name="ui_studyscreenfragment_text_1" formatted="false">Nguyễn</string>

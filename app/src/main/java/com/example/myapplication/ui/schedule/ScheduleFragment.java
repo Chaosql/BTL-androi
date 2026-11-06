@@ -66,6 +66,7 @@ public class ScheduleFragment extends BaseFragment<FragmentScheduleBinding> {
         List<BookingDto> all = new ArrayList<>(weekly);
         all.addAll(mine);
         for (BookingDto booking : all) {
+            BookingReminders.sync(requireContext(), booking);
             if (booking == null || !BookingUi.visible(booking)) continue;
             ZonedDateTime time = BookingUi.time(booking.scheduledAt);
             if (time == null || !time.toLocalDate().equals(selectedScheduleDate)) continue;

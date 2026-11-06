@@ -73,16 +73,10 @@ public abstract class BasePreviewDialog<B extends androidx.viewbinding.ViewBindi
         BaseFragment.on(content, R.id.btnViewSchedule, () -> { dialog.dismiss(); activity.showScreen(UiScreen.SCHEDULE); });
         BaseFragment.on(content, R.id.btnViewProfile, () -> { dialog.dismiss(); activity.showScreen(UiScreen.PROFILE); });
         BaseFragment.on(content, R.id.tvOptionViewProfile, () -> { dialog.dismiss(); activity.showScreen(UiScreen.PROFILE); });
-        BaseFragment.on(content, R.id.tvOptionCreateGroup, () -> { dialog.dismiss(); activity.showScreen(UiScreen.GROUP_DETAIL); });
         BaseFragment.on(content, R.id.btnMenuNewChat, () -> { dialog.dismiss(); activity.showScreen(UiScreen.SEARCH_USER); });
         BaseFragment.on(content, R.id.btnMenuPendingRequests, () -> { dialog.dismiss(); activity.showScreen(UiScreen.PENDING_REQUESTS); });
         BaseFragment.on(content, R.id.btnAddSubject, () -> { dialog.dismiss(); UiDialogs.show(activity, R.layout.dialog_add_subject); });
         BaseFragment.on(content, R.id.btnCancel, dialog::dismiss);
-
-        for (int id : new int[]{R.id.tvEmojiLike, R.id.tvEmojiHeart, R.id.tvEmojiLaugh, R.id.tvEmojiWow,
-                R.id.tvEmojiSad, R.id.tvEmojiPray, R.id.tvReply})
-            BaseFragment.on(content, id, dialog::dismiss);
-        BaseFragment.on(content, R.id.tvForward, () -> { dialog.dismiss(); UiDialogs.show(activity, R.layout.dialog_forward_select); });
         bind(content, dialog);
         dialog.setOnShowListener(ignored -> {
             if (dialog.getWindow() != null) {

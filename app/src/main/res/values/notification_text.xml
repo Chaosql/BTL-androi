@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="notification_settings_scope">Các tùy chọn lọc danh sách và thông báo nhận trên thiết bị này. Số chưa đọc vẫn tính tất cả thông báo.</string>
+    <string name="notification_filtered_empty">Không có thông báo thuộc các nhóm đang bật.</string>
+    <string name="notification_mark_hidden">Đánh dấu tất cả thông báo đã đọc, bao gồm các nhóm đang ẩn?</string>
     <string name="notification_action_error">Không thể cập nhật thông báo. Vui lòng thử lại.</string>
     <string name="notification_title_count">Thông báo (%1$d)</string>
     <string name="notification_loading">Đang tải thông báo…</string>

@@ -110,66 +110,7 @@
         android:layout_marginBottom="@dimen/_15sdp"
         android:background="@drawable/bg_edittext">
 
-        <LinearLayout
-            android:id="@+id/layoutReplyPreview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingHorizontal="@dimen/_10sdp"
-            android:paddingTop="@dimen/_8sdp"
-            android:paddingBottom="@dimen/_4sdp"
-            android:gravity="center_vertical"
-            android:visibility="gone"
-            tools:visibility="visible">
 
-            <View
-                android:layout_width="3dp"
-                android:layout_height="match_parent"
-                android:minHeight="@dimen/_24sdp"
-                android:background="@color/brown" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="@dimen/_8sdp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvReplySenderName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/brown"
-                    android:textStyle="bold"
-                    android:textSize="@dimen/_11ssp"
-                    tools:text="Replying to Nam Phong" />
-
-                <TextView
-                    android:id="@+id/tvReplyMessageContent"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/hint"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    android:textSize="@dimen/_10ssp"
-                    tools:text="Hello, how are you?" />
-            </LinearLayout>
-
-            <ImageView
-                android:id="@+id/btnCancelReply"
-                android:layout_width="@dimen/_18sdp"
-                android:layout_height="@dimen/_18sdp"
-                android:src="@drawable/ic_close"
-                android:padding="@dimen/_2sdp"
-                app:tint="@color/hint" />
-        </LinearLayout>
-
-        <View
-            android:id="@+id/replyDivider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/context_menu_divider"
-            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/layoutInputBar"
@@ -178,12 +119,6 @@
             android:gravity="center_vertical"
             android:paddingHorizontal="@dimen/_10sdp">
 
-            <ImageView
-                android:id="@+id/btnSticker"
-                android:layout_width="@dimen/_20sdp"
-                android:layout_height="@dimen/_20sdp"
-                android:src="@drawable/ic_sticker"
-                app:tint="@color/brown" />
 
             <EditText
                 android:id="@+id/etMessage"
@@ -201,28 +136,15 @@
                 android:textColorHint="@color/hint"
                 android:textSize="@dimen/_15ssp" />
 
-            <ImageView
-                android:id="@+id/btnMic"
-                android:layout_width="@dimen/_18sdp"
-                android:layout_height="@dimen/_18sdp"
-                android:layout_marginEnd="@dimen/_8sdp"
-                android:src="@drawable/ic_mic"
-                app:tint="@color/brown" />
 
-            <ImageView
-                android:id="@+id/btnFolder"
-                android:layout_width="@dimen/_18sdp"
-                android:layout_height="@dimen/_18sdp"
-                android:layout_marginEnd="@dimen/_8sdp"
-                android:src="@drawable/ic_camera"
-                app:tint="@color/brown" />
 
             <ImageView
                 android:id="@+id/btnGallery"
+                android:contentDescription="@string/message_send_image"
                 android:layout_width="@dimen/_18sdp"
                 android:layout_height="@dimen/_18sdp"
                 android:layout_marginEnd="@dimen/_8sdp"
-                android:src="@drawable/ic_folder"
+                android:src="@android:drawable/ic_menu_gallery"
                 app:tint="@color/brown" />
 
             <ImageView

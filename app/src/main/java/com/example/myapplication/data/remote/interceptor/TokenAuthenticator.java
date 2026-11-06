@@ -43,6 +43,8 @@ public final class TokenAuthenticator implements Authenticator {
         }
         if (data.id == null || data.id.isEmpty()) data.id = preferences.getUserId();
         if (data.refreshToken == null || data.refreshToken.isEmpty()) data.refreshToken = refreshToken;
+        if (data.authorities == null) data.authorities = java.util.Collections.singletonList(
+                new com.example.myapplication.data.remote.dto.response.Authority(preferences.isAdmin() ? "ADMIN" : "USER"));
         preferences.saveLogin(data, preferences.getEmail());
         return response.request().newBuilder().header("Authorization", "Bearer " + data.accessToken).build();
     }

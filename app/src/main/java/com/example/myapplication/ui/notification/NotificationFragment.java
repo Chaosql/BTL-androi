@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.Toast;
 import com.example.myapplication.R;
 import com.example.myapplication.data.local.PreferenceManager;
+import com.example.myapplication.data.local.NotificationPreferences;
 import com.example.myapplication.data.remote.dto.response.NotificationDto;
 import com.example.myapplication.data.repository.notification.NotificationRepository;
 import com.example.myapplication.databinding.FragmentNotificationBinding;
@@ -24,16 +25,25 @@ public class NotificationFragment extends BaseFragment<FragmentNotificationBindi
     private boolean loading, last, marking;
     private int nextPage, unread;
     private int countVersion;
+    private NotificationPreferences preferences;
+    private androidx.appcompat.app.AlertDialog readAllDialog;
     public NotificationFragment() { super(FragmentNotificationBinding::inflate); }
 
     @Override protected void onScreenCreated(View root, Bundle state) {
         repository = new NotificationRepository(requireContext());
+        preferences = new NotificationPreferences(requireContext());
         items.clear(); loading = false; last = false; marking = false; nextPage = 0; unread = 0;
-        recent = new NotificationAdapter(this::select); earlier = new NotificationAdapter(this::select);
+        recent = new NotificationAdapter(this::select, this::delete); earlier = new NotificationAdapter(this::select, this::delete);
         binding.rvRecentNotifications.setAdapter(recent); binding.rvEarlierNotifications.setAdapter(earlier);
         binding.tvNotificationStatus.setOnClickListener(view -> load());
         binding.tvNotificationMore.setOnClickListener(view -> load());
         binding.tvMarkAllRead.setOnClickListener(view -> markAll());
+        binding.btnNotificationMenu.setOnClickListener(view -> {
+            android.widget.PopupMenu menu = new android.widget.PopupMenu(requireContext(), view);
+            menu.getMenu().add(0, R.string.notification_settings, 0, R.string.notification_settings).setOnMenuItemClickListener(item -> { go(UiScreen.NOTIFICATION_SETTINGS); return true; });
+            menu.getMenu().add(0, R.string.notification_delete_all, 1, R.string.notification_delete_all).setOnMenuItemClickListener(item -> { delete(null); return true; });
+            menu.show();
+        });
         title();
         if (!new PreferenceManager(requireContext()).isLogin()) {
             binding.tvNotificationStatus.setText(R.string.notification_login); return;
@@ -86,15 +96,20 @@ public class NotificationFragment extends BaseFragment<FragmentNotificationBindi
         Instant start = LocalDate.now(BookingUi.ZONE).minusDays(6).atStartOfDay(BookingUi.ZONE).toInstant();
         int loadedUnread = 0;
         for (NotificationDto item : sorted) {
-            (ChatUi.instant(item.createdDate).isBefore(start) ? old : now).add(item);
             if (!Boolean.TRUE.equals(item.isRead)) loadedUnread++;
+            if (preferences.allows(item)) (ChatUi.instant(item.createdDate).isBefore(start) ? old : now).add(item);
         }
         unread = Math.max(unread, loadedUnread);
         recent.submit(now); earlier.submit(old);
         binding.tvRecentHeader.setVisibility(now.isEmpty() ? View.GONE : View.VISIBLE);
         binding.tvEarlierHeader.setVisibility(old.isEmpty() ? View.GONE : View.VISIBLE);
-        binding.layoutEmptyState.setVisibility(items.isEmpty() && !loading ? View.VISIBLE : View.GONE);
-        binding.scrollViewContent.setVisibility(items.isEmpty() ? View.GONE : View.VISIBLE);
+        ((View) binding.rvRecentNotifications.getParent()).setVisibility(now.isEmpty() ? View.GONE : View.VISIBLE);
+        ((View) binding.rvEarlierNotifications.getParent()).setVisibility(old.isEmpty() ? View.GONE : View.VISIBLE);
+        boolean visible = !now.isEmpty() || !old.isEmpty();
+        binding.tvNotificationEmpty.setText(!items.isEmpty() && preferences.hasFilter()
+                ? R.string.notification_filtered_empty : R.string.empty_notification);
+        binding.layoutEmptyState.setVisibility(!visible && !loading ? View.VISIBLE : View.GONE);
+        binding.scrollViewContent.setVisibility(visible ? View.VISIBLE : View.GONE);
         binding.tvNotificationMore.setVisibility(!last && !loading ? View.VISIBLE : View.GONE);
         title();
     }
@@ -111,6 +126,16 @@ public class NotificationFragment extends BaseFragment<FragmentNotificationBindi
     }
     private void markAll() {
         if (marking || loading || unread <= 0) return;
+        if (preferences.hasFilter()) {
+            if (readAllDialog != null && readAllDialog.isShowing()) return;
+            readAllDialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                    .setMessage(R.string.notification_mark_hidden)
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> markAllConfirmed())
+                    .setNegativeButton(android.R.string.cancel, null).show();
+        } else markAllConfirmed();
+    }
+    private void markAllConfirmed() {
+        if (marking || loading || unread <= 0) return;
         marking = true; countVersion++; title();
         request(repository.markAllNotificationsAsRead(), response -> {
             marking = false; for (NotificationDto item : items.values()) item.isRead = true;
@@ -121,11 +146,29 @@ public class NotificationFragment extends BaseFragment<FragmentNotificationBindi
         Toast.makeText(requireContext(), message == null || message.trim().isEmpty()
                 ? getString(R.string.notification_action_error) : message, Toast.LENGTH_LONG).show();
     }
+    private void delete(NotificationDto item) {
+        if (loading || marking || !new PreferenceManager(requireContext()).isLogin()) return;
+        if (readAllDialog != null && readAllDialog.isShowing()) return;
+        readAllDialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setMessage(item == null ? R.string.notification_delete_all_confirm : R.string.notification_delete_confirm)
+                .setNegativeButton(android.R.string.cancel, null).setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    if (marking || loading) return;
+                    marking = true; countVersion++; title();
+                    request(item == null ? repository.deleteAllNotifications() : repository.deleteNotification(item.id), response -> {
+                        marking = false;
+                        if (item == null) { items.clear(); unread = 0; last = true; }
+                        else { items.remove(item.id); if (!Boolean.TRUE.equals(item.isRead)) unread = Math.max(0, unread - 1); }
+                        render();
+                    }, error -> { marking = false; title(); showError(error.message); });
+                }).show();
+    }
     private void open(NotificationDto item) {
         String type = ChatUi.value(item.targetType).trim();
         if (type.isEmpty()) type = ChatUi.value(item.type);
         String id = ChatUi.value(item.targetId).trim();
         switch (type.toUpperCase(Locale.ROOT)) {
+            case "FRIENDSHIP":
+                go(ChatUi.value(item.type).contains("ACCEPTED") ? UiScreen.FRIENDS : UiScreen.PENDING_REQUESTS); return;
             case "BOOKING": case "APPOINTMENT":
                 if (!id.isEmpty()) { Bundle args = new Bundle(); args.putString(BookingUi.BOOKING_ID, id); go(UiScreen.SCHEDULE, args); return; }
                 break;
@@ -142,5 +185,9 @@ public class NotificationFragment extends BaseFragment<FragmentNotificationBindi
             default: break;
         }
         Toast.makeText(requireContext(), R.string.notification_no_target, Toast.LENGTH_SHORT).show();
+    }
+    @Override public void onDestroyView() {
+        if (readAllDialog != null) { readAllDialog.dismiss(); readAllDialog = null; }
+        super.onDestroyView();
     }
 }

@@ -20,7 +20,6 @@ import com.example.myapplication.ui.friends.FriendsListFragment;
 import com.example.myapplication.ui.friends.SearchUserFragment;
 import com.example.myapplication.ui.friends.PendingRequestsFragment;
 import com.example.myapplication.ui.chat.ChatFragment;
-import com.example.myapplication.ui.chat.group.GroupDetailFragment;
 import com.example.myapplication.ui.notification.NotificationFragment;
 import com.example.myapplication.ui.schedule.ScheduleFragment;
 import com.example.myapplication.ui.schedule.CreateAppointmentFragment;
@@ -31,6 +30,7 @@ public final class ScreenFactory {
     public static BaseFragment create(UiScreen screen, Bundle arguments) {
         BaseFragment fragment;
         switch (screen) {
+            case ADMIN_USERS: fragment = new com.example.myapplication.ui.admin.AdminUsersFragment(); break;
             case LOGIN: fragment = new LoginFragment(); break;
             case REGISTER: fragment = new RegisterFragment(); break;
             case VERIFY_EMAIL: fragment = new VerifyEmailFragment(); break;
@@ -50,7 +50,6 @@ public final class ScreenFactory {
             case PENDING_REQUESTS: fragment = new PendingRequestsFragment(); break;
             case CHAT: fragment = new ChatFragment(); break;
             case CONVERSATIONS: fragment = new com.example.myapplication.ui.chat.ConversationsFragment(); break;
-            case GROUP_DETAIL: fragment = new GroupDetailFragment(); break;
             case NOTIFICATIONS: fragment = new NotificationFragment(); break;
             case SCHEDULE: fragment = new ScheduleFragment(); break;
             case CREATE_APPOINTMENT: fragment = new CreateAppointmentFragment(); break;

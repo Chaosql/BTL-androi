@@ -79,6 +79,7 @@ public class BookingDetailDialog extends BasePreviewDialog<DialogBookingDetailBi
         return false;
     }
     private void render() {
+        BookingReminders.sync(activity, booking);
         binding.tvSubject.setText(BookingUi.value(booking.subject));
         String name = creator() ? booking.partnerName : booking.creatorName;
         binding.tvPartnerName.setText(activity.getString(R.string.booking_partner, BookingUi.value(name)));
@@ -122,6 +123,7 @@ public class BookingDetailDialog extends BasePreviewDialog<DialogBookingDetailBi
     }
     private void update(View action, Supplier<Call<BaseResponse<BookingDto>>> call, AlertDialog dialog) {
         if (busy || booking == null || !member() || action.getVisibility() != View.VISIBLE) return;
+        if (action.getId() == R.id.btnAccept) activity.enableNotifications();
         busy = true; buttons(); dialog.setCancelable(false); binding.ivClose.setEnabled(false);
         binding.tvErrorMessage.setVisibility(View.GONE);
         request(call.get(), response -> {

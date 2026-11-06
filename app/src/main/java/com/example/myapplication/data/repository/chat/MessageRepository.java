@@ -17,9 +17,7 @@ public final class MessageRepository extends BaseRepository {
         return api.getMessages(id, page, size, sort);
     }
 
-    public Call<BaseResponse<PageResponse<MessageResponse>>> searchMessages(String id, String keyword, Integer page, Integer size, String sort) {
-        return api.searchMessages(id, keyword, page, size, sort);
-    }
+
 
     public Call<BaseResponse<Object>> recallMessage(String msgId) {
         return api.recallMessage(msgId);
@@ -29,21 +27,13 @@ public final class MessageRepository extends BaseRepository {
         return api.deleteMessage(msgId);
     }
 
-    public Call<BaseResponse<MessageResponse>> replyToMessage(String msgId, String content) {
-        return api.replyToMessage(msgId, content);
-    }
 
-    public Call<BaseResponse<MessageResponse>> forwardMessage(String msgId, ForwardRequest request) {
-        return api.forwardMessage(msgId, request);
-    }
 
-    public Call<BaseResponse<ActionStatusDto>> addReaction(String msgId, String emoji) {
-        return api.addReaction(msgId, emoji);
-    }
 
-    public Call<BaseResponse<ActionStatusDto>> removeReaction(String msgId) {
-        return api.removeReaction(msgId);
-    }
+
+
+
+
 
     public Call<BaseResponse<Object>> uploadImage(String conversationId, MultipartBody.Part file) {
         return api.uploadImage(conversationId, file);

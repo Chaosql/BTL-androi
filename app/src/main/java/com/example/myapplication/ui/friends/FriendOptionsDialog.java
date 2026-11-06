@@ -18,7 +18,6 @@ public class FriendOptionsDialog extends BasePreviewDialog<DialogFriendOptionsBi
     }
     @Override protected void bind(View content, AlertDialog dialog) {
         binding.tvOptionPin.setVisibility(View.GONE);
-        binding.tvOptionCreateGroup.setVisibility(View.GONE);
         boolean valid = friend != null && friend.userId != null && !friend.userId.isEmpty();
         binding.tvOptionViewProfile.setEnabled(valid);
         binding.tvOptionBlock.setEnabled(valid);

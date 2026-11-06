@@ -79,6 +79,15 @@ public class ApiIntegrationTest {
         assertEquals("refresh", preferences.getRefreshToken());
         assertEquals("new", preferences.getAccessToken());
     }
+    @Test public void tokenRefreshPreservesAdminAuthorityWhenResponseOmitsIt() throws Exception {
+        preferences.saveLogin(new LoginData("Bearer", "old", "refresh", "admin", java.util.Collections.singletonList(
+                new com.example.myapplication.data.remote.dto.response.Authority("ADMIN"))), "admin@example.com");
+        server.enqueue(new MockResponse().setResponseCode(401));
+        server.enqueue(json("{\"codeStatus\":200,\"data\":{\"accessToken\":\"new\"}}"));
+        server.enqueue(json("{\"codeStatus\":200,\"data\":{\"id\":\"admin\"}}"));
+        assertTrue(api.getCurrentUser().execute().isSuccessful()); assertTrue(preferences.isAdmin());
+        assertEquals(com.example.myapplication.ui.main.UiScreen.ADMIN_USERS, preferences.homeScreen());
+    }
 
     @Test public void refreshServerFailurePreservesSession() throws Exception {
         session();
@@ -157,8 +166,8 @@ public class ApiIntegrationTest {
             RecordedRequest verify = server.takeRequest(2, TimeUnit.SECONDS);
             assertEquals("/api/v1/auth/forgot-password/verify-otp", verify.getPath());
             assertTrue(verify.getBody().readUtf8().contains("12345"));
-            ((EditText) activity.findViewById(R.id.edtNewPassword)).setText("new-password");
-            ((EditText) activity.findViewById(R.id.edtConfirmPassword)).setText("new-password");
+            ((EditText) activity.findViewById(R.id.edtNewPassword)).setText("Newpass1!");
+            ((EditText) activity.findViewById(R.id.edtConfirmPassword)).setText("Newpass1!");
             server.enqueue(json("{\"codeStatus\":200,\"data\":{\"status\":true}}"));
             activity.findViewById(R.id.tvConfirm).performClick();
             await(() -> activity.findViewById(R.id.tvLogin) != null);

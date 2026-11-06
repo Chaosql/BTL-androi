@@ -55,9 +55,10 @@
             android:paddingHorizontal="@dimen/_14sdp">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/switchSystemNotification"
                 android:layout_centerVertical="true"
                 android:text="@string/ui_fragment_notification_settings_text_2"
                 android:textColor="@color/brown"
@@ -66,6 +67,7 @@
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/switchSystemNotification"
+                android:contentDescription="@string/ui_fragment_notification_settings_text_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
@@ -83,9 +85,10 @@
             android:paddingHorizontal="@dimen/_14sdp">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/switchAppointmentNotification"
                 android:layout_centerVertical="true"
                 android:text="@string/ui_fragment_notification_settings_text_3"
                 android:textColor="@color/brown"
@@ -94,6 +97,7 @@
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/switchAppointmentNotification"
+                android:contentDescription="@string/ui_fragment_notification_settings_text_3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
@@ -111,9 +115,10 @@
             android:paddingHorizontal="@dimen/_14sdp">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/switchScheduleNotification"
                 android:layout_centerVertical="true"
                 android:text="@string/ui_fragment_notification_settings_text_4"
                 android:textColor="@color/brown"
@@ -122,15 +127,28 @@
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/switchScheduleNotification"
+                android:contentDescription="@string/ui_fragment_notification_settings_text_4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:checked="false"
+                android:checked="true"
                 app:thumbTint="@color/switch_thumb_selector"
                 app:trackTint="@color/switch_track_selector" />
         </RelativeLayout>
 
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switchReminders" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/reminder_setting" android:textColor="@color/brown" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEnableNotifications" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:backgroundTint="@color/brown" android:textColor="@color/white" android:text="@string/notification_enable_permission" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/reminder_scope"
+            android:textColor="@color/hint"
+            android:textSize="@dimen/_11ssp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

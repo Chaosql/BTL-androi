@@ -18,6 +18,9 @@ public class ChangePasswordFragment extends BaseFragment<FragmentChangePasswordB
             String oldPassword = binding.etOldPassword.getText().toString();
             String password = binding.etNewPassword.getText().toString();
             String confirm = binding.etConfirmPassword.getText().toString();
+            if (!password.matches("^(?=.*[0-9])(?=.*[a-z])(?=\\S+$).{8,}$")) {
+                binding.etNewPassword.setError(getString(R.string.password_policy)); return;
+            }
             if (oldPassword.isEmpty() || password.isEmpty()) {
                 binding.etNewPassword.setError(getString(R.string.api_required)); return;
             }

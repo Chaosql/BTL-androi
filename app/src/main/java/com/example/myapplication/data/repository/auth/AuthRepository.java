@@ -17,9 +17,7 @@ public final class AuthRepository extends BaseRepository {
         return api.login(request);
     }
 
-    public Call<LoginResponse> googleLogin(GoogleLoginRequest request) {
-        return api.googleLogin(request);
-    }
+
 
     public Call<BaseResponse<CommonResponse>> register(RegisterRequest request) {
         return api.register(request);

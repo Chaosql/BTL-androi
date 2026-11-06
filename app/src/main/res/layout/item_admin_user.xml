@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="vertical" android:background="?attr/selectableItemBackground" android:padding="12dp" android:clickable="true" android:focusable="true">
+    <TextView android:id="@+id/tvName" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="17sp" android:textStyle="bold" android:textColor="@color/input_text" />
+    <TextView android:id="@+id/tvEmail" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/hint" />
+    <TextView android:id="@+id/tvState" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/brown" />
+</LinearLayout>

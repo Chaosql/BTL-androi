@@ -37,6 +37,9 @@ public abstract class BaseAuthFragment<B extends ViewBinding> extends BaseFragme
     }
 
     protected boolean passwordPair(EditText password, EditText confirm) {
+        if (!password.getText().toString().matches("^(?=.*[0-9])(?=.*[a-z])(?=\\S+$).{8,}$")) {
+            password.setError(getString(R.string.password_policy)); return false;
+        }
         if (password.getText().toString().isEmpty()) { password.setError(getString(R.string.api_required)); return false; }
         if (!password.getText().toString().equals(confirm.getText().toString())) {
             confirm.setError(getString(R.string.api_password_mismatch)); return false;

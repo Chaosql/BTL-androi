@@ -16,18 +16,11 @@ public class AccountSettingsFragment extends BaseFragment<FragmentAccountSetting
         binding.cardNotificationSettings.setOnClickListener(bindingView -> go(UiScreen.NOTIFICATION_SETTINGS));
         binding.cardBlockedUsers.setOnClickListener(bindingView -> go(UiScreen.BLOCKED_USERS));
         binding.cardLogout.setOnClickListener(bindingView -> {
-            com.example.myapplication.data.local.PreferenceManager preferences =
-                    new com.example.myapplication.data.local.PreferenceManager(requireContext());
-            String token = preferences.getRefreshToken();
             binding.cardLogout.setEnabled(false);
-            Runnable clear = () -> {
-                preferences.logout();
-                ((com.example.myapplication.ui.main.MainActivity) requireActivity()).showRootScreen(UiScreen.LOGIN);
-            };
-            if (token.isEmpty()) { clear.run(); return; }
-            request(new com.example.myapplication.data.repository.auth.AuthRepository(requireContext())
-                    .logout(new com.example.myapplication.data.remote.dto.request.LogoutRequest(token)),
-                    response -> clear.run(), error -> clear.run());
+            com.example.myapplication.ui.main.MainActivity host = (com.example.myapplication.ui.main.MainActivity) requireActivity();
+            com.example.myapplication.ui.notification.PushRegistration.endSession(requireContext(), () -> {
+                if (!host.isDestroyed()) host.showRootScreen(UiScreen.LOGIN);
+            });
         });
         binding.cardHelp.setOnClickListener(bindingView -> this.previewNotice());
     }

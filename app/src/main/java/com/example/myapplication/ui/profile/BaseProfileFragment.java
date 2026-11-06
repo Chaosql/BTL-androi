@@ -58,6 +58,26 @@ public abstract class BaseProfileFragment<B extends ViewBinding> extends BaseFra
         on(root, R.id.cvSettings, () -> go(UiScreen.ACCOUNT_SETTINGS));
         on(root, R.id.cvAppointment, () -> go(UiScreen.SCHEDULE));
         on(root, R.id.cvHonor, () -> new SubjectManagementDialog(host()).show());
+        on(root, R.id.tvBuddyStatus, () -> {
+            if (user == null || loading || uploading) return;
+            boolean enable = !Boolean.TRUE.equals(user.buddyActive);
+            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                    .setMessage(getString(R.string.buddy_confirm, getString(enable ? R.string.feature_enable : R.string.feature_disable)))
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                        if (user == null || loading) return;
+                        loading = true;
+                        request(new ProfileRepository(requireContext()).toggleBuddyStatus(
+                                new PreferenceManager(requireContext()).getUserId(),
+                                new com.example.myapplication.data.remote.dto.request.ToggleBuddyStatusRequest(enable)), response -> {
+                            loading = false;
+                            if (response.data == null || !Boolean.valueOf(enable).equals(response.data.buddyActive)) {
+                                Toast.makeText(requireContext(), R.string.feature_invalid, Toast.LENGTH_LONG).show(); return;
+                            }
+                            user = response.data; render(root, user); ProfileUi.updated(host());
+                        }, error -> { loading = false; Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show(); });
+                    }).show();
+        });
         Runnable personal = () -> {
             if (user != null) new EditPersonalInfoDialog(host(), user).show();
         };

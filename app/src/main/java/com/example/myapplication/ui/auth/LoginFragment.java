@@ -21,11 +21,10 @@ public class LoginFragment extends BaseAuthFragment<FragmentLoginBinding> {
                 catch (IllegalArgumentException error) {
                     Toast.makeText(requireContext(), R.string.api_invalid_login, Toast.LENGTH_LONG).show(); return;
                 }
-                ((MainActivity) requireActivity()).showRootScreen(UiScreen.MAP);
+                ((MainActivity) requireActivity()).showRootScreen(new PreferenceManager(requireContext()).homeScreen());
             });
         });
-        binding.btnGoogleLogin.setOnClickListener(view ->
-                Toast.makeText(requireContext(), R.string.api_google_setup, Toast.LENGTH_LONG).show());
+
         binding.tvRegister.setOnClickListener(view -> go(UiScreen.REGISTER));
         binding.tvForgot.setOnClickListener(view -> go(UiScreen.INPUT_EMAIL));
     }

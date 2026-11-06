@@ -16,7 +16,9 @@ import java.util.function.Consumer;
 public final class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.Holder> {
     private final List<NotificationDto> items = new ArrayList<>();
     private final Consumer<NotificationDto> click;
+    private Consumer<NotificationDto> delete = item -> { };
     public NotificationAdapter(Consumer<NotificationDto> click) { this.click = click; }
+    public NotificationAdapter(Consumer<NotificationDto> click, Consumer<NotificationDto> delete) { this(click); this.delete = delete; }
     public void submit(List<NotificationDto> data) { items.clear(); items.addAll(data); notifyDataSetChanged(); }
     @Override public int getItemCount() { return items.size(); }
     @Override public Holder onCreateViewHolder(ViewGroup parent, int type) {
@@ -35,6 +37,7 @@ public final class NotificationAdapter extends RecyclerView.Adapter<Notification
         Glide.with(b.imgAvatar).load(item.actorAvatar).placeholder(R.drawable.ic_launcher_foreground)
                 .error(R.drawable.ic_launcher_foreground).circleCrop().into(b.imgAvatar);
         b.getRoot().setOnClickListener(view -> click.accept(item));
+        b.getRoot().setOnLongClickListener(view -> { delete.accept(item); return true; });
     }
     static final class Holder extends RecyclerView.ViewHolder {
         final ItemNotificationBinding binding;

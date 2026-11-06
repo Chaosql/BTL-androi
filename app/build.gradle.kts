@@ -1,5 +1,10 @@
 plugins {
+    id("com.google.gms.google-services") version "4.4.2" apply false
     alias(libs.plugins.android.application)
+}
+
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
 }
 
 android {
@@ -50,6 +55,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.firebase:firebase-messaging:24.1.0")
     implementation("org.maplibre.gl:android-sdk:12.3.1")
     implementation("androidx.exifinterface:exifinterface:1.3.6")
     implementation("com.github.bumptech.glide:glide:4.16.0")

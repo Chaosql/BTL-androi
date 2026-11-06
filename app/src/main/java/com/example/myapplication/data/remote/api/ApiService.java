@@ -8,11 +8,17 @@ import retrofit2.Call;
 import retrofit2.http.*;
 
 public interface ApiService {
+    @GET("api/v1/admin/users")
+    Call<BaseResponse<PageResponse<AdminUserDto>>> getAdminUsers(@Query("page") int page, @Query("size") int size);
+    @GET("api/v1/admin/users/{id}")
+    Call<BaseResponse<AdminUserDto>> getAdminUser(@Path("id") String id);
+    @PATCH("api/v1/admin/users/{id}/lock")
+    Call<BaseResponse<AdminUserDto>> lockAdminUser(@Path("id") String id);
+    @PATCH("api/v1/admin/users/{id}/unlock")
+    Call<BaseResponse<AdminUserDto>> unlockAdminUser(@Path("id") String id);
     @POST("api/v1/auth/login")
     Call<LoginResponse> login(@Body LoginRequest request);
 
-    @POST("api/v1/auth/google")
-    Call<LoginResponse> googleLogin(@Body GoogleLoginRequest request);
 
     @POST("api/v1/auth/register")
     Call<BaseResponse<CommonResponse>> register(@Body RegisterRequest request);
@@ -99,8 +105,6 @@ public interface ApiService {
     @GET("api/v1/chat/conversations/{id}/messages")
     Call<BaseResponse<PageResponse<MessageResponse>>> getMessages(@Path("id") String id, @Query("page") Integer page, @Query("size") Integer size, @Query("sort") String sort);
 
-    @GET("api/v1/chat/conversations/{id}/messages/search")
-    Call<BaseResponse<PageResponse<MessageResponse>>> searchMessages(@Path("id") String id, @Query("keyword") String keyword, @Query("page") Integer page, @Query("size") Integer size, @Query("sort") String sort);
 
     @PUT("api/v1/chat/messages/{msgId}/recall")
     Call<BaseResponse<Object>> recallMessage(@Path("msgId") String msgId);
@@ -108,17 +112,9 @@ public interface ApiService {
     @DELETE("api/v1/chat/messages/{msgId}")
     Call<BaseResponse<Object>> deleteMessage(@Path("msgId") String msgId);
 
-    @POST("api/v1/chat/messages/{msgId}/reply")
-    Call<BaseResponse<MessageResponse>> replyToMessage(@Path("msgId") String msgId, @Query("content") String content);
 
-    @POST("api/v1/chat/messages/{msgId}/forward")
-    Call<BaseResponse<MessageResponse>> forwardMessage(@Path("msgId") String msgId, @Body ForwardRequest request);
 
-    @POST("api/v1/chat/messages/{msgId}/reactions")
-    Call<BaseResponse<ActionStatusDto>> addReaction(@Path("msgId") String msgId, @Query("emoji") String emoji);
 
-    @DELETE("api/v1/chat/messages/{msgId}/reactions")
-    Call<BaseResponse<ActionStatusDto>> removeReaction(@Path("msgId") String msgId);
 
     @Multipart
     @POST("api/v1/chat/conversations/{id}/upload")

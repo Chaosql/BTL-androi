@@ -47,6 +47,12 @@
             android:textColor="@color/brown"
             android:textSize="@dimen/_11ssp"
             android:textStyle="bold" />
+        <ImageButton
+            android:id="@+id/btnNotificationMenu"
+            android:layout_width="40dp" android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_more_vert"
+            android:contentDescription="@string/feature_actions" />
     </LinearLayout>
 
     <LinearLayout
@@ -56,7 +62,7 @@
         android:gravity="center"
         android:orientation="vertical"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/tvNotificationStatus"
+        app:layout_constraintBottom_toTopOf="@id/tvNotificationMore"
         app:layout_constraintTop_toBottomOf="@id/layoutHeader">
 
         <ImageView
@@ -67,6 +73,7 @@
             app:tint="@color/hint" />
 
         <TextView
+            android:id="@+id/tvNotificationEmpty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_10sdp"
@@ -81,7 +88,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintBottom_toTopOf="@id/tvNotificationStatus"
+        app:layout_constraintBottom_toTopOf="@id/tvNotificationMore"
         app:layout_constraintTop_toBottomOf="@id/layoutHeader">
 
         <LinearLayout
@@ -146,17 +153,21 @@
                     tools:listitem="@layout/item_notification" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvNotificationMore"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:padding="16dp"
-                android:text="@string/notification_more"
-                android:textColor="@color/brown"
-                android:visibility="gone" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <TextView
+        android:id="@+id/tvNotificationMore"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="@string/notification_more"
+        android:textColor="@color/brown"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/tvNotificationStatus"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/tvNotificationStatus"
