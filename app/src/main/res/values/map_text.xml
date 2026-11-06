@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="map_description">Bản đồ tìm bạn học gần đây</string>
-    <string name="map_pending_scan">Chức năng tìm bạn học theo vị trí chưa được bật.</string>
     <string name="map_loading">Đang tải bản đồ…</string>
     <string name="map_unavailable">Không tải được bản đồ. Bấm để thử lại.</string>
 </resources>

@@ -15,12 +15,17 @@ public class UserInfoDialog extends BasePreviewDialog<DialogUserInfoBinding> {
     private final String userId;
     private String status;
     private boolean loaded;
+    private final Double distance;
     public UserInfoDialog(MainActivity activity) { this(activity, null, null); }
     public UserInfoDialog(MainActivity activity, String userId, String status) {
-        super(activity, DialogUserInfoBinding::inflate); this.userId = userId; this.status = status;
+        this(activity, userId, status, null);
+    }
+    public UserInfoDialog(MainActivity activity, String userId, String status, Double distance) {
+        super(activity, DialogUserInfoBinding::inflate); this.userId = userId; this.status = status; this.distance = distance;
     }
     @Override protected void bind(View content, AlertDialog dialog) {
-        binding.tvDistance.setVisibility(View.GONE);
+        binding.tvDistance.setVisibility(distance != null && Double.isFinite(distance) && distance >= 0 ? View.VISIBLE : View.GONE);
+        if (distance != null) binding.tvDistance.setText(activity.getString(com.example.myapplication.R.string.radar_distance, distance));
         binding.btnViewProfile.setVisibility(View.GONE);
         binding.btnAddFriend.setEnabled(false);
         if (userId == null || userId.isEmpty() || !new PreferenceManager(activity).isLogin()) return;

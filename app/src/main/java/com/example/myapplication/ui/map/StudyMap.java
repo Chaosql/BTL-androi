@@ -6,6 +6,11 @@ import android.widget.FrameLayout;
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import java.util.function.Consumer;
+import java.util.*;
+import android.graphics.Color;
+import com.example.myapplication.data.remote.dto.response.NearbyUserResponse;
+import com.example.myapplication.ui.friends.SocialUi;
+import org.maplibre.android.annotations.*;
 import org.maplibre.android.MapLibre;
 import org.maplibre.android.maps.*;
 import org.maplibre.android.geometry.LatLng;
@@ -18,6 +23,11 @@ final class StudyMap {
     private MapLibreMap map;
     private boolean started, resumed, restored;
     private int generation, styleVersion;
+    private boolean ready, located;
+    private double radarLat, radarLng, radius;
+    private List<NearbyUserResponse> users = Collections.emptyList();
+    private final Map<Marker, String> markers = new HashMap<>();
+    private Consumer<String> userClick = id -> { };
     StudyMap(FrameLayout host, Consumer<String> status) {
         this.host = host; this.status = status;
     }
@@ -38,6 +48,11 @@ final class StudyMap {
             next.getMapAsync(result -> {
                 if (version != generation) return;
                 map = result;
+                map.setOnMarkerClickListener(marker -> {
+                    String id = markers.get(marker);
+                    if (id == null) return false;
+                    userClick.accept(id); return true;
+                });
                 int margin = (int) (host.getResources().getDisplayMetrics().density * 100);
                 map.getUiSettings().setAttributionGravity(Gravity.BOTTOM | Gravity.START);
                 map.getUiSettings().setAttributionMargins(12, 0, 0, margin);
@@ -54,11 +69,40 @@ final class StudyMap {
     }
     private void loadStyle() {
         if (map == null) return;
+        ready = false;
         int version = generation, styleRequest = ++styleVersion;
         status.accept(host.getContext().getString(R.string.map_loading));
         map.setStyle(new Style.Builder().fromUri(BuildConfig.MAP_STYLE_URL), style -> {
-            if (version == generation && styleRequest == styleVersion) status.accept("");
+            if (version == generation && styleRequest == styleVersion) { ready = true; status.accept(""); renderRadar(); }
         });
+    }
+    void onUserClick(Consumer<String> click) { userClick = click; }
+    void showRadar(double lat, double lng, double radius, List<NearbyUserResponse> users) {
+        radarLat = lat; radarLng = lng; this.radius = radius; this.users = new ArrayList<>(users);
+        located = true; renderRadar();
+    }
+    void clearRadar() { located = false; users = Collections.emptyList(); renderRadar(); }
+    private void renderRadar() {
+        if (map == null || !ready) return;
+        map.clear(); markers.clear();
+        if (!located) return;
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(radarLat, radarLng), 14 - Math.log(radius) / Math.log(2)));
+        double a = Math.toRadians(radarLat), b = Math.toRadians(radarLng), distance = radius / 6371.0088;
+        List<LatLng> circle = new ArrayList<>();
+        for (int i = 0; i <= 72; i++) {
+            double bearing = i * 2 * Math.PI / 72;
+            double lat = Math.asin(Math.sin(a) * Math.cos(distance) + Math.cos(a) * Math.sin(distance) * Math.cos(bearing));
+            double lng = b + Math.atan2(Math.sin(bearing) * Math.sin(distance) * Math.cos(a), Math.cos(distance) - Math.sin(a) * Math.sin(lat));
+            circle.add(new LatLng(Math.toDegrees(lat), ((Math.toDegrees(lng) + 540) % 360) - 180));
+        }
+        map.addPolygon(new PolygonOptions().addAll(circle).fillColor(Color.rgb(252, 231, 64)).alpha(0.2f).strokeColor(Color.rgb(182, 123, 93)));
+        map.addMarker(new MarkerOptions().position(new LatLng(radarLat, radarLng)).title(host.getContext().getString(R.string.radar_me)));
+        for (NearbyUserResponse user : users) {
+            if (!RadarData.coordinates(user.latitude, user.longitude)) continue;
+            Marker marker = map.addMarker(new MarkerOptions().position(new LatLng(user.latitude, user.longitude))
+                    .title(SocialUi.name(user.firstName, user.lastName)));
+            markers.put(marker, user.userId);
+        }
     }
     void start() { started = true; if (view != null) view.onStart(); }
     void resume() { resumed = true; if (view != null) view.onResume(); }
@@ -67,7 +111,7 @@ final class StudyMap {
     void save(Bundle state) { if (view != null) view.onSaveInstanceState(state); }
     void lowMemory() { if (view != null) view.onLowMemory(); }
     private void destroyView() {
-        ++generation; map = null;
+        ++generation; map = null; ready = false; markers.clear();
         if (view != null) {
             try { if (resumed) view.onPause(); if (started) view.onStop(); view.onDestroy(); }
             catch (RuntimeException | LinkageError ignored) { }

@@ -27,7 +27,7 @@ The client schedules a device reminder 30 minutes before a confirmed booking. It
 
 WebSocket authentication uses the Authorization header and STOMP CONNECT header. It does not place tokens in URL parameters.
 
-Radar coordinate transmission remains pending explicit authorization. The frontend does not collect or send device coordinates in this version.
+Radar obtains device location only after a user starts a scan and grants foreground location permission. It checks the current profile's `buddyActive` before updating coordinates and calling the radar API. Disabling `buddyActive` through the profile hides the user; there is no separate hide-location button. Location acquisition and scan requests stop when the map screen stops. The app does not keep a separate location history in its preferences or files.
 
 ## Messaging scope
 
