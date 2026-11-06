@@ -74,6 +74,17 @@ public final class ChatUi {
         if ("FILE".equalsIgnoreCase(message.messageType)) return context.getString(com.example.myapplication.R.string.chat_file_preview);
         return value(message.content);
     }
+    public static String imageUrl(MessageResponse message) {
+        if (message.attachments != null) for (AttachmentResponse attachment : message.attachments) {
+            if (attachment != null && remoteUrl(attachment.fileUrl)) return attachment.fileUrl;
+        }
+        return remoteUrl(message.content) ? message.content : null;
+    }
+    private static boolean remoteUrl(String url) {
+        if (url == null) return false;
+        okhttp3.HttpUrl parsed = okhttp3.HttpUrl.parse(url);
+        return parsed != null && (parsed.scheme().equals("https") || parsed.scheme().equals("http"));
+    }
     public static void updated(FragmentActivity activity) { activity.getSupportFragmentManager().setFragmentResult(UPDATED, new Bundle()); }
     private ChatUi() { }
 }

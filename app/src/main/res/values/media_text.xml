@@ -1,0 +1,12 @@
+<resources>
+    <string name="media_preview">Xem trước ảnh</string>
+    <string name="media_photo">Ảnh trong cuộc trò chuyện</string>
+    <string name="media_send">Gửi ảnh</string>
+    <string name="media_retry">Thử lại</string>
+    <string name="media_preparing">Đang chuẩn bị ảnh…</string>
+    <string name="media_uploading">Đang tải ảnh lên…</string>
+    <string name="media_uploaded">Đã tải ảnh lên. Đang cập nhật cuộc trò chuyện.</string>
+    <string name="media_image_error">Không đọc được ảnh. Hãy chọn ảnh hợp lệ, tối đa 20 MB.</string>
+    <string name="media_load_error">Không tải được ảnh. Nhấn vào ảnh để thử lại.</string>
+    <string name="media_uncertain">Chưa xác định được kết quả tải ảnh. Hãy kiểm tra cuộc trò chuyện trước khi thử lại.</string>
+</resources>

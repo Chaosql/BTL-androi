@@ -42,6 +42,7 @@ public class ChatApiUiTest {
     private final List<String> frames = new java.util.concurrent.CopyOnWriteArrayList<>();
     private final List<String> requests = new java.util.concurrent.CopyOnWriteArrayList<>();
     private final List<String> forwardedTargets = new java.util.concurrent.CopyOnWriteArrayList<>();
+    private final List<String> uploads = new java.util.concurrent.CopyOnWriteArrayList<>();
     private volatile boolean autoEcho = true;
     private volatile boolean failAction;
     private volatile boolean failHistory;
@@ -95,6 +96,8 @@ public class ChatApiUiTest {
                     });
                 }
                 if ("GET".equals(request.getMethod())) {
+                    if (path.equals("/photo.png")) return new MockResponse().setHeader("Content-Type", "image/png")
+                            .setBody(new okio.Buffer().write(photo()));
                     if (path.equals("/api/v1/chat/conversations/c1/messages")) {
                         if (failHistory) return new MockResponse().setResponseCode(503).setBody("{\"message\":\"Unavailable\"}");
                         JsonArray content = new JsonArray();
@@ -116,7 +119,15 @@ public class ChatApiUiTest {
                     return new MockResponse().setResponseCode(404);
                 }
                 mutations.add(request.getMethod() + " " + path);
+                if (path.equals("/api/v1/chat/conversations/c1/upload")) uploads.add(request.getBody().readUtf8());
                 if (failAction) return response(JsonParser.parseString("{\"status\":false,\"message\":\"Rejected\"}"));
+                if (path.equals("/api/v1/chat/conversations/c1/upload")) {
+                    JsonObject image = message("image-1", "self", server.url("/photo.png").toString());
+                    image.addProperty("messageType", "IMAGE");
+                    history.add(image);
+                    if (serverSocket != null) { push(image); push(image); }
+                    return response(JsonParser.parseString("{\"status\":true}"));
+                }
                 if (path.equals("/api/v1/chat/conversations/direct")) return response(conversation("c1"));
                 if (path.endsWith("/reply")) {
                     JsonObject reply = message("reply-1", "self", request.getRequestUrl().queryParameter("content"));
@@ -312,5 +323,114 @@ public class ChatApiUiTest {
         await(() -> activity.findViewById(R.id.btnSend) != null && activity.findViewById(R.id.btnSend).isEnabled());
         assertTrue(mutations.contains("POST /api/v1/chat/conversations/direct"));
         assertEquals("Peer", ((TextView) activity.findViewById(R.id.tvChatTitle)).getText().toString());
+    }
+    private byte[] photo() {
+        android.graphics.Bitmap image = android.graphics.Bitmap.createBitmap(8, 4, android.graphics.Bitmap.Config.ARGB_8888);
+        image.eraseColor(android.graphics.Color.BLUE);
+        java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+        image.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, bytes); image.recycle();
+        return bytes.toByteArray();
+    }
+    private int imageFiles() {
+        java.io.File[] files = activity.getCacheDir().listFiles((directory, name) -> name.startsWith("chat_image_") || name.startsWith("chat_source_"));
+        return files == null ? 0 : files.length;
+    }
+    private void chooseImage(byte[] content, String path) {
+        android.net.Uri uri = android.net.Uri.parse("content://chat.image.ui/" + path);
+        org.robolectric.shadows.ShadowContentResolver.registerProviderInternal("chat.image.ui", new ChatImageTest.ImageProvider());
+        Shadows.shadowOf(RuntimeEnvironment.getApplication().getContentResolver()).registerInputStream(uri,
+                new java.io.ByteArrayInputStream(content));
+        activity.findViewById(R.id.btnGallery).performClick();
+        org.robolectric.shadows.ShadowActivity.IntentForResult picker = Shadows.shadowOf(activity).getNextStartedActivityForResult();
+        assertNotNull(picker);
+        assertEquals("image/*", picker.intent.getType());
+        activity.getActivityResultRegistry().dispatchResult(picker.requestCode, android.app.Activity.RESULT_OK,
+                new android.content.Intent().setData(uri));
+    }
+    @Test public void selectedImageNeedsConfirmationThenUploadsOnce() throws Exception {
+        open();
+        ((EditText) activity.findViewById(R.id.etMessage)).setText("Keep text draft");
+        int before = imageFiles();
+        chooseImage(photo(), "photo.png");
+        await(() -> ShadowDialog.getLatestDialog() != null && ShadowDialog.getLatestDialog().findViewById(R.id.btnSendImage) != null);
+        android.app.Dialog preview = ShadowDialog.getLatestDialog();
+        assertTrue(uploads.isEmpty());
+        preview.findViewById(R.id.btnSendImage).performClick();
+        preview.findViewById(R.id.btnSendImage).performClick();
+        await(() -> !preview.isShowing() && adapter().contains("image-1"));
+        assertEquals(1, uploads.size());
+        assertTrue(uploads.get(0).contains("name=\"file\""));
+        assertTrue(uploads.get(0).contains("Content-Type: image/jpeg"));
+        assertEquals("Keep text draft", ((EditText) activity.findViewById(R.id.etMessage)).getText().toString());
+        assertEquals(3, adapter().getItemCount());
+        await(() -> imageFiles() == before);
+    }
+    @Test public void cancellingPreviewDoesNotUploadAndRemovesTemporaryImage() throws Exception {
+        open(); int before = imageFiles();
+        chooseImage(photo(), "photo.png");
+        await(() -> ShadowDialog.getLatestDialog() != null && ShadowDialog.getLatestDialog().findViewById(R.id.btnSendImage) != null);
+        ShadowDialog.getLatestDialog().findViewById(R.id.btnCancel).performClick();
+        assertTrue(uploads.isEmpty());
+        await(() -> imageFiles() == before);
+        assertTrue(activity.findViewById(R.id.btnGallery).isEnabled());
+    }
+    @Test public void failedUploadKeepsPreviewForExplicitRetry() throws Exception {
+        open(); failAction = true;
+        chooseImage(photo(), "photo.png");
+        await(() -> ShadowDialog.getLatestDialog() != null && ShadowDialog.getLatestDialog().findViewById(R.id.btnSendImage) != null);
+        android.app.Dialog preview = ShadowDialog.getLatestDialog();
+        preview.findViewById(R.id.btnSendImage).performClick();
+        await(() -> preview.findViewById(R.id.btnSendImage).isEnabled());
+        assertTrue(preview.isShowing());
+        assertEquals("Rejected", ((TextView) preview.findViewById(R.id.tvStatus)).getText().toString());
+        assertEquals(2, adapter().getItemCount());
+        failAction = false;
+        preview.findViewById(R.id.btnSendImage).performClick();
+        await(() -> !preview.isShowing() && adapter().contains("image-1"));
+        assertEquals(2, uploads.size());
+    }
+    @Test public void invalidSelectionDoesNotCallUpload() throws Exception {
+        open(); int before = imageFiles();
+        chooseImage(new byte[]{1, 2, 3}, "file.pdf");
+        await(() -> activity.findViewById(R.id.btnGallery).isEnabled());
+        assertTrue(uploads.isEmpty()); assertEquals(before, imageFiles());
+        assertEquals(activity.getString(R.string.media_image_error),
+                ((TextView) activity.findViewById(R.id.tvEmptyState)).getText().toString());
+    }
+    @Test public void tappingReceivedImageOpensViewer() throws Exception {
+        JsonObject image = message("image-1", "peer", server.url("/photo.png").toString());
+        image.addProperty("messageType", "IMAGE"); history.add(image);
+        open();
+        row("image-1").findViewById(R.id.ivImageContent).performClick();
+        android.app.Dialog viewer = ShadowDialog.getLatestDialog();
+        assertNotNull(viewer.findViewById(R.id.ivImage));
+        viewer.findViewById(R.id.btnClose).performClick(); assertFalse(viewer.isShowing());
+    }
+    @Test public void localImageUrlsFromMessagesAreNotOpened() {
+        MessageResponse image = new MessageResponse(); image.content = "file:///data/data/private/photo.jpg";
+        assertNull(ChatUi.imageUrl(image));
+        image.content = "content://private/photo";
+        assertNull(ChatUi.imageUrl(image));
+    }
+    @Test public void leavingChatClosesImagePreviewAndRemovesTemporaryFile() throws Exception {
+        open(); int before = imageFiles();
+        chooseImage(photo(), "photo.png");
+        await(() -> ShadowDialog.getLatestDialog() != null && ShadowDialog.getLatestDialog().findViewById(R.id.btnSendImage) != null);
+        android.app.Dialog preview = ShadowDialog.getLatestDialog();
+        activity.showScreen(UiScreen.PROFILE);
+        activity.getSupportFragmentManager().executePendingTransactions();
+        await(() -> !preview.isShowing() && imageFiles() == before);
+        assertTrue(uploads.isEmpty());
+    }
+    @Test public void cancellingImagePickerKeepsDraftAndDoesNotUpload() throws Exception {
+        open();
+        ((EditText) activity.findViewById(R.id.etMessage)).setText("Keep draft");
+        activity.findViewById(R.id.btnGallery).performClick();
+        org.robolectric.shadows.ShadowActivity.IntentForResult picker = Shadows.shadowOf(activity).getNextStartedActivityForResult();
+        assertNotNull(picker);
+        activity.getActivityResultRegistry().dispatchResult(picker.requestCode, android.app.Activity.RESULT_CANCELED, null);
+        assertTrue(uploads.isEmpty());
+        assertEquals("Keep draft", ((EditText) activity.findViewById(R.id.etMessage)).getText().toString());
+        assertTrue(activity.findViewById(R.id.btnGallery).isEnabled());
     }
 }

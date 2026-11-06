@@ -42,7 +42,13 @@ public abstract class BasePreviewDialog<B extends androidx.viewbinding.ViewBindi
     }
 
     public final void show() {
+        show(activity);
+    }
+    public final void show(androidx.lifecycle.LifecycleOwner owner) {
         binding = inflater.inflate(LayoutInflater.from(activity), null, false);
+        if (owner.getLifecycle().getCurrentState() == androidx.lifecycle.Lifecycle.State.DESTROYED) {
+            onDismissed(); binding = null; return;
+        }
         View content = binding.getRoot();
         View container = content;
         if (!(content instanceof ScrollView)) {
@@ -91,13 +97,13 @@ public abstract class BasePreviewDialog<B extends androidx.viewbinding.ViewBindi
         androidx.lifecycle.DefaultLifecycleObserver observer = new androidx.lifecycle.DefaultLifecycleObserver() {
             @Override public void onDestroy(androidx.lifecycle.LifecycleOwner owner) { dialog.dismiss(); }
         };
-        activity.getLifecycle().addObserver(observer);
+        owner.getLifecycle().addObserver(observer);
         dialog.setOnDismissListener(ignored -> {
             for (retrofit2.Call<?> call : requests) call.cancel();
             requests.clear();
             onDismissed();
             binding = null;
-            activity.getLifecycle().removeObserver(observer);
+            owner.getLifecycle().removeObserver(observer);
         });
         dialog.show();
         }

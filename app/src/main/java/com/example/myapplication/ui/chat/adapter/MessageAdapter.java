@@ -20,11 +20,16 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Holder> 
     private final String self;
     private final Consumer<MessageResponse> actions;
     private final Consumer<String> booking;
+    private final Consumer<MessageResponse> imageClick;
     private final List<MessageResponse> items = new ArrayList<>();
     private final Set<String> deleted = new HashSet<>();
     private final Set<String> recalled = new HashSet<>();
     public MessageAdapter(String self, Consumer<MessageResponse> actions, Consumer<String> booking) {
+        this(self, actions, booking, image -> { });
+    }
+    public MessageAdapter(String self, Consumer<MessageResponse> actions, Consumer<String> booking, Consumer<MessageResponse> imageClick) {
         this.self = self; this.actions = actions; this.booking = booking;
+        this.imageClick = imageClick;
     }
     public List<MessageResponse> messages() { return new ArrayList<>(items); }
     public boolean contains(String id) { for (MessageResponse item : items) if (id.equals(item.id)) return true; return false; }
@@ -69,9 +74,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Holder> 
         }
         ImageView image = root.findViewById(R.id.ivImageContent);
         if (image != null) {
-            String url = item.attachments != null && !item.attachments.isEmpty() && item.attachments.get(0) != null
-                    ? item.attachments.get(0).fileUrl : item.content;
-            Glide.with(image).load(url).placeholder(R.drawable.bg_profile).error(R.drawable.bg_profile).into(image);
+            Glide.with(image).load(ChatUi.imageUrl(item)).placeholder(R.drawable.ic_launcher_foreground)
+                    .error(R.drawable.ic_launcher_foreground).into(image);
+            image.setOnClickListener(view -> {
+                if (!Boolean.TRUE.equals(item.isRecalled)) imageClick.accept(item);
+            });
+            image.setOnLongClickListener(view -> { actions.accept(item); return true; });
         }
         visible(root, R.id.layoutReplyInBubble, !recalled && item.replyToMessage != null);
         visible(root, R.id.tvForwardedHeader, !recalled && item.forwardedFrom != null);

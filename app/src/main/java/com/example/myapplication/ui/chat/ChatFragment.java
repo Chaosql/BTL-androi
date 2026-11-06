@@ -3,9 +3,12 @@ package com.example.myapplication.ui.chat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.net.Uri;
 import android.view.View;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapplication.R;
@@ -45,6 +48,16 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
     private boolean last;
     private boolean sendingReply;
     private boolean forceRefresh;
+    private boolean preparingImage;
+    private boolean pickingImage;
+    private boolean imageDialogVisible;
+    private java.util.concurrent.ExecutorService imageWorker;
+    private final ActivityResultLauncher<String> imagePicker = registerForActivityResult(
+            new ActivityResultContracts.GetContent(), uri -> {
+                pickingImage = false;
+                if (uri != null && binding != null && valid() && !disabled) prepareImage(uri);
+                else updateControls();
+            });
     private int page;
     private Call<?> historyCall;
     private MessageResponse reply;
@@ -71,6 +84,8 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
         self = new PreferenceManager(requireContext()).getUserId();
         disabled = arguments.getBoolean("is_disabled", false);
         connected = false; loaded = false; loading = false; last = false; page = -1; sendingReply = false;
+        preparingImage = false; pickingImage = false; imageDialogVisible = false;
+        imageWorker = java.util.concurrent.Executors.newSingleThreadExecutor();
         mutations.clear();
         if (state != null) {
             pendingText = state.getString("pending_text");
@@ -78,7 +93,8 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
             ArrayList<String> ids = state.getStringArrayList("known_ids");
             knownBeforeSend.clear(); if (ids != null) knownBeforeSend.addAll(ids);
         }
-        adapter = new MessageAdapter(self, this::actions, id -> new BookingDetailDialog((MainActivity) requireActivity(), id).show());
+        adapter = new MessageAdapter(self, this::actions, id -> new BookingDetailDialog((MainActivity) requireActivity(), id).show(),
+                message -> new ImageViewerDialog((MainActivity) requireActivity(), ChatUi.imageUrl(message)).show(getViewLifecycleOwner()));
         LinearLayoutManager manager = new LinearLayoutManager(requireContext()); manager.setStackFromEnd(true);
         binding.rvChatMessages.setLayoutManager(manager); binding.rvChatMessages.setAdapter(adapter);
         binding.layoutReplyPreview.setVisibility(View.GONE); reply = null;
@@ -102,7 +118,11 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
         binding.btnSticker.setOnClickListener(view -> new MaterialAlertDialogBuilder(requireContext())
                 .setItems(new String[]{"👍", "❤", "😂", "😮", "😢", "🙏"}, (dialog, which) ->
                         binding.etMessage.append(new String[]{"👍", "❤", "😂", "😮", "😢", "🙏"}[which])).show());
-        binding.btnGallery.setEnabled(false); binding.btnFolder.setEnabled(false); binding.btnMic.setEnabled(false);
+        binding.btnGallery.setOnClickListener(view -> {
+            if (!binding.btnGallery.isEnabled()) return;
+            pickingImage = true; updateControls(); imagePicker.launch("image/*");
+        });
+        binding.btnFolder.setEnabled(false); binding.btnMic.setEnabled(false);
         binding.rvChatMessages.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override public void onScrolled(RecyclerView list, int dx, int dy) {
                 if (dy < 0 && manager.findFirstVisibleItemPosition() <= 3 && !last && !loading) load(page + 1);
@@ -115,7 +135,10 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
     private boolean valid() { return !conversation.isEmpty() && !self.isEmpty(); }
     private void updateControls() {
         if (binding == null) return;
-        binding.btnSend.setEnabled(valid() && loaded && connected && !disabled && pendingText == null && !sendingReply);
+        binding.btnSend.setEnabled(valid() && loaded && connected && !disabled && pendingText == null && !sendingReply
+                && !preparingImage && !imageDialogVisible && !pickingImage);
+        binding.btnGallery.setEnabled(valid() && loaded && !disabled && pendingText == null && !sendingReply
+                && !preparingImage && !imageDialogVisible && !pickingImage);
         binding.etMessage.setEnabled(valid() && !disabled && pendingText == null && !sendingReply);
         binding.btnCreateSchedule.setEnabled(valid() && !disabled);
         binding.tvOnlineStatus.setText(disabled ? R.string.chat_disabled : connected ? R.string.chat_connected : R.string.chat_disconnected);
@@ -216,6 +239,36 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
         pendingText = null; timedOut = false; handler.removeCallbacks(confirmationTimeout); updateControls();
         ChatUi.updated(requireActivity());
     }
+    private void prepareImage(Uri uri) {
+        if (preparingImage || imageDialogVisible || imageWorker == null || imageWorker.isShutdown()) return;
+        preparingImage = true; notice(R.string.media_preparing); updateControls();
+        View original = binding.getRoot();
+        android.content.Context context = requireContext().getApplicationContext();
+        String selectedConversation = conversation;
+        imageWorker.execute(() -> {
+            try {
+                ChatImage image = ChatImage.prepare(context.getContentResolver(), uri, context.getCacheDir());
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (binding == null || binding.getRoot() != original || !isAdded() || disabled) { image.close(); return; }
+                    preparingImage = false; imageDialogVisible = true; empty(); updateControls();
+                    new SendImageDialog((MainActivity) requireActivity(), selectedConversation, image, () -> {
+                        if (binding == null || binding.getRoot() != original) return;
+                        load(0);
+                        handler.postDelayed(refresh, 1000);
+                        handler.postDelayed(refresh, 3000);
+                    }, () -> {
+                        if (binding == null || binding.getRoot() != original) return;
+                        imageDialogVisible = false; updateControls();
+                    }).show(getViewLifecycleOwner());
+                });
+            } catch (Exception error) {
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (binding == null || binding.getRoot() != original) return;
+                    preparingImage = false; updateControls(); notice(R.string.media_image_error);
+                });
+            }
+        });
+    }
     @Override public void onState(boolean ready) {
         if (binding == null) return;
         connected = ready; updateControls();
@@ -293,6 +346,7 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> implements C
         state.putStringArrayList("known_ids", new ArrayList<>(knownBeforeSend)); super.onSaveInstanceState(state);
     }
     @Override public void onDestroyView() {
+        if (imageWorker != null) imageWorker.shutdownNow();
         handler.removeCallbacksAndMessages(null); if (socket != null) socket.close(); socket = null;
         super.onDestroyView();
     }
