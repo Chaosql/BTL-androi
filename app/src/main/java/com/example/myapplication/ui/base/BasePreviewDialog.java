@@ -73,11 +73,11 @@ public abstract class BasePreviewDialog<B extends androidx.viewbinding.ViewBindi
         BaseFragment.on(content, R.id.btnAddSubject, () -> { dialog.dismiss(); UiDialogs.show(activity, R.layout.dialog_add_subject); });
         BaseFragment.on(content, R.id.btnCancel, dialog::dismiss);
 
-        bind(content, dialog);
         for (int id : new int[]{R.id.tvEmojiLike, R.id.tvEmojiHeart, R.id.tvEmojiLaugh, R.id.tvEmojiWow,
                 R.id.tvEmojiSad, R.id.tvEmojiPray, R.id.tvReply})
             BaseFragment.on(content, id, dialog::dismiss);
         BaseFragment.on(content, R.id.tvForward, () -> { dialog.dismiss(); UiDialogs.show(activity, R.layout.dialog_forward_select); });
+        bind(content, dialog);
         dialog.setOnShowListener(ignored -> {
             if (dialog.getWindow() != null) {
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -95,6 +95,7 @@ public abstract class BasePreviewDialog<B extends androidx.viewbinding.ViewBindi
         dialog.setOnDismissListener(ignored -> {
             for (retrofit2.Call<?> call : requests) call.cancel();
             requests.clear();
+            onDismissed();
             binding = null;
             activity.getLifecycle().removeObserver(observer);
         });
@@ -102,4 +103,6 @@ public abstract class BasePreviewDialog<B extends androidx.viewbinding.ViewBindi
         }
 
     protected abstract void bind(View content, AlertDialog dialog);
+    protected void onDismissed() { }
+    protected void cancelRequest(retrofit2.Call<?> call) { call.cancel(); requests.remove(call); }
 }

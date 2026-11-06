@@ -28,6 +28,17 @@ public abstract class BaseSocialFragment<B extends ViewBinding> extends BaseFrag
     protected FriendRepository friends() { return new FriendRepository(requireContext()); }
     protected BlockRepository blocks() { return new BlockRepository(requireContext()); }
     protected MainActivity host() { return (MainActivity) requireActivity(); }
+    private boolean openingChat;
+    protected void openChat(String id, String name) {
+        if (openingChat || id == null || id.isEmpty()) return;
+        openingChat = true;
+        request(new com.example.myapplication.data.repository.chat.ConversationRepository(requireContext())
+                .createOrGetDirectConversation(new com.example.myapplication.data.remote.dto.request.DirectChatRequest(id)), response -> {
+            openingChat = false;
+            if (response.data == null || response.data.id == null) { error(getString(com.example.myapplication.R.string.chat_missing_data)); return; }
+            go(com.example.myapplication.ui.main.UiScreen.CHAT, com.example.myapplication.ui.chat.ChatUi.args(response.data.id, name, id));
+        }, failure -> { openingChat = false; error(failure.message); });
+    }
     protected void error(String message) { Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show(); }
     protected void user(String id, String status) { if (id != null && !id.isEmpty()) new UserInfoDialog(host(), id, status).show(); }
     protected void changed(Runnable reload) {
@@ -75,6 +86,7 @@ public abstract class BaseSocialFragment<B extends ViewBinding> extends BaseFrag
         });
     }
     @Override public void onDestroyView() {
+        openingChat = false;
         handler.removeCallbacksAndMessages(null);
         invalidateQuery();
         super.onDestroyView();

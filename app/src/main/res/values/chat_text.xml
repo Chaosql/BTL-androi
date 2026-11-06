@@ -1,0 +1,26 @@
+<resources>
+    <string name="chat_conversations">Cuộc trò chuyện</string>
+    <string name="chat_empty_conversations">Chưa có cuộc trò chuyện.</string>
+    <string name="chat_empty">Chưa có tin nhắn.</string>
+    <string name="chat_load_older">Xem tin nhắn cũ</string>
+    <string name="chat_invalid_conversation">Hãy chọn một cuộc trò chuyện.</string>
+    <string name="chat_connecting">Đang kết nối…</string>
+    <string name="chat_connected">Đã kết nối</string>
+    <string name="chat_disconnected">Mất kết nối. Đang thử lại…</string>
+    <string name="chat_disabled">Không thể gửi tin nhắn trong cuộc trò chuyện này.</string>
+    <string name="chat_uncertain">Chưa nhận được xác nhận gửi. Hãy kiểm tra lại lịch sử trước khi gửi lại.</string>
+    <string name="chat_loading">Đang tải tin nhắn…</string>
+    <string name="chat_retry">Không tải được tin nhắn. Nhấn để thử lại.</string>
+    <string name="chat_recalled">Tin nhắn đã được thu hồi</string>
+    <string name="chat_message">Nhắn tin</string>
+    <string name="chat_image_preview">Đã gửi hình ảnh</string>
+    <string name="chat_file_preview">Đã gửi tệp</string>
+    <string name="chat_forwarded">Đã chuyển tiếp tin nhắn.</string>
+    <string name="chat_delete_confirm">Xóa tin nhắn này ở phía bạn?</string>
+    <string name="chat_recall_confirm">Thu hồi tin nhắn này?</string>
+    <string name="chat_reaction_count">%1$s %2$d</string>
+    <string name="chat_missing_data">Máy chủ trả về dữ liệu tin nhắn không hợp lệ.</string>
+    <string name="chat_send_error">Không gửi được tin nhắn. Nội dung đã được giữ lại.</string>
+    <string name="chat_choose_conversation">Chọn cuộc trò chuyện để chuyển tiếp</string>
+    <string name="chat_typing">Đang nhập…</string>
+</resources>

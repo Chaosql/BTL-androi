@@ -67,6 +67,7 @@ public class SearchUserFragment extends BaseSocialFragment<FragmentSearchUserBin
     }
 
     private void add(UserSearchDto item) {
+        if (SocialUi.friend(item.friendshipStatus)) { openChat(item.id, SocialUi.name(item.firstName, item.lastName)); return; }
         if (adapter.isBusy(item.id) || sent.contains(item.id)) return;
         adapter.busy(item.id, true);
         request(friends().sendFriendRequest(item.id), response -> {

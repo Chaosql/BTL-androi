@@ -13,7 +13,7 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
     @Override protected void onScreenCreated(View root, Bundle state) {
         binding.btnProfile.setOnClickListener(bindingView -> go(UiScreen.PROFILE));
         binding.imgAvatar.setOnClickListener(bindingView -> go(UiScreen.PROFILE));
-        binding.btnFriend.setOnClickListener(bindingView -> go(UiScreen.FRIENDS));
+        binding.btnFriend.setOnClickListener(bindingView -> go(UiScreen.CONVERSATIONS));
         binding.btnCalendar.setOnClickListener(bindingView -> go(UiScreen.SCHEDULE));
         binding.btnNotification.setOnClickListener(bindingView -> go(UiScreen.NOTIFICATIONS));
         binding.btnRadar.setOnClickListener(bindingView -> dialog(R.layout.dialog_user_info));

@@ -100,7 +100,7 @@ public class StudyUiTest {
         }
     }
 
-    @Test public void loginNavigationAndChatPreviewWork() {
+    @Test public void navigationWorksAndChatRequiresConversation() {
         try (ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup()) {
             MainActivity activity = controller.get();
             activity.getSupportFragmentManager().executePendingTransactions();
@@ -117,8 +117,9 @@ public class StudyUiTest {
             EditText input = activity.findViewById(R.id.etMessage);
             input.setText("Tin nhắn mẫu");
             activity.findViewById(R.id.btnSend).performClick();
-            assertEquals(before + 1, list.getAdapter().getItemCount());
-            assertTrue(input.getText().toString().isEmpty());
+            assertEquals(before, list.getAdapter().getItemCount());
+            assertTrue(!input.getText().toString().isEmpty());
+            assertTrue(!activity.findViewById(R.id.btnSend).isEnabled());
         }
     }
 

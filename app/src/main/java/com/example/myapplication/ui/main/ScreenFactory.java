@@ -49,6 +49,7 @@ public final class ScreenFactory {
             case SEARCH_USER: fragment = new SearchUserFragment(); break;
             case PENDING_REQUESTS: fragment = new PendingRequestsFragment(); break;
             case CHAT: fragment = new ChatFragment(); break;
+            case CONVERSATIONS: fragment = new com.example.myapplication.ui.chat.ConversationsFragment(); break;
             case GROUP_DETAIL: fragment = new GroupDetailFragment(); break;
             case NOTIFICATIONS: fragment = new NotificationFragment(); break;
             case SCHEDULE: fragment = new ScheduleFragment(); break;

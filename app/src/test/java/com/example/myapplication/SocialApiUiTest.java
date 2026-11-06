@@ -165,8 +165,8 @@ public class SocialApiUiTest {
         row.performClick();
         android.app.Dialog dialog = ShadowDialog.getLatestDialog();
         await(() -> ((TextView) dialog.findViewById(R.id.tvSchool)).getText().toString().equals("Real school"));
-        assertEquals(activity.getString(R.string.social_friend), ((TextView) dialog.findViewById(R.id.btnAddFriend)).getText().toString());
-        assertFalse(dialog.findViewById(R.id.btnAddFriend).isEnabled());
+        assertEquals(activity.getString(R.string.chat_message), ((TextView) dialog.findViewById(R.id.btnAddFriend)).getText().toString());
+        assertTrue(dialog.findViewById(R.id.btnAddFriend).isEnabled());
         dialog.dismiss();
     }
     @Test public void searchFiltersSelfAndDisablesExistingRelationships() throws Exception {
@@ -174,7 +174,7 @@ public class SocialApiUiTest {
         await(() -> list(R.id.rvSearchResults).getAdapter().getItemCount() == 3);
         assertTrue(row(R.id.rvSearchResults, 0).findViewById(R.id.btnAction).isEnabled());
         assertFalse(row(R.id.rvSearchResults, 1).findViewById(R.id.btnAction).isEnabled());
-        assertFalse(row(R.id.rvSearchResults, 2).findViewById(R.id.btnAction).isEnabled());
+        assertTrue(row(R.id.rvSearchResults, 2).findViewById(R.id.btnAction).isEnabled());
     }
     @Test public void sendRequestIsNotDuplicatedAndUpdatesButton() throws Exception {
         open(UiScreen.SEARCH_USER); search("someone");

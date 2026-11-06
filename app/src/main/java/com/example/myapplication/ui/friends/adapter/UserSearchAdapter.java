@@ -18,8 +18,8 @@ public class UserSearchAdapter extends SocialAdapter<UserSearchDto, ItemUserSear
         SocialUi.avatar(binding.ivAvatar, item.avatar);
         boolean friend = SocialUi.friend(item.friendshipStatus);
         boolean pending = SocialUi.pending(item.friendshipStatus);
-        binding.btnAction.setText(friend ? R.string.social_friend : pending ? R.string.social_sent : R.string.social_add);
-        binding.btnAction.setEnabled(!friend && !pending && !busy.contains(item.id) && item.id != null && !item.id.isEmpty());
+        binding.btnAction.setText(friend ? R.string.chat_message : pending ? R.string.social_sent : R.string.social_add);
+        binding.btnAction.setEnabled(!pending && !busy.contains(item.id) && item.id != null && !item.id.isEmpty());
         binding.btnAction.setAlpha(binding.btnAction.isEnabled() ? 1f : 0.6f);
         binding.getRoot().setOnClickListener(view -> click.accept(item));
         binding.btnAction.setOnClickListener(view -> add.accept(item));

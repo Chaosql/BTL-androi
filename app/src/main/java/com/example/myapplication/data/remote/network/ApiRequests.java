@@ -44,6 +44,13 @@ public final class ApiRequests {
                     if (body.data instanceof FriendActionResponse && Boolean.FALSE.equals(((FriendActionResponse) body.data).status)) {
                         callback.onError(new ApiError(422, ((FriendActionResponse) body.data).message)); return;
                     }
+                    if (body.data instanceof java.util.Map) {
+                        java.util.Map<?, ?> data = (java.util.Map<?, ?>) body.data;
+                        if (Boolean.FALSE.equals(data.get("status"))) {
+                            Object message = data.get("message");
+                            callback.onError(new ApiError(422, message instanceof String ? (String) message : body.message)); return;
+                        }
+                    }
                 }
                 if (result instanceof LoginResponse) {
                     LoginResponse body = (LoginResponse) result;

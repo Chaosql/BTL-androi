@@ -20,6 +20,7 @@ public enum UiScreen {
     SEARCH_USER(R.string.ui_uiscreen_text_16, R.layout.fragment_search_user),
     PENDING_REQUESTS(R.string.ui_fragment_pending_requests_text_1, R.layout.fragment_pending_requests),
     CHAT(R.string.ui_uiscreen_text_18, R.layout.fragment_chat),
+    CONVERSATIONS(R.string.chat_conversations, R.layout.fragment_friends_list),
     GROUP_DETAIL(R.string.ui_uiscreen_text_19, R.layout.fragment_friends_list),
     NOTIFICATIONS(R.string.title_notification, R.layout.fragment_notification),
     SCHEDULE(R.string.ui_uiscreen_text_21, R.layout.fragment_schedule),

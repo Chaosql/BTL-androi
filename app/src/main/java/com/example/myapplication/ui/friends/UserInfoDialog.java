@@ -48,6 +48,19 @@ public class UserInfoDialog extends BasePreviewDialog<DialogUserInfoBinding> {
         binding.btnAddFriend.setOnClickListener(view -> {
             if (!binding.btnAddFriend.isEnabled()) return;
             binding.btnAddFriend.setEnabled(false);
+            if (SocialUi.friend(status)) {
+                request(new com.example.myapplication.data.repository.chat.ConversationRepository(activity)
+                        .createOrGetDirectConversation(new com.example.myapplication.data.remote.dto.request.DirectChatRequest(userId)), response -> {
+                    if (response.data == null || response.data.id == null) {
+                        action(); Toast.makeText(activity, R.string.chat_missing_data, Toast.LENGTH_LONG).show(); return;
+                    }
+                    String name = binding.tvUserName.getText().toString();
+                    dialog.dismiss();
+                    activity.showScreen(com.example.myapplication.ui.main.UiScreen.CHAT,
+                            com.example.myapplication.ui.chat.ChatUi.args(response.data.id, name, userId));
+                }, failure -> { action(); Toast.makeText(activity, failure.message, Toast.LENGTH_LONG).show(); });
+                return;
+            }
             request(friends.sendFriendRequest(userId), response -> {
                 status = "PENDING";
                 action();
@@ -62,7 +75,7 @@ public class UserInfoDialog extends BasePreviewDialog<DialogUserInfoBinding> {
     private void action() {
         boolean friend = SocialUi.friend(status);
         boolean pending = SocialUi.pending(status);
-        binding.btnAddFriend.setText(friend ? R.string.social_friend : pending ? R.string.social_sent : R.string.social_add);
-        binding.btnAddFriend.setEnabled(loaded && !friend && !pending && !userId.equals(new PreferenceManager(activity).getUserId()));
+        binding.btnAddFriend.setText(friend ? R.string.chat_message : pending ? R.string.social_sent : R.string.social_add);
+        binding.btnAddFriend.setEnabled(loaded && !pending && !userId.equals(new PreferenceManager(activity).getUserId()));
     }
 }
