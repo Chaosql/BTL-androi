@@ -1,0 +1,28 @@
+<resources>
+    <string name="booking_pending">Chờ xác nhận</string>
+    <string name="booking_confirmed">Đã xác nhận</string>
+    <string name="booking_completed">Đã hoàn thành</string>
+    <string name="booking_status_cancelled">Đã hủy</string>
+    <string name="booking_rejected">Đã từ chối</string>
+    <string name="booking_unknown">Chưa xác định</string>
+    <string name="booking_empty">Chưa có lịch hẹn trong ngày.</string>
+    <string name="booking_loading">Đang tải lịch hẹn…</string>
+    <string name="booking_retry">Không tải được lịch hẹn. Nhấn để thử lại.</string>
+    <string name="booking_invalid_response">Không tải được thông tin lịch hẹn.</string>
+    <string name="booking_invalid_time">Hãy chọn thời gian cách hiện tại ít nhất 30 phút.</string>
+    <string name="booking_invalid_location">Vui lòng nhập tên địa điểm.</string>
+    <string name="booking_choose_partner">Chọn bạn để tạo cuộc hẹn</string>
+    <string name="booking_more_partners">Tải thêm</string>
+    <string name="booking_no_friends">Bạn cần kết bạn trước khi tạo cuộc hẹn.</string>
+    <string name="booking_with">Tạo cuộc hẹn với %1$s</string>
+    <string name="booking_created">Tạo cuộc hẹn thành công.</string>
+    <string name="booking_updated">Đã cập nhật cuộc hẹn.</string>
+    <string name="booking_partner">Với: %1$s</string>
+    <string name="booking_time_detail">Thời gian: %1$s (%2$d phút)</string>
+    <string name="booking_location_detail">Địa điểm: %1$s</string>
+    <string name="booking_note_detail">Ghi chú: %1$s</string>
+    <string name="booking_cancel_detail">Lý do hủy: %1$s</string>
+    <string name="booking_row">%1$s • %2$s</string>
+    <string name="booking_invalid_rating">Vui lòng chọn từ 1 đến 5 sao.</string>
+    <string name="booking_rated">Đã gửi đánh giá.</string>
+</resources>

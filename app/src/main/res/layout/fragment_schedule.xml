@@ -128,6 +128,28 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Tháng 7, 2026" />
 
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/tvMonthYear"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/tvEmptyState"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:gravity="center"
+                android:text="@string/booking_empty"
+                android:textColor="@color/brown"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/progressBar"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvScheduleList"
                 android:layout_width="match_parent"
@@ -136,7 +158,7 @@
                 android:layout_marginBottom="@dimen/_6sdp"
                 android:clipToPadding="false"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvMonthYear"
+                app:layout_constraintTop_toBottomOf="@id/tvEmptyState"
                 tools:itemCount="3"
                 tools:listitem="@layout/item_schedule" />
 

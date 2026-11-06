@@ -94,8 +94,8 @@ public class StudyUiTest {
             UiDialogs.show(activity, R.layout.dialog_booking_detail);
             android.app.Dialog dialog = org.robolectric.shadows.ShadowDialog.getLatestDialog();
             assertEquals(View.GONE, dialog.findViewById(R.id.layoutRatingSection).getVisibility());
-            assertEquals(View.VISIBLE, dialog.findViewById(R.id.btnComplete).getVisibility());
-            assertEquals(View.VISIBLE, dialog.findViewById(R.id.btnCancel).getVisibility());
+            assertEquals(View.GONE, dialog.findViewById(R.id.btnComplete).getVisibility());
+            assertEquals(View.GONE, dialog.findViewById(R.id.btnCancel).getVisibility());
             dialog.dismiss();
         }
     }
