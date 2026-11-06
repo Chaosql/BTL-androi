@@ -23,6 +23,9 @@ android {
         val apiBaseUrl = providers.gradleProperty("studydateApiBaseUrl")
             .getOrElse("https://api.chiikaiwa.me/")
         buildConfigField("String", "API_BASE_URL", "\"${apiBaseUrl}\"")
+        val mapStyleUrl = providers.gradleProperty("studydateMapStyleUrl")
+            .getOrElse("https://tiles.openfreemap.org/styles/liberty")
+        buildConfigField("String", "MAP_STYLE_URL", "\"${mapStyleUrl}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -47,6 +50,7 @@ android {
 }
 
 dependencies {
+    implementation("org.maplibre.gl:android-sdk:12.3.1")
     implementation("androidx.exifinterface:exifinterface:1.3.6")
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("com.squareup.retrofit2:retrofit:2.11.0")

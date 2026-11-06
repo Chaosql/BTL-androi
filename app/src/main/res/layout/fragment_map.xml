@@ -5,19 +5,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.home.map.MapFragment">
+    tools:context=".ui.map.MapFragment">
 
-    <ImageView
+    <FrameLayout
         android:id="@+id/mapView"
-        android:src="@drawable/study_map_preview"
-        android:scaleType="centerCrop"
-        android:contentDescription="Bản đồ minh họa khu vực học tập"
+        android:background="@color/bg_2"
+        android:contentDescription="@string/map_description"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvMapStatus"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:background="@color/bg_2"
+        android:padding="8dp"
+        android:textColor="@color/input_text"
+        android:textSize="12sp"
+        app:layout_constraintTop_toBottomOf="@id/cardSearch"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardSearch"
