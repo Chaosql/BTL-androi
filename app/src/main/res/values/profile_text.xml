@@ -1,0 +1,25 @@
+<resources>
+    <string name="profile_saved">Đã lưu thay đổi.</string>
+    <string name="profile_empty_response">Không tải được thông tin hồ sơ. Vui lòng thử lại.</string>
+    <string name="profile_unknown">Chưa cập nhật</string>
+    <string name="profile_no_intro">Chưa có giới thiệu</string>
+    <string name="profile_age">Tuổi: %1$s</string>
+    <string name="profile_gender">Giới tính: %1$s</string>
+    <string name="profile_school">Trường học: %1$s</string>
+    <string name="profile_major">Ngành học: %1$s</string>
+    <string name="profile_location">Địa điểm: %1$s</string>
+    <string name="profile_score">Điểm tin cậy: %1$s</string>
+    <string name="profile_radar_on">Trạng thái quét: Bật</string>
+    <string name="profile_radar_off">Trạng thái quét: Tắt</string>
+    <string name="profile_gender_male">Nam</string>
+    <string name="profile_gender_female">Nữ</string>
+    <string name="profile_gender_other">Khác</string>
+    <string name="profile_invalid_phone">Số điện thoại không hợp lệ.</string>
+    <string name="profile_choose_type">Vui lòng chọn loại môn học.</string>
+    <string name="profile_duplicate_subject">Môn học này đã có trong danh sách.</string>
+    <string name="profile_empty_subjects">Chưa có môn học.</string>
+    <string name="profile_remove_subject">Xóa môn %1$s?</string>
+    <string name="profile_delete">Xóa</string>
+    <string name="profile_avatar_error">Không đọc được ảnh. Hãy chọn ảnh có dung lượng tối đa 5 MB.</string>
+    <string name="profile_partial_save">Một phần thông tin đã được lưu. Vui lòng thử lại phần còn lại.</string>
+</resources>

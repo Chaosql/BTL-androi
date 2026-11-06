@@ -18,6 +18,23 @@ public abstract class BasePreviewDialog<B extends androidx.viewbinding.ViewBindi
     protected final MainActivity activity;
     protected B binding;
     private final BindingInflater<B> inflater;
+    private final java.util.List<retrofit2.Call<?>> requests = new java.util.ArrayList<>();
+
+    protected <T> void request(retrofit2.Call<T> call, java.util.function.Consumer<T> success,
+            java.util.function.Consumer<com.example.myapplication.data.remote.network.ApiError> failure) {
+        requests.add(call);
+        com.example.myapplication.data.remote.network.ApiRequests.enqueue(call,
+                new com.example.myapplication.data.remote.network.ApiCallback<T>() {
+                    @Override public void onSuccess(T result) {
+                        requests.remove(call);
+                        if (binding != null && !activity.isDestroyed()) success.accept(result);
+                    }
+                    @Override public void onError(com.example.myapplication.data.remote.network.ApiError error) {
+                        requests.remove(call);
+                        if (binding != null && !activity.isDestroyed()) failure.accept(error);
+                    }
+                });
+    }
 
     protected BasePreviewDialog(MainActivity activity, BindingInflater<B> inflater) {
         this.activity = activity;
@@ -71,7 +88,16 @@ public abstract class BasePreviewDialog<B extends androidx.viewbinding.ViewBindi
                         ViewGroup.LayoutParams.WRAP_CONTENT);
             }
         });
-        dialog.setOnDismissListener(ignored -> binding = null);
+        androidx.lifecycle.DefaultLifecycleObserver observer = new androidx.lifecycle.DefaultLifecycleObserver() {
+            @Override public void onDestroy(androidx.lifecycle.LifecycleOwner owner) { dialog.dismiss(); }
+        };
+        activity.getLifecycle().addObserver(observer);
+        dialog.setOnDismissListener(ignored -> {
+            for (retrofit2.Call<?> call : requests) call.cancel();
+            requests.clear();
+            binding = null;
+            activity.getLifecycle().removeObserver(observer);
+        });
         dialog.show();
         }
 
