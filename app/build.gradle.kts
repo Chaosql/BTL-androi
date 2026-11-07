@@ -55,6 +55,8 @@ android {
 }
 
 dependencies {
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-livedata-core:2.6.2")
     implementation("com.google.firebase:firebase-messaging:24.1.0")
     implementation("org.maplibre.gl:android-sdk:12.3.1")
     implementation("androidx.exifinterface:exifinterface:1.3.6")

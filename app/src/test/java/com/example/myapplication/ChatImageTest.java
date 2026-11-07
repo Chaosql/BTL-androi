@@ -93,6 +93,27 @@ public class ChatImageTest {
         finally { Thread.interrupted(); }
         assertEquals(before, files());
     }
+    @Test public void clearingChatViewModelCleansPreparedImageBeforeUiDelivery() throws Exception {
+        input(uri, jpeg(8, 4)); int before = files();
+        androidx.lifecycle.ViewModelStore store = new androidx.lifecycle.ViewModelStore();
+        com.example.myapplication.ui.chat.ChatViewModel model = new androidx.lifecycle.ViewModelProvider(() -> store,
+                new androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory(RuntimeEnvironment.getApplication()))
+                .get(com.example.myapplication.ui.chat.ChatViewModel.class);
+        try {
+            model.prepareImage(uri);
+            long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(5);
+            while (files() != before + 1 && System.nanoTime() < deadline) Thread.sleep(10);
+            assertEquals(before + 1, files());
+            Thread.sleep(100);
+            assertNull(model.images().getValue());
+            store.clear();
+            deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(5);
+            while (files() != before && System.nanoTime() < deadline) {
+                Shadows.shadowOf(android.os.Looper.getMainLooper()).idle(); Thread.sleep(10);
+            }
+            assertEquals(before, files()); assertNull(model.images().getValue());
+        } finally { store.clear(); }
+    }
     public static class ImageProvider extends ContentProvider {
         @Override public boolean onCreate() { return true; }
         @Override public String getType(Uri uri) { return uri.getPath().endsWith(".pdf") ? "application/pdf" : "image/jpeg"; }

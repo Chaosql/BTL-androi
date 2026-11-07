@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.schedule;
 
+import com.example.myapplication.ui.base.UiOperation;
 import android.app.DatePickerDialog;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,9 +17,9 @@ import com.example.myapplication.data.local.PreferenceManager;
 import com.example.myapplication.data.remote.dto.request.CreateBookingRequest;
 import com.example.myapplication.data.remote.dto.request.DirectChatRequest;
 import com.example.myapplication.data.remote.dto.response.FriendDto;
-import com.example.myapplication.data.repository.chat.ConversationRepository;
-import com.example.myapplication.data.repository.schedule.BookingRepository;
-import com.example.myapplication.data.repository.social.FriendRepository;
+import com.example.myapplication.ui.chat.ConversationViewModel;
+import com.example.myapplication.ui.schedule.BookingViewModel;
+import com.example.myapplication.ui.friends.FriendViewModel;
 import com.example.myapplication.databinding.FragmentCreateAppointmentBinding;
 import com.example.myapplication.ui.base.BaseFragment;
 import com.example.myapplication.ui.friends.SocialUi;
@@ -40,7 +41,7 @@ public class CreateAppointmentFragment extends BaseFragment<FragmentCreateAppoin
     private String targetName;
     private boolean busy;
     private AlertDialog chooser;
-    private retrofit2.Call<?> partnerCall;
+    private UiOperation<?> partnerCall;
     private LocalDate selectedDate;
 
     public CreateAppointmentFragment() { super(FragmentCreateAppointmentBinding::inflate); }
@@ -57,6 +58,8 @@ public class CreateAppointmentFragment extends BaseFragment<FragmentCreateAppoin
     }
 
     @Override protected void onScreenCreated(View root, Bundle state) {
+        enableScreenCatalog(binding.tvScreenTitle);
+        binding.ivBack.setOnClickListener(view -> back());
         Bundle data = state != null ? state : getArguments();
         conversationId = data == null ? "" : data.getString(CONVERSATION_ID, "");
         targetName = data == null ? "" : data.getString(TARGET_NAME, "");
@@ -67,7 +70,7 @@ public class CreateAppointmentFragment extends BaseFragment<FragmentCreateAppoin
                 ? LocalDate.parse(data.getString(BookingUi.SELECTED_DATE)) : initial.toLocalDate();
         setupTimePicker(binding.npHour, 23, state == null ? initial.getHour() : state.getInt("hour", initial.getHour()));
         setupTimePicker(binding.npMinute, 59, state == null ? initial.getMinute() : state.getInt("minute", initial.getMinute()));
-        spinner(root, R.id.spDuration, getString(R.string.ui_studyscreenfragment_text_4), getString(R.string.ui_studyscreenfragment_text_5),
+        spinner(binding.spDuration, getString(R.string.ui_studyscreenfragment_text_4), getString(R.string.ui_studyscreenfragment_text_5),
                 getString(R.string.ui_studyscreenfragment_text_6), getString(R.string.ui_studyscreenfragment_text_7),
                 getString(R.string.ui_studyscreenfragment_text_8), getString(R.string.ui_studyscreenfragment_text_9), getString(R.string.ui_studyscreenfragment_text_10));
         if (state != null) {
@@ -101,7 +104,7 @@ public class CreateAppointmentFragment extends BaseFragment<FragmentCreateAppoin
             binding.etLocationName.requestFocus(); return false;
         }
         LocalDateTime selected = LocalDateTime.of(selectedDate, LocalTime.of(binding.npHour.getValue(), binding.npMinute.getValue()));
-        if (selected.isBefore(LocalDateTime.now(BookingUi.ZONE).plusMinutes(30))) {
+        if (!BookingViewModel.validTime(selected)) {
             error(getString(R.string.booking_invalid_time)); return false;
         }
         return true;
@@ -130,7 +133,7 @@ public class CreateAppointmentFragment extends BaseFragment<FragmentCreateAppoin
                     FriendDto friend = partners.get(position);
                     targetName = SocialUi.name(friend.firstName, friend.lastName);
                     title();
-                    request(new ConversationRepository(requireContext()).createOrGetDirectConversation(new DirectChatRequest(friend.userId)),
+                    request(viewModel(com.example.myapplication.ui.chat.ConversationViewModel.class).createOrGetDirectConversation(new DirectChatRequest(friend.userId)),
                             response -> {
                                 if (response.data == null || response.data.id == null || response.data.id.isEmpty()) {
                                     setBusy(false); error(getString(R.string.booking_invalid_response)); return;
@@ -156,8 +159,8 @@ public class CreateAppointmentFragment extends BaseFragment<FragmentCreateAppoin
         if (chooser == null || !chooser.isShowing() || partnerCall != null) return;
         chooser.setTitle(R.string.booking_loading);
         chooser.getButton(AlertDialog.BUTTON_NEUTRAL).setEnabled(false);
-        retrofit2.Call<com.example.myapplication.data.remote.dto.response.BaseResponse<com.example.myapplication.data.remote.dto.response.PageResponse<FriendDto>>> call =
-                new FriendRepository(requireContext()).getFriends(page[0], 20, null);
+        UiOperation<com.example.myapplication.data.remote.dto.response.BaseResponse<com.example.myapplication.data.remote.dto.response.PageResponse<FriendDto>>> call =
+                viewModel(com.example.myapplication.ui.friends.FriendViewModel.class).getFriends(page[0], 20, null);
         partnerCall = call;
         request(call, response -> {
             partnerCall = null;
@@ -194,7 +197,7 @@ public class CreateAppointmentFragment extends BaseFragment<FragmentCreateAppoin
                 binding.etLocationName.getText().toString().trim(), binding.etStreet.getText().toString().trim(),
                 binding.etDistrict.getText().toString().trim(), binding.etProvince.getText().toString().trim(),
                 "", binding.cbIsRecurring.isChecked(), 15);
-        request(new BookingRepository(requireContext()).createBookingInConversation(conversationId, change), response -> {
+        request(viewModel(com.example.myapplication.ui.schedule.BookingViewModel.class).createBookingInConversation(conversationId, change), response -> {
             MainActivity activity = (MainActivity) requireActivity();
             Bundle result = new Bundle();
             result.putString(BookingUi.SELECTED_DATE, selectedDate.toString());

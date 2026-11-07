@@ -7,20 +7,22 @@ import com.example.myapplication.R;
 import com.example.myapplication.databinding.DialogConfirmDeleteBinding;
 import com.example.myapplication.ui.base.BasePreviewDialog;
 import com.example.myapplication.ui.main.MainActivity;
-import java.util.function.Supplier;
-import retrofit2.Call;
+import com.example.myapplication.ui.base.UiOperation;
 
 public class ConfirmDeleteDialog extends BasePreviewDialog<DialogConfirmDeleteBinding> {
     private final String message;
-    private final Supplier<Call<?>> action;
+    public enum Action { BLOCK, UNBLOCK, UNFRIEND }
+    private final Action action;
+    private final String userId;
     private boolean submitting;
-    public ConfirmDeleteDialog(MainActivity activity) { this(activity, null, null); }
-    public ConfirmDeleteDialog(MainActivity activity, String message, Supplier<Call<?>> action) {
-        super(activity, DialogConfirmDeleteBinding::inflate); this.message = message; this.action = action;
+    public ConfirmDeleteDialog(MainActivity activity) { this(activity, null, null, null); }
+    public ConfirmDeleteDialog(MainActivity activity, String message, Action action, String userId) {
+        super(activity, DialogConfirmDeleteBinding::inflate); this.message = message; this.action = action; this.userId = userId;
     }
     @Override protected void bind(View content, AlertDialog dialog) {
+        binding.btnCancel.setOnClickListener(view -> dialog.dismiss());
         if (message != null) binding.tvMessage.setText(message);
-        binding.btnConfirm.setEnabled(action != null);
+        binding.btnConfirm.setEnabled(action != null && userId != null && !userId.isEmpty());
         binding.btnConfirm.setText(R.string.confirm);
         binding.btnConfirm.setOnClickListener(view -> {
             if (action == null || submitting) return;
@@ -28,7 +30,13 @@ public class ConfirmDeleteDialog extends BasePreviewDialog<DialogConfirmDeleteBi
             binding.btnConfirm.setEnabled(false);
             binding.btnCancel.setEnabled(false);
             dialog.setCancelable(false);
-            request(action.get(), response -> {
+            UiOperation<?> operation;
+            switch (action) {
+                case BLOCK: operation = viewModel(BlockViewModel.class).blockUser(userId); break;
+                case UNBLOCK: operation = viewModel(BlockViewModel.class).unblockUser(userId); break;
+                default: operation = viewModel(FriendViewModel.class).unfriend(userId);
+            }
+            request(operation, response -> {
                 SocialUi.updated(activity);
                 Toast.makeText(activity, R.string.social_success, Toast.LENGTH_SHORT).show();
                 dialog.dismiss();

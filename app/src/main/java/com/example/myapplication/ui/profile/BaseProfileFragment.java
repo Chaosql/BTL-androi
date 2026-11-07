@@ -1,8 +1,5 @@
 package com.example.myapplication.ui.profile;
 
-import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -13,8 +10,7 @@ import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
 import com.example.myapplication.data.local.PreferenceManager;
 import com.example.myapplication.data.remote.dto.response.UserDto;
-import com.example.myapplication.data.repository.profile.ProfileRepository;
-import com.example.myapplication.data.repository.schedule.BookingRepository;
+import com.example.myapplication.ui.profile.ProfileViewModel;
 import com.example.myapplication.ui.base.BaseFragment;
 import com.example.myapplication.ui.base.BindingInflater;
 import com.example.myapplication.ui.main.MainActivity;
@@ -22,43 +18,60 @@ import com.example.myapplication.ui.main.UiScreen;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public abstract class BaseProfileFragment<B extends ViewBinding> extends BaseFragment<B> {
+    private ProfileViews views;
+    protected abstract ProfileViews profileViews();
     private UserDto user;
     private boolean loading;
-    private boolean reloadPending;
-    private int loadVersion;
     private boolean uploading;
-    private ExecutorService images;
+    private ProfileViewModel model;
     private final ActivityResultLauncher<String> avatarPicker =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
-                if (uri != null && binding != null) uploadAvatar(uri);
+                if (uri != null && binding != null) model.prepareAvatar(uri);
             });
 
     protected BaseProfileFragment(BindingInflater<B> inflater) { super(inflater); }
 
     protected void bindProfile(View root, boolean editingProfile) {
-        images = Executors.newSingleThreadExecutor();
+        views = profileViews();
+        model = viewModel(ProfileViewModel.class);
+        model.summary().observe(getViewLifecycleOwner(), state -> {
+            loading = state.status == com.example.myapplication.ui.base.UiState.Status.LOADING;
+            if (state.status == com.example.myapplication.ui.base.UiState.Status.ERROR) {
+                Toast.makeText(requireContext(), state.error.message, Toast.LENGTH_LONG).show();
+            } else if (state.status == com.example.myapplication.ui.base.UiState.Status.SUCCESS) {
+                user = state.data.user; render(root, user);
+                text(views.tvSubjectCount, state.data.subjects == null ? "—" : String.valueOf(state.data.subjects));
+                text(views.tvAppointmentCount, state.data.bookings == null ? "—" : String.valueOf(state.data.bookings));
+            }
+        });
+        model.avatarState().observe(getViewLifecycleOwner(), state -> {
+            if (state == null) return;
+            uploading = state.status == com.example.myapplication.ui.base.UiState.Status.LOADING;
+            if (state.status == com.example.myapplication.ui.base.UiState.Status.ERROR) {
+                Toast.makeText(requireContext(), state.error.message, Toast.LENGTH_LONG).show(); model.acknowledgeAvatar();
+            } else if (state.status == com.example.myapplication.ui.base.UiState.Status.SUCCESS) {
+                model.acknowledgeAvatar(); ProfileUi.saved(requireActivity());
+            }
+        });
         user = null;
         loading = false;
-        reloadPending = false;
         uploading = false;
         render(root, new UserDto());
         getParentFragmentManager().setFragmentResultListener(ProfileUi.UPDATED, getViewLifecycleOwner(),
                 (key, data) -> loadProfile(root));
-        on(root, R.id.btnUpdateProfile, () -> {
+        on(views.btnUpdateProfile, () -> {
             if (loading || uploading) return;
             if (!new PreferenceManager(requireContext()).isLogin()) { go(UiScreen.LOGIN); return; }
             if (user == null) { loadProfile(root); return; }
             if (editingProfile) requireActivity().getOnBackPressedDispatcher().onBackPressed();
             else go(UiScreen.EDIT_PROFILE);
         });
-        on(root, R.id.cvSettings, () -> go(UiScreen.ACCOUNT_SETTINGS));
-        on(root, R.id.cvAppointment, () -> go(UiScreen.SCHEDULE));
-        on(root, R.id.cvHonor, () -> new SubjectManagementDialog(host()).show());
-        on(root, R.id.tvBuddyStatus, () -> {
+        on(views.cvSettings, () -> go(UiScreen.ACCOUNT_SETTINGS));
+        on(views.cvAppointment, () -> go(UiScreen.SCHEDULE));
+        on(views.cvHonor, () -> new SubjectManagementDialog(host()).show());
+        on(views.tvBuddyStatus, () -> {
             if (user == null || loading || uploading) return;
             boolean enable = !Boolean.TRUE.equals(user.buddyActive);
             new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
@@ -67,7 +80,7 @@ public abstract class BaseProfileFragment<B extends ViewBinding> extends BaseFra
                     .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                         if (user == null || loading) return;
                         loading = true;
-                        request(new ProfileRepository(requireContext()).toggleBuddyStatus(
+                        request(viewModel(com.example.myapplication.ui.profile.ProfileViewModel.class).toggleBuddyStatus(
                                 new PreferenceManager(requireContext()).getUserId(),
                                 new com.example.myapplication.data.remote.dto.request.ToggleBuddyStatusRequest(enable)), response -> {
                             loading = false;
@@ -84,114 +97,125 @@ public abstract class BaseProfileFragment<B extends ViewBinding> extends BaseFra
         Runnable intro = () -> {
             if (user != null) new EditIntroductionDialog(host(), user).show();
         };
-        on(root, R.id.tvAddInfo, personal);
-        on(root, R.id.cvInfo, personal);
+        on(views.tvAddInfo, personal);
+        on(views.cvInfo, personal);
         if (editingProfile) {
-            on(root, R.id.tvIntroduction, intro);
-            on(root, R.id.ivTogglePassword, intro);
+            on(views.tvIntroduction, intro);
+            on(views.ivTogglePassword, intro);
         }
-        on(root, R.id.imgEditAvatar, () -> {
+        on(views.imgEditAvatar, () -> {
             if (user != null && !uploading) avatarPicker.launch("image/*");
         });
-        loadProfile(root);
+        model.loadSummary(views.tvSubjectCount != null, false);
     }
 
     private MainActivity host() { return (MainActivity) requireActivity(); }
 
-    private void loadProfile(View root) {
-        if (!new PreferenceManager(requireContext()).isLogin()) return;
-        if (loading) { reloadPending = true; return; }
-        loading = true;
-        int version = ++loadVersion;
-        request(new ProfileRepository(requireContext()).getCurrentUser(), response -> {
-            loading = false;
-            if (reloadPending) { reloadPending = false; loadProfile(root); return; }
-            if (response.data == null) {
-                Toast.makeText(requireContext(), R.string.profile_empty_response, Toast.LENGTH_LONG).show();
-                return;
-            }
-            user = response.data;
-            render(root, user);
-            if (root.findViewById(R.id.tvSubjectCount) != null) {
-                String id = new PreferenceManager(requireContext()).getUserId();
-                request(new ProfileRepository(requireContext()).getSubjects(id, null), subjects -> {
-                    if (version == loadVersion)
-                        text(root, R.id.tvSubjectCount, subjects.data == null ? "—" : String.valueOf(subjects.data.size()));
-                });
-                request(new BookingRepository(requireContext()).getMyBookings(), bookings -> {
-                    if (version == loadVersion)
-                        text(root, R.id.tvAppointmentCount, bookings.data == null ? "—" : String.valueOf(bookings.data.size()));
-                });
-            }
-        }, error -> {
-            loading = false;
-            if (reloadPending) { reloadPending = false; loadProfile(root); return; }
-            Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show();
-        });
-    }
+    private void loadProfile(View root) { model.loadSummary(views.tvSubjectCount != null, true); }
 
     private String display(String value) {
         return value == null || value.trim().isEmpty() ? getString(R.string.profile_unknown) : value;
     }
 
     private void render(View root, UserDto data) {
-        text(root, R.id.tvUsername, display((ProfileUi.value(data.lastName) + " " + ProfileUi.value(data.firstName)).trim()));
-        text(root, R.id.tvBuddyStatus, getString(Boolean.TRUE.equals(data.buddyActive)
+        text(views.tvUsername, display((ProfileUi.value(data.lastName) + " " + ProfileUi.value(data.firstName)).trim()));
+        text(views.tvBuddyStatus, getString(Boolean.TRUE.equals(data.buddyActive)
                 ? R.string.profile_radar_on : R.string.profile_radar_off));
-        text(root, R.id.tvIntroduction, data.statusTag == null || data.statusTag.isEmpty() ? getString(R.string.profile_no_intro) : data.statusTag);
+        text(views.tvIntroduction, data.statusTag == null || data.statusTag.isEmpty() ? getString(R.string.profile_no_intro) : data.statusTag);
         LocalDate birth = ProfileUi.date(data.dateOfBirth);
         String age = birth != null && !birth.isAfter(LocalDate.now())
                 ? String.valueOf(Period.between(birth, LocalDate.now()).getYears()) : getString(R.string.profile_unknown);
-        text(root, R.id.tvAge, getString(R.string.profile_age, age));
+        text(views.tvAge, getString(R.string.profile_age, age));
         String gender = data.gender == null ? getString(R.string.profile_unknown) :
                 getString("MALE".equals(data.gender) ? R.string.profile_gender_male :
                         "FEMALE".equals(data.gender) ? R.string.profile_gender_female : R.string.profile_gender_other);
-        text(root, R.id.tvGender, getString(R.string.profile_gender, gender));
-        text(root, R.id.tvSchool, getString(R.string.profile_school, display(data.university)));
-        text(root, R.id.tvMajor, getString(R.string.profile_major, display(data.majorName)));
-        text(root, R.id.tvLocation, getString(R.string.profile_location, display(data.location)));
-        String score = data.trustScore == null ? "—" : String.format(Locale.US, "%.1f", data.trustScore);
-        text(root, R.id.tvFriendsCount, getString(R.string.profile_score, score));
-        text(root, R.id.tvFavoriteRating, score);
-        text(root, R.id.tvAppointmentCount, "—");
-        text(root, R.id.tvSubjectCount, data.subjects == null ? "—" : String.valueOf(data.subjects.size()));
-        ImageView avatar = root.findViewById(R.id.imgAvatar);
-        if (avatar == null) avatar = root.findViewById(R.id.ivAvatar);
-        if (avatar != null) Glide.with(this).load(data.avatar).placeholder(R.drawable.avatar).error(R.drawable.avatar).into(avatar);
-    }
-
-    private void uploadAvatar(Uri uri) {
-        if (user == null || uploading) return;
-        uploading = true;
-        View view = binding.getRoot();
-        android.content.ContentResolver resolver = requireContext().getContentResolver();
-        String id = new PreferenceManager(requireContext()).getUserId();
-        images.execute(() -> {
-            try {
-                okhttp3.MultipartBody.Part part = AvatarImage.read(resolver, uri);
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    if (binding == null || binding.getRoot() != view) return;
-                    request(new ProfileRepository(requireContext()).uploadAvatar(id, part), response -> {
-                        uploading = false;
-                        ProfileUi.saved(requireActivity());
-                    }, error -> {
-                        uploading = false;
-                        Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show();
-                    });
-                });
-            } catch (Exception error) {
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    if (binding == null || binding.getRoot() != view) return;
-                    uploading = false;
-                    Toast.makeText(requireContext(), R.string.profile_avatar_error, Toast.LENGTH_LONG).show();
-                });
-            }
-        });
+        text(views.tvGender, getString(R.string.profile_gender, gender));
+        text(views.tvSchool, getString(R.string.profile_school, display(data.university)));
+        text(views.tvMajor, getString(R.string.profile_major, display(data.majorName)));
+        text(views.tvLocation, getString(R.string.profile_location, display(data.location)));
+        String score = data.trustScore == null ? "â€”" : String.format(Locale.US, "%.1f", data.trustScore);
+        text(views.tvFriendsCount, getString(R.string.profile_score, score));
+        text(views.tvFavoriteRating, score);
+        text(views.tvAppointmentCount, "â€”");
+        text(views.tvSubjectCount, data.subjects == null ? "â€”" : String.valueOf(data.subjects.size()));
+        Glide.with(this).load(data.avatar).placeholder(R.drawable.avatar).error(R.drawable.avatar).into(views.avatar);
     }
 
     @Override public void onDestroyView() {
-        if (images != null) images.shutdownNow();
         user = null;
+        views = null;
         super.onDestroyView();
+    }
+
+    protected static final class ProfileViews {
+        final View btnUpdateProfile;
+        final View cvAppointment;
+        final View cvHonor;
+        final View cvInfo;
+        final View cvSettings;
+        final View imgEditAvatar;
+        final View ivTogglePassword;
+        final View tvAddInfo;
+        final android.widget.TextView tvAge;
+        final android.widget.TextView tvAppointmentCount;
+        final android.widget.TextView tvBuddyStatus;
+        final android.widget.TextView tvFavoriteRating;
+        final android.widget.TextView tvFriendsCount;
+        final android.widget.TextView tvGender;
+        final android.widget.TextView tvIntroduction;
+        final android.widget.TextView tvLocation;
+        final android.widget.TextView tvMajor;
+        final android.widget.TextView tvSchool;
+        final android.widget.TextView tvSubjectCount;
+        final android.widget.TextView tvUsername;
+        final ImageView avatar;
+
+        ProfileViews(com.example.myapplication.databinding.FragmentProfileBinding binding) {
+            btnUpdateProfile = binding.btnUpdateProfile;
+            cvAppointment = binding.cvAppointment;
+            cvHonor = binding.cvHonor;
+            cvInfo = binding.cvInfo;
+            cvSettings = binding.cvSettings;
+            imgEditAvatar = null;
+            ivTogglePassword = null;
+            tvAddInfo = null;
+            tvAge = binding.tvAge;
+            tvAppointmentCount = binding.tvAppointmentCount;
+            tvBuddyStatus = binding.tvBuddyStatus;
+            tvFavoriteRating = binding.tvFavoriteRating;
+            tvFriendsCount = null;
+            tvGender = binding.tvGender;
+            tvIntroduction = binding.tvIntroduction;
+            tvLocation = binding.tvLocation;
+            tvMajor = binding.tvMajor;
+            tvSchool = binding.tvSchool;
+            tvSubjectCount = binding.tvSubjectCount;
+            tvUsername = binding.tvUsername;
+            avatar = binding.ivAvatar;
+        }
+
+        ProfileViews(com.example.myapplication.databinding.FragmentEditProfileBinding binding) {
+            btnUpdateProfile = binding.btnUpdateProfile;
+            cvAppointment = null;
+            cvHonor = null;
+            cvInfo = binding.cvInfo;
+            cvSettings = null;
+            imgEditAvatar = binding.imgEditAvatar;
+            ivTogglePassword = binding.ivTogglePassword;
+            tvAddInfo = binding.tvAddInfo;
+            tvAge = binding.tvAge;
+            tvAppointmentCount = null;
+            tvBuddyStatus = binding.tvBuddyStatus;
+            tvFavoriteRating = null;
+            tvFriendsCount = binding.tvFriendsCount;
+            tvGender = binding.tvGender;
+            tvIntroduction = binding.tvIntroduction;
+            tvLocation = binding.tvLocation;
+            tvMajor = binding.tvMajor;
+            tvSchool = binding.tvSchool;
+            tvSubjectCount = null;
+            tvUsername = binding.tvUsername;
+            avatar = binding.imgAvatar;
+        }
     }
 }

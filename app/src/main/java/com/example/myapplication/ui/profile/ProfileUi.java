@@ -43,14 +43,14 @@ final class ProfileUi {
         return false;
     }
     static String birthDate(EditText input) {
-        LocalDate date = date(value(input));
-        if (date == null || !date.isBefore(LocalDate.now())) {
+        String date = ProfileViewModel.validBirthDate(value(input));
+        if (date == null) {
             input.setError(input.getContext().getString(R.string.api_invalid_date));
             input.requestFocus();
             return null;
         }
         input.setError(null);
-        return date.toString();
+        return date;
     }
     static int genderIndex(String gender) { return "MALE".equals(gender) ? 0 : "FEMALE".equals(gender) ? 1 : 2; }
     static String gender(int index) { return index == 0 ? "MALE" : index == 1 ? "FEMALE" : "OTHER"; }

@@ -10,8 +10,7 @@ import androidx.viewbinding.ViewBinding;
 import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
 import com.example.myapplication.data.remote.dto.response.*;
-import com.example.myapplication.ui.base.BaseFragment;
-import com.example.myapplication.ui.base.RowBindings;
+import com.example.myapplication.databinding.*;
 import com.example.myapplication.ui.chat.ChatUi;
 import java.util.*;
 import java.util.function.Consumer;
@@ -22,8 +21,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Holder> 
     private final Consumer<String> booking;
     private final Consumer<MessageResponse> imageClick;
     private final List<MessageResponse> items = new ArrayList<>();
-    private final Set<String> deleted = new HashSet<>();
-    private final Set<String> recalled = new HashSet<>();
     public MessageAdapter(String self, Consumer<MessageResponse> actions, Consumer<String> booking) {
         this(self, actions, booking, image -> { });
     }
@@ -33,21 +30,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Holder> 
     }
     public List<MessageResponse> messages() { return new ArrayList<>(items); }
     public boolean contains(String id) { for (MessageResponse item : items) if (id.equals(item.id)) return true; return false; }
-    public void merge(List<MessageResponse> data) {
-        for (MessageResponse item : data) {
-            if (item == null || item.id == null || item.id.isEmpty() || deleted.contains(item.id)) continue;
-            if (recalled.contains(item.id)) item.isRecalled = true;
-            if (Boolean.TRUE.equals(item.isRecalled)) recalled.add(item.id);
-            items.removeIf(old -> item.id.equals(old.id)); items.add(item);
-        }
-        items.sort(Comparator.comparing((MessageResponse item) -> ChatUi.instant(item.createdDate)).thenComparing(item -> item.id));
-        notifyDataSetChanged();
-    }
-    public void remove(String id) { deleted.add(id); items.removeIf(item -> id.equals(item.id)); notifyDataSetChanged(); }
-    public void recall(String id) {
-        recalled.add(id);
-        for (MessageResponse item : items) if (id.equals(item.id)) item.isRecalled = true;
-        notifyDataSetChanged();
+    public void submit(List<MessageResponse> messages) {
+        items.clear(); items.addAll(messages); notifyDataSetChanged();
     }
     @Override public int getItemCount() { return items.size(); }
     @Override public int getItemViewType(int position) {
@@ -60,19 +44,23 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Holder> 
         return own ? R.layout.item_chat_outgoing : R.layout.item_chat_incoming;
     }
     @NonNull @Override public Holder onCreateViewHolder(@NonNull ViewGroup parent, int type) {
-        return new Holder(RowBindings.inflate(type, LayoutInflater.from(parent.getContext()), parent));
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        if (type == R.layout.item_chat_incoming) return new Holder(ItemChatIncomingBinding.inflate(inflater, parent, false));
+        if (type == R.layout.item_chat_outgoing) return new Holder(ItemChatOutgoingBinding.inflate(inflater, parent, false));
+        if (type == R.layout.item_chat_image_incoming) return new Holder(ItemChatImageIncomingBinding.inflate(inflater, parent, false));
+        if (type == R.layout.item_chat_image_outgoing) return new Holder(ItemChatImageOutgoingBinding.inflate(inflater, parent, false));
+        if (type == R.layout.item_chat_booking_incoming) return new Holder(ItemChatBookingIncomingBinding.inflate(inflater, parent, false));
+        if (type == R.layout.item_chat_booking_outgoing) return new Holder(ItemChatBookingOutgoingBinding.inflate(inflater, parent, false));
+        throw new IllegalArgumentException("Unknown message layout: " + type);
     }
     @Override public void onBindViewHolder(@NonNull Holder holder, int position) {
         MessageResponse item = items.get(position);
         View root = holder.binding.getRoot();
         boolean recalled = Boolean.TRUE.equals(item.isRecalled);
-        BaseFragment.text(root, R.id.tvMessageContent, recalled ? root.getContext().getString(R.string.chat_recalled) : ChatUi.value(item.content));
-        BaseFragment.text(root, R.id.tvTime, ChatUi.time(item.createdDate));
-        for (int id : new int[]{R.id.ivMyAvatar, R.id.ivSenderAvatar}) {
-            ImageView avatar = root.findViewById(id);
-            if (avatar != null) Glide.with(avatar).load(item.senderAvatar).placeholder(R.drawable.avatar).error(R.drawable.avatar).into(avatar);
-        }
-        ImageView image = root.findViewById(R.id.ivImageContent);
+        setText(holder.message, recalled ? root.getContext().getString(R.string.chat_recalled) : ChatUi.value(item.content));
+        setText(holder.time, ChatUi.time(item.createdDate));
+        Glide.with(holder.avatar).load(item.senderAvatar).placeholder(R.drawable.avatar).error(R.drawable.avatar).into(holder.avatar);
+        ImageView image = holder.image;
         if (image != null) {
             Glide.with(image).load(ChatUi.imageUrl(item)).placeholder(R.drawable.ic_launcher_foreground)
                     .error(R.drawable.ic_launcher_foreground).into(image);
@@ -82,17 +70,104 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Holder> 
             image.setOnLongClickListener(view -> { actions.accept(item); return true; });
         }
         String bookingId = ChatUi.bookingId(item);
-        BaseFragment.text(root, R.id.tvBookingTitle, root.getContext().getString(R.string.title_booking_detail));
-        BaseFragment.text(root, R.id.tvBookingReason, "");
-        visible(root, R.id.btnAccept, false); visible(root, R.id.btnReject, false);
-        BaseFragment.on(root, R.id.btnViewDetail, () -> { if (!bookingId.isEmpty()) booking.accept(bookingId); });
+        setText(holder.bookingTitle, root.getContext().getString(R.string.title_booking_detail));
+        setText(holder.bookingReason, "");
+        if (holder.accept != null) holder.accept.setVisibility(View.GONE);
+        if (holder.reject != null) holder.reject.setVisibility(View.GONE);
+        if (holder.detail != null) holder.detail.setOnClickListener(view -> { if (!bookingId.isEmpty()) booking.accept(bookingId); });
         root.setOnLongClickListener(view -> { actions.accept(item); return true; });
     }
-    private void visible(View root, int id, boolean visible) {
-        View view = root.findViewById(id); if (view != null) view.setVisibility(visible ? View.VISIBLE : View.GONE);
+    private static void setText(TextView view, String text) {
+        if (view != null) view.setText(text);
     }
     public static class Holder extends RecyclerView.ViewHolder {
         public final ViewBinding binding;
-        Holder(ViewBinding binding) { super(binding.getRoot()); this.binding = binding; }
+        final TextView message, time, bookingTitle, bookingReason;
+        final ImageView avatar, image;
+        final View accept, reject, detail;
+
+        Holder(ItemChatIncomingBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+            message = binding.tvMessageContent;
+            time = binding.tvTime;
+            bookingTitle = null;
+            bookingReason = null;
+            image = null;
+            accept = null;
+            reject = null;
+            detail = null;
+            avatar = binding.ivSenderAvatar;
+        }
+
+        Holder(ItemChatOutgoingBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+            message = binding.tvMessageContent;
+            time = binding.tvTime;
+            bookingTitle = null;
+            bookingReason = null;
+            image = null;
+            accept = null;
+            reject = null;
+            detail = null;
+            avatar = binding.ivMyAvatar;
+        }
+
+        Holder(ItemChatImageIncomingBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+            message = null;
+            time = binding.tvTime;
+            bookingTitle = null;
+            bookingReason = null;
+            image = binding.ivImageContent;
+            accept = null;
+            reject = null;
+            detail = null;
+            avatar = binding.ivSenderAvatar;
+        }
+
+        Holder(ItemChatImageOutgoingBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+            message = null;
+            time = binding.tvTime;
+            bookingTitle = null;
+            bookingReason = null;
+            image = binding.ivImageContent;
+            accept = null;
+            reject = null;
+            detail = null;
+            avatar = binding.ivMyAvatar;
+        }
+
+        Holder(ItemChatBookingIncomingBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+            message = null;
+            time = binding.tvTime;
+            bookingTitle = binding.tvBookingTitle;
+            bookingReason = binding.tvBookingReason;
+            image = null;
+            accept = binding.btnAccept;
+            reject = binding.btnReject;
+            detail = binding.btnViewDetail;
+            avatar = binding.ivSenderAvatar;
+        }
+
+        Holder(ItemChatBookingOutgoingBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+            message = null;
+            time = binding.tvTime;
+            bookingTitle = binding.tvBookingTitle;
+            bookingReason = binding.tvBookingReason;
+            image = null;
+            accept = null;
+            reject = null;
+            detail = binding.btnViewDetail;
+            avatar = binding.ivMyAvatar;
+        }
     }
 }

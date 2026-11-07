@@ -5,7 +5,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import com.example.myapplication.R;
 import com.example.myapplication.data.remote.dto.request.CancelBookingRequest;
-import com.example.myapplication.data.repository.schedule.BookingRepository;
+import com.example.myapplication.ui.schedule.BookingViewModel;
 import com.example.myapplication.databinding.DialogCancelReasonBinding;
 import com.example.myapplication.ui.base.BasePreviewDialog;
 import com.example.myapplication.ui.main.MainActivity;
@@ -20,6 +20,7 @@ public class CancelBookingDialog extends BasePreviewDialog<DialogCancelReasonBin
         super(activity, DialogCancelReasonBinding::inflate); bookingId = id; this.cancelled = cancelled; this.closed = closed;
     }
     @Override protected void bind(View content, AlertDialog dialog) {
+        binding.btnCancel.setOnClickListener(view -> dialog.dismiss());
         binding.btnConfirmCancel.setEnabled(bookingId != null && !bookingId.isEmpty());
         binding.btnCancel.setOnClickListener(view -> { if (!busy) { dialog.dismiss(); closed.run(); } });
         dialog.setOnCancelListener(cancel -> closed.run());
@@ -29,7 +30,7 @@ public class CancelBookingDialog extends BasePreviewDialog<DialogCancelReasonBin
             binding.btnConfirmCancel.setEnabled(false); binding.btnCancel.setEnabled(false);
             binding.etCancelReason.setEnabled(false); dialog.setCancelable(false);
             String reason = binding.etCancelReason.getText().toString().trim();
-            request(new BookingRepository(activity).cancelBooking(bookingId, new CancelBookingRequest(reason)), response -> {
+            request(viewModel(com.example.myapplication.ui.schedule.BookingViewModel.class).cancelBooking(bookingId, new CancelBookingRequest(reason)), response -> {
                 BookingReminders.cancel(activity, bookingId);
                 BookingUi.updated(activity);
                 Toast.makeText(activity, R.string.booking_updated, Toast.LENGTH_SHORT).show();

@@ -6,12 +6,8 @@ import com.example.myapplication.R;
 import com.example.myapplication.data.remote.dto.request.AddSubjectRequest;
 import com.example.myapplication.databinding.DialogAddSubjectBinding;
 import com.example.myapplication.ui.main.MainActivity;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
 
 public class AddSubjectDialog extends BaseProfileDialog<DialogAddSubjectBinding> {
-    private final Set<String> existing = new HashSet<>();
     private final Runnable onAdded;
     public AddSubjectDialog(MainActivity activity) { this(activity, () -> { }); }
     AddSubjectDialog(MainActivity activity, Runnable onAdded) {
@@ -20,17 +16,16 @@ public class AddSubjectDialog extends BaseProfileDialog<DialogAddSubjectBinding>
     }
 
     @Override protected void bind(View content, AlertDialog dialog) {
+        binding.btnCancelAdd.setOnClickListener(view -> dialog.dismiss());
         binding.btnConfirmAdd.setEnabled(false);
-        if (!userId.isEmpty()) request(repository.getSubjects(userId, null), response -> {
+        if (!userId.isEmpty()) request(model.getSubjects(userId, null), response -> {
             if (response.data == null) { error(activity.getString(R.string.profile_empty_response)); return; }
-            for (com.example.myapplication.data.remote.dto.response.SubjectDto subject : response.data)
-                existing.add(ProfileUi.value(subject.name).trim().toLowerCase(Locale.ROOT));
             binding.btnConfirmAdd.setEnabled(true);
         }, failure -> error(failure.message));
         binding.btnConfirmAdd.setOnClickListener(view -> {
             if (!ProfileUi.required(binding.etSubjectName)) return;
             String name = ProfileUi.value(binding.etSubjectName);
-            if (existing.contains(name.toLowerCase(Locale.ROOT))) {
+            if (model.hasSubject(name)) {
                 binding.etSubjectName.setError(activity.getString(R.string.profile_duplicate_subject)); return;
             }
             if (binding.rgSubjectType.getCheckedRadioButtonId() == -1) {
@@ -41,7 +36,7 @@ public class AddSubjectDialog extends BaseProfileDialog<DialogAddSubjectBinding>
             binding.btnCancelAdd.setEnabled(false);
             ProfileUi.inputs(binding.getRoot(), false);
             dialog.setCancelable(false);
-            request(repository.addSubject(userId, new AddSubjectRequest(name, type)), response -> {
+            request(model.addSubject(userId, new AddSubjectRequest(name, type)), response -> {
                 ProfileUi.saved(activity);
                 dialog.dismiss();
                 onAdded.run();

@@ -2,7 +2,6 @@ package com.example.myapplication.ui.auth;
 
 import android.os.Bundle;
 import android.view.View;
-import com.example.myapplication.R;
 import com.example.myapplication.databinding.FragmentLoginBinding;
 import com.example.myapplication.ui.main.UiScreen;
 import android.widget.Toast;
@@ -13,16 +12,22 @@ import com.example.myapplication.ui.main.MainActivity;
 public class LoginFragment extends BaseAuthFragment<FragmentLoginBinding> {
     public LoginFragment() { super(FragmentLoginBinding::inflate); }
     @Override protected void onScreenCreated(View root, Bundle state) {
+        enableScreenCatalog(binding.header, binding.ivPic);
+        toggle(binding.ivTogglePassword, binding.edtPassword);
+        AuthViewModel model = viewModel(AuthViewModel.class);
+        model.signInState().observe(getViewLifecycleOwner(), result -> {
+            if (result == null) return;
+            binding.tvLogin.setEnabled(result.status != com.example.myapplication.ui.base.UiState.Status.LOADING);
+            if (result.status == com.example.myapplication.ui.base.UiState.Status.ERROR) {
+                Toast.makeText(requireContext(), result.error.message, Toast.LENGTH_LONG).show(); model.acknowledgeSignIn();
+            } else if (result.status == com.example.myapplication.ui.base.UiState.Status.SUCCESS) {
+                model.acknowledgeSignIn();
+                ((MainActivity) requireActivity()).showRootScreen(new PreferenceManager(requireContext()).homeScreen());
+            }
+        });
         binding.tvLogin.setOnClickListener(view -> {
             if (!validEmail(binding.edtEmail) || !required(binding.edtPassword)) return;
-            String email = value(binding.edtEmail);
-            submit(repository().login(new LoginRequest(email, binding.edtPassword.getText().toString())), binding.tvLogin, response -> {
-                try { new PreferenceManager(requireContext()).saveLogin(response.data, email); }
-                catch (IllegalArgumentException error) {
-                    Toast.makeText(requireContext(), R.string.api_invalid_login, Toast.LENGTH_LONG).show(); return;
-                }
-                ((MainActivity) requireActivity()).showRootScreen(new PreferenceManager(requireContext()).homeScreen());
-            });
+            model.authenticate(new LoginRequest(value(binding.edtEmail), binding.edtPassword.getText().toString()));
         });
 
         binding.tvRegister.setOnClickListener(view -> go(UiScreen.REGISTER));

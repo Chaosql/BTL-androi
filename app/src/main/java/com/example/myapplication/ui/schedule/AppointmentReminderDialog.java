@@ -16,6 +16,8 @@ public class AppointmentReminderDialog extends BasePreviewDialog<DialogAppointme
         super(activity, DialogAppointmentReminderBinding::inflate); this.booking = booking;
     }
     @Override protected void bind(View content, AlertDialog dialog) {
+        binding.btnClose.setOnClickListener(view -> dialog.dismiss());
+        binding.btnViewSchedule.setOnClickListener(view -> { dialog.dismiss(); activity.showScreen(com.example.myapplication.ui.main.UiScreen.SCHEDULE); });
         if (booking == null) return;
         binding.tvSubject.setText(BookingUi.value(booking.subject));
         ZonedDateTime time = BookingUi.time(booking.scheduledAt);

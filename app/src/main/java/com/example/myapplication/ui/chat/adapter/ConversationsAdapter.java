@@ -1,7 +1,6 @@
 package com.example.myapplication.ui.chat.adapter;
 
 import android.view.View;
-import com.example.myapplication.R;
 import com.example.myapplication.data.remote.dto.response.ConversationResponse;
 import com.example.myapplication.databinding.ItemFriendBinding;
 import com.example.myapplication.ui.chat.ChatUi;

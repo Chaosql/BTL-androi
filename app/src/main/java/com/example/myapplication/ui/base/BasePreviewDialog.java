@@ -7,33 +7,32 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ScrollView;
-import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
-import com.example.myapplication.R;
 import com.example.myapplication.ui.main.MainActivity;
-import com.example.myapplication.ui.main.UiDialogs;
-import com.example.myapplication.ui.main.UiScreen;
 
 public abstract class BasePreviewDialog<B extends androidx.viewbinding.ViewBinding> {
     protected final MainActivity activity;
     protected B binding;
     private final BindingInflater<B> inflater;
-    private final java.util.List<retrofit2.Call<?>> requests = new java.util.ArrayList<>();
+    private DialogOwner dialogOwner = new DialogOwner();
 
-    protected <T> void request(retrofit2.Call<T> call, java.util.function.Consumer<T> success,
+    protected final <V extends androidx.lifecycle.ViewModel> V viewModel(Class<V> type) {
+        return new androidx.lifecycle.ViewModelProvider(dialogOwner,
+                new androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory(activity.getApplication())).get(type);
+    }
+    protected <T> void request(UiOperation<T> operation, java.util.function.Consumer<T> success,
             java.util.function.Consumer<com.example.myapplication.data.remote.network.ApiError> failure) {
-        requests.add(call);
-        com.example.myapplication.data.remote.network.ApiRequests.enqueue(call,
-                new com.example.myapplication.data.remote.network.ApiCallback<T>() {
-                    @Override public void onSuccess(T result) {
-                        requests.remove(call);
-                        if (binding != null && !activity.isDestroyed()) success.accept(result);
-                    }
-                    @Override public void onError(com.example.myapplication.data.remote.network.ApiError error) {
-                        requests.remove(call);
-                        if (binding != null && !activity.isDestroyed()) failure.accept(error);
-                    }
-                });
+        DialogOwner owner = dialogOwner;
+        operation.observe(owner, state -> {
+            if (binding == null || activity.isDestroyed() || !state.isFinished()) return;
+            operation.removeObservers(owner);
+            if (state.status == UiState.Status.SUCCESS) success.accept(state.data);
+            else if (state.status == UiState.Status.ERROR) failure.accept(state.error);
+        });
+    }
+
+    protected final <T> void observe(androidx.lifecycle.LiveData<T> state, java.util.function.Consumer<T> render) {
+        state.observe(dialogOwner, value -> { if (binding != null) render.accept(value); });
     }
 
     protected BasePreviewDialog(MainActivity activity, BindingInflater<B> inflater) {
@@ -45,9 +44,12 @@ public abstract class BasePreviewDialog<B extends androidx.viewbinding.ViewBindi
         show(activity);
     }
     public final void show(androidx.lifecycle.LifecycleOwner owner) {
+        if (dialogOwner.lifecycle.getCurrentState() == androidx.lifecycle.Lifecycle.State.DESTROYED)
+            dialogOwner = new DialogOwner();
+        dialogOwner.lifecycle.setCurrentState(androidx.lifecycle.Lifecycle.State.CREATED);
         binding = inflater.inflate(LayoutInflater.from(activity), null, false);
         if (owner.getLifecycle().getCurrentState() == androidx.lifecycle.Lifecycle.State.DESTROYED) {
-            onDismissed(); binding = null; return;
+            dialogOwner.close(); onDismissed(); binding = null; return;
         }
         View content = binding.getRoot();
         View container = content;
@@ -59,24 +61,6 @@ public abstract class BasePreviewDialog<B extends androidx.viewbinding.ViewBindi
             container = scroll;
         }
         AlertDialog dialog = new AlertDialog.Builder(activity).setView(container).create();
-        for (int id : new int[]{R.id.btnCancel, R.id.btnCancelAdd, R.id.ivClose, R.id.btnClose})
-            BaseFragment.on(content, id, dialog::dismiss);
-        for (int id : new int[]{R.id.btnSave, R.id.btnConfirm, R.id.btnConfirmAdd, R.id.btnConfirmCancel,
-                R.id.btnRate, R.id.btnAccept, R.id.btnReject, R.id.btnComplete, R.id.btnAddFriend,
-                R.id.tvOptionPin, R.id.tvOptionBlock, R.id.tvOptionDelete, R.id.tvRecall, R.id.tvDelete}) {
-            BaseFragment.on(content, id, () -> {
-                Toast.makeText(activity, activity.getString(R.string.ui_uidialogs_text_17), Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-            });
-        }
-        BaseFragment.on(content, R.id.btnGetStarted, () -> { dialog.dismiss(); activity.showScreen(UiScreen.MAP); });
-        BaseFragment.on(content, R.id.btnViewSchedule, () -> { dialog.dismiss(); activity.showScreen(UiScreen.SCHEDULE); });
-        BaseFragment.on(content, R.id.btnViewProfile, () -> { dialog.dismiss(); activity.showScreen(UiScreen.PROFILE); });
-        BaseFragment.on(content, R.id.tvOptionViewProfile, () -> { dialog.dismiss(); activity.showScreen(UiScreen.PROFILE); });
-        BaseFragment.on(content, R.id.btnMenuNewChat, () -> { dialog.dismiss(); activity.showScreen(UiScreen.SEARCH_USER); });
-        BaseFragment.on(content, R.id.btnMenuPendingRequests, () -> { dialog.dismiss(); activity.showScreen(UiScreen.PENDING_REQUESTS); });
-        BaseFragment.on(content, R.id.btnAddSubject, () -> { dialog.dismiss(); UiDialogs.show(activity, R.layout.dialog_add_subject); });
-        BaseFragment.on(content, R.id.btnCancel, dialog::dismiss);
         bind(content, dialog);
         dialog.setOnShowListener(ignored -> {
             if (dialog.getWindow() != null) {
@@ -93,16 +77,26 @@ public abstract class BasePreviewDialog<B extends androidx.viewbinding.ViewBindi
         };
         owner.getLifecycle().addObserver(observer);
         dialog.setOnDismissListener(ignored -> {
-            for (retrofit2.Call<?> call : requests) call.cancel();
-            requests.clear();
+            dialogOwner.close();
             onDismissed();
             binding = null;
             owner.getLifecycle().removeObserver(observer);
         });
         dialog.show();
+        dialogOwner.lifecycle.setCurrentState(androidx.lifecycle.Lifecycle.State.STARTED);
         }
 
     protected abstract void bind(View content, AlertDialog dialog);
     protected void onDismissed() { }
-    protected void cancelRequest(retrofit2.Call<?> call) { call.cancel(); requests.remove(call); }
+    protected void cancelRequest(UiOperation<?> call) { call.cancel(); }
+    private static final class DialogOwner implements androidx.lifecycle.LifecycleOwner, androidx.lifecycle.ViewModelStoreOwner {
+        private final androidx.lifecycle.LifecycleRegistry lifecycle = new androidx.lifecycle.LifecycleRegistry(this);
+        private final androidx.lifecycle.ViewModelStore store = new androidx.lifecycle.ViewModelStore();
+        @Override public androidx.lifecycle.Lifecycle getLifecycle() { return lifecycle; }
+        @Override public androidx.lifecycle.ViewModelStore getViewModelStore() { return store; }
+        void close() {
+            lifecycle.setCurrentState(androidx.lifecycle.Lifecycle.State.DESTROYED);
+            store.clear();
+        }
+    }
 }

@@ -28,7 +28,6 @@ import com.example.myapplication.ui.schedule.AppointmentReminderDialog;
 import com.example.myapplication.ui.profile.AddSubjectDialog;
 
 import com.example.myapplication.R;
-import com.example.myapplication.ui.base.BaseFragment;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
@@ -93,14 +92,21 @@ public final class UiDialogs {
         popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         popup.setOutsideTouchable(true);
         popup.setElevation(8 * activity.getResources().getDisplayMetrics().density);
-        BaseFragment.on(content, R.id.btnMenuNewChat, () -> {
-            popup.dismiss(); activity.showScreen(UiScreen.SEARCH_USER);
-        });
-        BaseFragment.on(content, R.id.btnMenuPendingRequests, () -> {
-            popup.dismiss(); activity.showScreen(UiScreen.PENDING_REQUESTS);
-        });
-        for (int id : new int[]{R.id.tvRecall, R.id.tvDelete})
-            BaseFragment.on(content, id, popup::dismiss);
+        if (binding instanceof com.example.myapplication.databinding.LayoutFriendsMenuPopupBinding) {
+            com.example.myapplication.databinding.LayoutFriendsMenuPopupBinding menu =
+                    (com.example.myapplication.databinding.LayoutFriendsMenuPopupBinding) binding;
+            menu.btnMenuNewChat.setOnClickListener(view -> {
+                popup.dismiss(); activity.showScreen(UiScreen.SEARCH_USER);
+            });
+            menu.btnMenuPendingRequests.setOnClickListener(view -> {
+                popup.dismiss(); activity.showScreen(UiScreen.PENDING_REQUESTS);
+            });
+        } else {
+            com.example.myapplication.databinding.LayoutMessageActionsBinding actions =
+                    (com.example.myapplication.databinding.LayoutMessageActionsBinding) binding;
+            actions.tvRecall.setOnClickListener(view -> popup.dismiss());
+            actions.tvDelete.setOnClickListener(view -> popup.dismiss());
+        }
         android.graphics.Rect bounds = new android.graphics.Rect();
         anchor.getWindowVisibleDisplayFrame(bounds);
         int maxWidth = Math.min(bounds.width(), (int) (360 * activity.getResources().getDisplayMetrics().density));

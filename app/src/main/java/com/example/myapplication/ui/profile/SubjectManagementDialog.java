@@ -18,6 +18,7 @@ public class SubjectManagementDialog extends BaseProfileDialog<DialogSubjectMana
     public SubjectManagementDialog(MainActivity activity) { super(activity, DialogSubjectManagementBinding::inflate, null); }
 
     @Override protected void bind(View content, AlertDialog dialog) {
+        binding.btnCancel.setOnClickListener(view -> dialog.dismiss());
         binding.btnAddSubject.setEnabled(!userId.isEmpty());
         binding.btnAddSubject.setOnClickListener(view -> new AddSubjectDialog(activity, this::load).show());
         load();
@@ -27,7 +28,7 @@ public class SubjectManagementDialog extends BaseProfileDialog<DialogSubjectMana
         if (loading || userId.isEmpty() || binding == null) return;
         loading = true;
         binding.btnAddSubject.setEnabled(false);
-        request(repository.getSubjects(userId, null), response -> {
+        request(model.getSubjects(userId, null), response -> {
             loading = false;
             binding.btnAddSubject.setEnabled(true);
             if (response.data == null) { error(activity.getString(R.string.profile_empty_response)); return; }
@@ -53,7 +54,7 @@ public class SubjectManagementDialog extends BaseProfileDialog<DialogSubjectMana
                     .setPositiveButton(R.string.profile_delete, (confirm, which) -> {
                         if (binding == null) return;
                         row.btnDeleteSubject.setEnabled(false);
-                        request(repository.deleteSubject(userId, subject.id), response -> {
+                        request(model.deleteSubject(userId, subject.id), response -> {
                             parent.removeView(row.getRoot());
                             empty(parent);
                             ProfileUi.saved(activity);

@@ -12,8 +12,9 @@ public class EditIntroductionDialog extends BaseProfileDialog<DialogEditIntroduc
     public EditIntroductionDialog(MainActivity activity, UserDto user) { super(activity, DialogEditIntroductionBinding::inflate, user); }
 
     @Override protected void bind(View content, AlertDialog dialog) {
+        binding.btnCancel.setOnClickListener(view -> dialog.dismiss());
         loadUser(binding.btnSave, user -> binding.etStatusTag.setText(ProfileUi.value(user.statusTag)));
-        binding.btnSave.setOnClickListener(view -> submit(repository.updateStatusTag(userId,
-                new UpdateStatusTagRequest(ProfileUi.value(binding.etStatusTag))), binding.btnSave, dialog));
+        binding.btnSave.setOnClickListener(view -> submit(model.updateStatusTag(userId,
+                new UpdateStatusTagRequest(ProfileUi.value(binding.etStatusTag))), binding.btnSave, binding.btnCancel, dialog));
     }
 }

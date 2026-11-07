@@ -5,7 +5,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
-import com.example.myapplication.data.repository.chat.MessageRepository;
+import com.example.myapplication.ui.chat.MessageViewModel;
 import com.example.myapplication.databinding.DialogSendImageBinding;
 import com.example.myapplication.ui.base.BasePreviewDialog;
 import com.example.myapplication.ui.main.MainActivity;
@@ -21,6 +21,7 @@ public final class SendImageDialog extends BasePreviewDialog<DialogSendImageBind
         this.conversation = conversation; this.image = image; this.uploaded = uploaded; this.closed = closed;
     }
     @Override protected void bind(View content, AlertDialog dialog) {
+        binding.btnCancel.setOnClickListener(view -> dialog.dismiss());
         Glide.with(activity).load(image.previewBytes()).fitCenter().into(binding.ivPreview);
         binding.btnSendImage.setOnClickListener(view -> {
             if (busy || !image.file().isFile()) return;
@@ -31,7 +32,7 @@ public final class SendImageDialog extends BasePreviewDialog<DialogSendImageBind
             binding.tvStatus.setTextColor(activity.getColor(R.color.brown));
             binding.tvStatus.setVisibility(View.VISIBLE);
             dialog.setCancelable(false);
-            request(new MessageRepository(activity).uploadImage(conversation, image.part()), response -> {
+            request(viewModel(com.example.myapplication.ui.chat.MessageViewModel.class).uploadImage(conversation, image.part()), response -> {
                 ChatUi.updated(activity);
                 Toast.makeText(activity, R.string.media_uploaded, Toast.LENGTH_SHORT).show();
                 dialog.dismiss();

@@ -17,6 +17,7 @@ public final class ImageViewerDialog extends BasePreviewDialog<DialogViewImageBi
     private final String url;
     public ImageViewerDialog(MainActivity activity, String url) { super(activity, DialogViewImageBinding::inflate); this.url = url; }
     @Override protected void bind(View content, AlertDialog dialog) {
+        binding.btnClose.setOnClickListener(view -> dialog.dismiss());
         binding.ivImage.setOnClickListener(view -> load());
         load();
     }

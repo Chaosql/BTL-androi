@@ -14,21 +14,20 @@ import android.provider.Settings;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import com.example.myapplication.data.local.PreferenceManager;
-import com.example.myapplication.data.remote.dto.request.UpdateLocationRequest;
 import com.example.myapplication.data.remote.dto.response.*;
-import com.example.myapplication.data.repository.map.MapRepository;
-import com.example.myapplication.data.repository.profile.ProfileRepository;
+import com.example.myapplication.ui.map.MapViewModel;
+import com.example.myapplication.ui.profile.ProfileViewModel;
 import com.example.myapplication.ui.friends.SocialUi;
 import com.example.myapplication.ui.friends.UserInfoDialog;
 import com.example.myapplication.ui.main.MainActivity;
 import java.util.*;
-import retrofit2.Call;
+import com.example.myapplication.ui.base.UiOperation;
 
 public class MapFragment extends BaseFragment<FragmentMapBinding> {
     private StudyMap studyMap;
     private DeviceLocation location;
-    private MapRepository repository;
-    private Call<?> active;
+    private MapViewModel model;
+    private UiOperation<?> active;
     private boolean busy, awaitingPermission;
     private int version, link;
     private double radius = 3;
@@ -48,7 +47,7 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
         super.onResume();
         if (studyMap != null) studyMap.resume();
         if (binding == null || !new com.example.myapplication.data.local.PreferenceManager(requireContext()).isLogin()) return;
-        request(new com.example.myapplication.data.repository.notification.NotificationRepository(requireContext())
+        request(viewModel(com.example.myapplication.ui.notification.NotificationViewModel.class)
                 .getUnreadNotificationCount(), response -> {
             int count = response.data == null ? 0 : Math.max(0, response.data);
             binding.tvNotificationBadge.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
@@ -59,7 +58,8 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
     }
 
     @Override protected void onScreenCreated(View root, Bundle state) {
-        repository = new MapRepository(requireContext()); location = new DeviceLocation(requireContext());
+        enableScreenCatalog(binding.imgCrown);
+        model = viewModel(com.example.myapplication.ui.map.MapViewModel.class); location = new DeviceLocation(requireContext());
         owner = new PreferenceManager(requireContext()).getUserId();
         awaitingPermission = state != null && state.getBoolean("radar_permission");
         radius = state == null ? 3 : state.getDouble("radar_radius", 3);
@@ -71,6 +71,22 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
         });
         studyMap.create(state == null ? null : state.getBundle("map_state"));
         studyMap.onUserClick(this::openUser);
+        model.radar().observe(getViewLifecycleOwner(), result -> {
+            if (result == null) {
+                if (!owner.equals(new PreferenceManager(requireContext()).getUserId())) {
+                    busy(false); users = Collections.emptyList(); studyMap.clearRadar(); status(R.string.radar_hint, 0);
+                }
+                return;
+            }
+            if (result.status == com.example.myapplication.ui.base.UiState.Status.LOADING) status(R.string.radar_scanning, 0);
+            else if (result.status == com.example.myapplication.ui.base.UiState.Status.ERROR) failed(result.error.message);
+            else if (result.status == com.example.myapplication.ui.base.UiState.Status.SUCCESS) {
+                busy(false); users = result.data.users;
+                studyMap.showRadar(result.data.latitude, result.data.longitude, result.data.radius, users);
+                binding.tvRadarStatus.setText(users.isEmpty() ? getString(R.string.radar_empty, radius)
+                        : getString(R.string.radar_results, users.size(), radius)); link = users.isEmpty() ? 0 : 4;
+            }
+        });
         binding.tvMapStatus.setOnClickListener(view -> studyMap.create(null));
         binding.btnProfile.setOnClickListener(bindingView -> go(UiScreen.PROFILE));
         binding.imgAvatar.setOnClickListener(bindingView -> go(UiScreen.PROFILE));
@@ -109,7 +125,7 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
         owner = new PreferenceManager(requireContext()).getUserId();
         busy(true); users = Collections.emptyList(); studyMap.clearRadar(); status(R.string.radar_checking, 0);
         int current = ++version;
-        Call<BaseResponse<UserDto>> call = new ProfileRepository(requireContext()).getCurrentUser(); active = call;
+        UiOperation<BaseResponse<UserDto>> call = viewModel(com.example.myapplication.ui.profile.ProfileViewModel.class).getCurrentUser(); active = call;
         request(call, response -> {
             if (!current(current)) return;
             active = null;
@@ -139,22 +155,7 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
         });
     }
     private void scan(Location point, int current) {
-        status(R.string.radar_scanning, 0);
-        double lat = point.getLatitude(), lng = point.getLongitude();
-        Call<BaseResponse<CommonResponse>> update = repository.updateLocation(new UpdateLocationRequest(lat, lng)); active = update;
-        request(update, response -> {
-            if (!current(current)) return;
-            Call<BaseResponse<List<NearbyUserResponse>>> query = repository.getNearbyUsers(lat, lng, radius); active = query;
-            request(query, data -> {
-                if (!current(current)) return;
-                active = null; busy(false);
-                if (data.data == null) { failed(getString(R.string.feature_invalid)); return; }
-                users = RadarData.filter(data.data, owner, lat, lng, radius);
-                studyMap.showRadar(lat, lng, radius, users);
-                binding.tvRadarStatus.setText(users.isEmpty() ? getString(R.string.radar_empty, radius)
-                        : getString(R.string.radar_results, users.size(), radius)); link = users.isEmpty() ? 0 : 4;
-            }, error -> { if (current(current)) failed(error.message); });
-        }, error -> { if (current(current)) failed(error.message); });
+        if (current(current)) model.scan(point.getLatitude(), point.getLongitude(), radius);
     }
     private void failed(String message) {
         active = null; busy(false); link = 0;
@@ -188,6 +189,7 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
     @Override public void onPause() { if (studyMap != null) studyMap.pause(); super.onPause(); }
     @Override public void onStop() {
         ++version;
+        if (model != null) model.cancelRadar();
         if (location != null) location.cancel();
         if (active != null) { cancelRequest(active); active = null; }
         if (results != null) { results.dismiss(); results = null; }
@@ -204,6 +206,7 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
     @Override public void onLowMemory() { super.onLowMemory(); if (studyMap != null) studyMap.lowMemory(); }
     @Override public void onDestroyView() {
         ++version;
+        if (model != null) model.cancelRadar();
         if (location != null) location.cancel();
         if (results != null) { results.dismiss(); results = null; }
         active = null; users = Collections.emptyList();

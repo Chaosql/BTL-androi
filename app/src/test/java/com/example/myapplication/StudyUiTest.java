@@ -152,6 +152,42 @@ public class StudyUiTest {
         }
     }
 
+    @Test public void boundRegistrationControlsKeepTheirActions() {
+        try (ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = controller.get();
+            activity.getSupportFragmentManager().executePendingTransactions();
+            activity.showScreen(UiScreen.REGISTER);
+            activity.getSupportFragmentManager().executePendingTransactions();
+            View root = activity.getSupportFragmentManager().findFragmentById(R.id.screenHost).requireView();
+            com.example.myapplication.databinding.FragmentRegisterBinding form =
+                    com.example.myapplication.databinding.FragmentRegisterBinding.bind(root);
+            assertEquals(3, form.spGender.getAdapter().getCount());
+            form.edtPassword.setText("Password123");
+            form.edtConfirmPassword.setText("Password123");
+            form.ivTogglePassword.performClick();
+            assertEquals(null, form.edtPassword.getTransformationMethod());
+            assertTrue(form.edtConfirmPassword.getTransformationMethod()
+                    instanceof android.text.method.PasswordTransformationMethod);
+            form.ivToggleConfirmPassword.performClick();
+            assertEquals(null, form.edtConfirmPassword.getTransformationMethod());
+            form.ivTogglePassword.performClick();
+            assertTrue(form.edtPassword.getTransformationMethod()
+                    instanceof android.text.method.PasswordTransformationMethod);
+            assertEquals(form.edtPassword.length(), form.edtPassword.getSelectionStart());
+            form.ivCalendar.performClick();
+            android.app.DatePickerDialog picker = (android.app.DatePickerDialog)
+                    org.robolectric.shadows.ShadowDialog.getLatestDialog();
+            picker.updateDate(2004, 10, 7);
+            picker.onClick(picker, android.content.DialogInterface.BUTTON_POSITIVE);
+            picker.dismiss();
+            assertEquals("07/11/2004", form.edtDate.getText().toString());
+            form.btnBack.performClick();
+            activity.getSupportFragmentManager().executePendingTransactions();
+            assertTrue(activity.getSupportFragmentManager().findFragmentById(R.id.screenHost)
+                    instanceof com.example.myapplication.ui.auth.LoginFragment);
+        }
+    }
+
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void renderRows(View root) {
         if (root instanceof RecyclerView) {

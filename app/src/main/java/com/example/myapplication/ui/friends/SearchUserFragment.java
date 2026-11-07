@@ -5,7 +5,6 @@ import android.view.View;
 import android.widget.Toast;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.myapplication.R;
-import com.example.myapplication.data.local.PreferenceManager;
 import com.example.myapplication.data.remote.dto.response.UserSearchDto;
 import com.example.myapplication.databinding.FragmentSearchUserBinding;
 import com.example.myapplication.ui.friends.adapter.UserSearchAdapter;
@@ -14,11 +13,12 @@ import java.util.List;
 
 public class SearchUserFragment extends BaseSocialFragment<FragmentSearchUserBinding> {
     private UserSearchAdapter adapter;
-    private final java.util.Set<String> sent = new java.util.HashSet<>();
     public SearchUserFragment() { super(FragmentSearchUserBinding::inflate); }
     @Override protected void onScreenCreated(View root, Bundle state) {
+        enableScreenCatalog(binding.tvHeaderTitle);
+        binding.btnBack.setOnClickListener(view -> back());
+        binding.progressBar.setVisibility(View.GONE);
         adapter = new UserSearchAdapter(item -> user(item.id, item.friendshipStatus), this::add);
-        sent.clear();
         binding.rvSearchResults.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvSearchResults.setAdapter(adapter);
         binding.btnSearch.setOnClickListener(view -> load());
@@ -46,13 +46,7 @@ public class SearchUserFragment extends BaseSocialFragment<FragmentSearchUserBin
         query(friends().searchUsers(keyword), response -> {
             binding.progressBar.setVisibility(View.GONE);
             if (response.data == null) { failure(getString(R.string.social_empty_response)); return; }
-            String self = new PreferenceManager(requireContext()).getUserId();
-            List<UserSearchDto> users = new ArrayList<>();
-            for (UserSearchDto item : response.data) {
-                if (item == null || item.id == null || self.equals(item.id)) continue;
-                if (sent.contains(item.id) && !SocialUi.friend(item.friendshipStatus)) item.friendshipStatus = "PENDING";
-                users.add(item);
-            }
+            List<UserSearchDto> users = response.data;
             adapter.submit(users);
             binding.tvEmptyState.setText(R.string.social_no_results);
             binding.tvEmptyState.setVisibility(users.isEmpty() ? View.VISIBLE : View.GONE);
@@ -68,11 +62,11 @@ public class SearchUserFragment extends BaseSocialFragment<FragmentSearchUserBin
 
     private void add(UserSearchDto item) {
         if (SocialUi.friend(item.friendshipStatus)) { openChat(item.id, SocialUi.name(item.firstName, item.lastName)); return; }
-        if (adapter.isBusy(item.id) || sent.contains(item.id)) return;
+        if (adapter.isBusy(item.id) || friends().sent(item.id)) return;
         adapter.busy(item.id, true);
         request(friends().sendFriendRequest(item.id), response -> {
             item.friendshipStatus = "PENDING";
-            sent.add(item.id);
+            friends().rememberSent(item.id);
             adapter.busy(item.id, false);
             load();
             Toast.makeText(requireContext(), R.string.social_request_sent, Toast.LENGTH_SHORT).show();

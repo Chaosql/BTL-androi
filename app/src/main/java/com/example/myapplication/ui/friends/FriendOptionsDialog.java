@@ -4,8 +4,6 @@ import android.view.View;
 import androidx.appcompat.app.AlertDialog;
 import com.example.myapplication.R;
 import com.example.myapplication.data.remote.dto.response.FriendDto;
-import com.example.myapplication.data.repository.social.BlockRepository;
-import com.example.myapplication.data.repository.social.FriendRepository;
 import com.example.myapplication.databinding.DialogFriendOptionsBinding;
 import com.example.myapplication.ui.base.BasePreviewDialog;
 import com.example.myapplication.ui.main.MainActivity;
@@ -17,6 +15,10 @@ public class FriendOptionsDialog extends BasePreviewDialog<DialogFriendOptionsBi
         super(activity, DialogFriendOptionsBinding::inflate); this.friend = friend;
     }
     @Override protected void bind(View content, AlertDialog dialog) {
+        binding.tvOptionPin.setOnClickListener(view -> {
+            android.widget.Toast.makeText(activity, activity.getString(com.example.myapplication.R.string.ui_uidialogs_text_17), android.widget.Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
         binding.tvOptionPin.setVisibility(View.GONE);
         boolean valid = friend != null && friend.userId != null && !friend.userId.isEmpty();
         binding.tvOptionViewProfile.setEnabled(valid);
@@ -32,14 +34,14 @@ public class FriendOptionsDialog extends BasePreviewDialog<DialogFriendOptionsBi
             dialog.dismiss();
             new ConfirmDeleteDialog(activity, activity.getString(R.string.social_block_confirm,
                     SocialUi.name(friend.firstName, friend.lastName)),
-                    () -> new BlockRepository(activity).blockUser(friend.userId)).show();
+                    ConfirmDeleteDialog.Action.BLOCK, friend.userId).show();
         });
         binding.tvOptionDelete.setOnClickListener(view -> {
             if (!valid) return;
             dialog.dismiss();
             new ConfirmDeleteDialog(activity, activity.getString(R.string.social_unfriend_confirm,
                     SocialUi.name(friend.firstName, friend.lastName)),
-                    () -> new FriendRepository(activity).unfriend(friend.userId)).show();
+                    ConfirmDeleteDialog.Action.UNFRIEND, friend.userId).show();
         });
     }
 }

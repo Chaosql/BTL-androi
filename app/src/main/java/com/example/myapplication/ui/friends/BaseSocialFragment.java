@@ -11,28 +11,28 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import com.example.myapplication.data.local.PreferenceManager;
 import com.example.myapplication.data.remote.network.ApiError;
-import com.example.myapplication.data.repository.social.BlockRepository;
-import com.example.myapplication.data.repository.social.FriendRepository;
+import com.example.myapplication.ui.friends.BlockViewModel;
+import com.example.myapplication.ui.friends.FriendViewModel;
 import com.example.myapplication.ui.base.BaseFragment;
 import com.example.myapplication.ui.base.BindingInflater;
 import com.example.myapplication.ui.main.MainActivity;
 import java.util.function.Consumer;
-import retrofit2.Call;
+import com.example.myapplication.ui.base.UiOperation;
 
 public abstract class BaseSocialFragment<B extends ViewBinding> extends BaseFragment<B> {
     private final Handler handler = new Handler(Looper.getMainLooper());
-    private Call<?> activeQuery;
+    private UiOperation<?> activeQuery;
     private int version;
     protected BaseSocialFragment(BindingInflater<B> inflater) { super(inflater); }
     protected boolean signedIn() { return new PreferenceManager(requireContext()).isLogin(); }
-    protected FriendRepository friends() { return new FriendRepository(requireContext()); }
-    protected BlockRepository blocks() { return new BlockRepository(requireContext()); }
+    protected FriendViewModel friends() { return viewModel(com.example.myapplication.ui.friends.FriendViewModel.class); }
+    protected BlockViewModel blocks() { return viewModel(com.example.myapplication.ui.friends.BlockViewModel.class); }
     protected MainActivity host() { return (MainActivity) requireActivity(); }
     private boolean openingChat;
     protected void openChat(String id, String name) {
         if (openingChat || id == null || id.isEmpty()) return;
         openingChat = true;
-        request(new com.example.myapplication.data.repository.chat.ConversationRepository(requireContext())
+        request(viewModel(com.example.myapplication.ui.chat.ConversationViewModel.class)
                 .createOrGetDirectConversation(new com.example.myapplication.data.remote.dto.request.DirectChatRequest(id)), response -> {
             openingChat = false;
             if (response.data == null || response.data.id == null) { error(getString(com.example.myapplication.R.string.chat_missing_data)); return; }
@@ -45,12 +45,14 @@ public abstract class BaseSocialFragment<B extends ViewBinding> extends BaseFrag
         getParentFragmentManager().setFragmentResultListener(SocialUi.UPDATED, getViewLifecycleOwner(),
                 (key, data) -> reload.run());
     }
+    protected void onQueryInvalidated() { }
     protected void invalidateQuery() {
+        onQueryInvalidated();
         version++;
         if (activeQuery != null) cancelRequest(activeQuery);
         activeQuery = null;
     }
-    protected <T> void query(Call<T> call, Consumer<T> success, Consumer<ApiError> failure) {
+    protected <T> void query(UiOperation<T> call, Consumer<T> success, Consumer<ApiError> failure) {
         invalidateQuery();
         int current = version;
         activeQuery = call;

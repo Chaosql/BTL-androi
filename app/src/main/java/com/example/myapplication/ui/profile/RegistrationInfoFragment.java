@@ -7,7 +7,7 @@ import com.example.myapplication.R;
 import com.example.myapplication.data.local.PreferenceManager;
 import com.example.myapplication.data.remote.dto.request.UpdatePersonalInfoRequest;
 import com.example.myapplication.data.remote.dto.response.UserDto;
-import com.example.myapplication.data.repository.profile.ProfileRepository;
+import com.example.myapplication.ui.profile.ProfileViewModel;
 import com.example.myapplication.databinding.FragmentRegistrationInfoBinding;
 import com.example.myapplication.ui.base.BaseFragment;
 
@@ -16,6 +16,11 @@ public class RegistrationInfoFragment extends BaseFragment<FragmentRegistrationI
     public RegistrationInfoFragment() { super(FragmentRegistrationInfoBinding::inflate); }
 
     @Override protected void onScreenCreated(View root, Bundle state) {
+        enableScreenCatalog(binding.tvHeaderTitle);
+        binding.btnBack.setOnClickListener(view -> back());
+        genderSpinner(binding.spinnerGender);
+        binding.etDateOfBirth.setOnClickListener(view -> pickDate(binding.etDateOfBirth));
+        binding.btnPickDate.setOnClickListener(view -> pickDate(binding.etDateOfBirth));
         user = null;
         binding.etEmail.setKeyListener(null);
         binding.etEmail.setFocusable(false);
@@ -31,7 +36,7 @@ public class RegistrationInfoFragment extends BaseFragment<FragmentRegistrationI
             UpdatePersonalInfoRequest change = new UpdatePersonalInfoRequest(ProfileUi.value(binding.etFirstName),
                     ProfileUi.value(binding.etLastName), ProfileUi.gender(binding.spinnerGender.getSelectedItemPosition()),
                     birth, user.phone, user.email);
-            request(new ProfileRepository(requireContext()).updatePersonalInfo(new PreferenceManager(requireContext()).getUserId(), change),
+            request(viewModel(com.example.myapplication.ui.profile.ProfileViewModel.class).updatePersonalInfo(new PreferenceManager(requireContext()).getUserId(), change),
                     response -> {
                         binding.btnSave.setEnabled(true);
                         ProfileUi.inputs(binding.getRoot(), true);
@@ -49,7 +54,7 @@ public class RegistrationInfoFragment extends BaseFragment<FragmentRegistrationI
         binding.btnSave.setEnabled(false);
         ProfileUi.inputs(binding.getRoot(), false);
         if (!new PreferenceManager(requireContext()).isLogin()) return;
-        request(new ProfileRepository(requireContext()).getCurrentUser(), response -> {
+        request(viewModel(com.example.myapplication.ui.profile.ProfileViewModel.class).getCurrentUser(), response -> {
             binding.btnSave.setEnabled(true);
             if (response.data == null) {
                 Toast.makeText(requireContext(), R.string.profile_empty_response, Toast.LENGTH_LONG).show(); return;

@@ -11,6 +11,8 @@ public class ChangePasswordFragment extends BaseFragment<FragmentChangePasswordB
     public ChangePasswordFragment() { super(FragmentChangePasswordBinding::inflate); }
 
     @Override protected void onScreenCreated(View root, Bundle state) {
+        enableScreenCatalog(binding.tvHeaderTitle);
+        binding.btnBack.setOnClickListener(view -> back());
         binding.tvForgotPassword.setOnClickListener(bindingView -> go(UiScreen.INPUT_EMAIL));
         binding.btnOk.setOnClickListener(bindingView -> {
             String userId = new com.example.myapplication.data.local.PreferenceManager(requireContext()).getUserId();
@@ -18,7 +20,7 @@ public class ChangePasswordFragment extends BaseFragment<FragmentChangePasswordB
             String oldPassword = binding.etOldPassword.getText().toString();
             String password = binding.etNewPassword.getText().toString();
             String confirm = binding.etConfirmPassword.getText().toString();
-            if (!password.matches("^(?=.*[0-9])(?=.*[a-z])(?=\\S+$).{8,}$")) {
+            if (!com.example.myapplication.ui.auth.AuthViewModel.validPassword(password)) {
                 binding.etNewPassword.setError(getString(R.string.password_policy)); return;
             }
             if (oldPassword.isEmpty() || password.isEmpty()) {
@@ -28,7 +30,7 @@ public class ChangePasswordFragment extends BaseFragment<FragmentChangePasswordB
                 binding.etConfirmPassword.setError(getString(R.string.api_password_mismatch)); return;
             }
             binding.btnOk.setEnabled(false);
-            request(new com.example.myapplication.data.repository.profile.ProfileRepository(requireContext())
+            request(viewModel(com.example.myapplication.ui.profile.ProfileViewModel.class)
                     .changePassword(userId, new com.example.myapplication.data.remote.dto.request.ChangePasswordRequest(oldPassword, password, confirm)),
                     response -> {
                         binding.btnOk.setEnabled(true);

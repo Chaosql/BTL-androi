@@ -8,34 +8,35 @@ import com.example.myapplication.R;
 import com.example.myapplication.data.local.PreferenceManager;
 import com.example.myapplication.data.remote.dto.request.RateBookingRequest;
 import com.example.myapplication.data.remote.dto.response.BookingDto;
-import com.example.myapplication.data.remote.dto.response.BookingParticipantDto;
 import com.example.myapplication.data.remote.dto.response.BaseResponse;
-import com.example.myapplication.data.repository.schedule.BookingRepository;
+import com.example.myapplication.ui.schedule.BookingViewModel;
 import com.example.myapplication.databinding.DialogBookingDetailBinding;
 import com.example.myapplication.ui.base.BasePreviewDialog;
 import com.example.myapplication.ui.main.MainActivity;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Supplier;
-import retrofit2.Call;
+import com.example.myapplication.ui.base.UiOperation;
 
 public class BookingDetailDialog extends BasePreviewDialog<DialogBookingDetailBinding> {
     private final String bookingId;
-    private final BookingRepository repository;
+    private final BookingViewModel model;
     private final String userId;
     private BookingDto booking;
     private boolean busy;
     public BookingDetailDialog(MainActivity activity) { this(activity, null); }
     public BookingDetailDialog(MainActivity activity, String id) {
         super(activity, DialogBookingDetailBinding::inflate);
-        bookingId = id; repository = new BookingRepository(activity);
+        bookingId = id; model = viewModel(com.example.myapplication.ui.schedule.BookingViewModel.class);
         userId = new PreferenceManager(activity).getUserId();
     }
     @Override protected void bind(View content, AlertDialog dialog) {
+        binding.btnCancel.setOnClickListener(view -> dialog.dismiss());
+        binding.ivClose.setOnClickListener(view -> dialog.dismiss());
         hideActions();
-        binding.btnAccept.setOnClickListener(view -> update(view, () -> repository.acceptBooking(bookingId), dialog));
-        binding.btnReject.setOnClickListener(view -> update(view, () -> repository.rejectBooking(bookingId), dialog));
-        binding.btnComplete.setOnClickListener(view -> update(view, () -> repository.completeBooking(bookingId), dialog));
+        binding.btnAccept.setOnClickListener(view -> update(view, () -> model.acceptBooking(bookingId), dialog));
+        binding.btnReject.setOnClickListener(view -> update(view, () -> model.rejectBooking(bookingId), dialog));
+        binding.btnComplete.setOnClickListener(view -> update(view, () -> model.completeBooking(bookingId), dialog));
         binding.btnCancel.setOnClickListener(view -> {
             if (busy || booking == null || binding.btnCancel.getVisibility() != View.VISIBLE) return;
             busy = true; buttons();
@@ -60,7 +61,7 @@ public class BookingDetailDialog extends BasePreviewDialog<DialogBookingDetailBi
         binding.tvErrorMessage.setTextColor(activity.getColor(R.color.brown));
         binding.tvErrorMessage.setText(R.string.booking_loading);
         binding.tvErrorMessage.setVisibility(View.VISIBLE);
-        request(repository.getBookingDetail(bookingId), response -> {
+        request(model.getBookingDetail(bookingId), response -> {
             busy = false;
             if (response.data == null || !bookingId.equals(response.data.id)) {
                 error(activity.getString(R.string.booking_invalid_response)); return;
@@ -70,14 +71,8 @@ public class BookingDetailDialog extends BasePreviewDialog<DialogBookingDetailBi
             render();
         }, failure -> { busy = false; error(failure.message); });
     }
-    private boolean creator() { return !userId.isEmpty() && userId.equals(booking.creatorId); }
-    private boolean member() {
-        if (userId.isEmpty()) return false;
-        if (creator() || userId.equals(booking.partnerId)) return true;
-        if (booking.participants != null) for (BookingParticipantDto participant : booking.participants)
-            if (participant != null && userId.equals(participant.userId)) return true;
-        return false;
-    }
+    private boolean creator() { return model.creator(booking); }
+    private boolean member() { return model.member(booking); }
     private void render() {
         BookingReminders.sync(activity, booking);
         binding.tvSubject.setText(BookingUi.value(booking.subject));
@@ -97,22 +92,16 @@ public class BookingDetailDialog extends BasePreviewDialog<DialogBookingDetailBi
         Glide.with(activity).load(creator() ? booking.partnerAvatar : booking.creatorAvatar)
                 .placeholder(R.drawable.avatar).error(R.drawable.avatar).into(binding.imgPartnerAvatar);
         hideActions();
-        if (member()) switch (BookingUi.status(booking)) {
-            case "PENDING":
-                if (creator()) binding.btnCancel.setVisibility(View.VISIBLE);
-                else if (!"ACCEPTED".equals(booking.participantStatus) && !"REJECTED".equals(booking.participantStatus)) {
-                    binding.btnAccept.setVisibility(View.VISIBLE); binding.btnReject.setVisibility(View.VISIBLE);
-                }
-                break;
-            case "CONFIRMED": case "ACCEPTED":
-                binding.btnComplete.setVisibility(View.VISIBLE); binding.btnCancel.setVisibility(View.VISIBLE); break;
-            case "COMPLETED":
-                binding.layoutRatingSection.setVisibility(View.VISIBLE);
-                boolean rated = Boolean.TRUE.equals(booking.hasRated) || booking.myRating != null;
-                binding.ratingBar.setIsIndicator(rated);
-                binding.ratingBar.setRating(rated ? booking.myRating == null ? 5 : booking.myRating : 5);
-                binding.btnRate.setVisibility(rated ? View.GONE : View.VISIBLE);
-                break;
+        BookingViewModel.Actions actions = model.actions(booking);
+        binding.btnAccept.setVisibility(actions.accept ? View.VISIBLE : View.GONE);
+        binding.btnReject.setVisibility(actions.reject ? View.VISIBLE : View.GONE);
+        binding.btnCancel.setVisibility(actions.cancel ? View.VISIBLE : View.GONE);
+        binding.btnComplete.setVisibility(actions.complete ? View.VISIBLE : View.GONE);
+        binding.layoutRatingSection.setVisibility(actions.rating ? View.VISIBLE : View.GONE);
+        if (actions.rating) {
+            binding.ratingBar.setIsIndicator(actions.rated);
+            binding.ratingBar.setRating(actions.rated ? booking.myRating == null ? 5 : booking.myRating : 5);
+            binding.btnRate.setVisibility(actions.rated ? View.GONE : View.VISIBLE);
         }
         buttons();
     }
@@ -121,7 +110,7 @@ public class BookingDetailDialog extends BasePreviewDialog<DialogBookingDetailBi
         binding.btnComplete.setEnabled(!busy); binding.btnCancel.setEnabled(!busy);
         binding.btnRate.setEnabled(!busy); binding.ratingBar.setEnabled(!busy);
     }
-    private void update(View action, Supplier<Call<BaseResponse<BookingDto>>> call, AlertDialog dialog) {
+    private void update(View action, Supplier<UiOperation<BaseResponse<BookingDto>>> call, AlertDialog dialog) {
         if (busy || booking == null || !member() || action.getVisibility() != View.VISIBLE) return;
         if (action.getId() == R.id.btnAccept) activity.enableNotifications();
         busy = true; buttons(); dialog.setCancelable(false); binding.ivClose.setEnabled(false);
@@ -145,7 +134,7 @@ public class BookingDetailDialog extends BasePreviewDialog<DialogBookingDetailBi
             error(activity.getString(R.string.booking_invalid_rating)); return;
         }
         busy = true; buttons(); dialog.setCancelable(false); binding.ivClose.setEnabled(false);
-        request(repository.rateBooking(bookingId, new RateBookingRequest(score)), response -> {
+        request(model.rateBooking(bookingId, new RateBookingRequest(score)), response -> {
             busy = false; dialog.setCancelable(true); binding.ivClose.setEnabled(true);
             booking.hasRated = true; booking.myRating = score;
             binding.tvErrorMessage.setVisibility(View.GONE); render();

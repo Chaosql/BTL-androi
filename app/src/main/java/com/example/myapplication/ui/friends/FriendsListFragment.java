@@ -8,54 +8,41 @@ import com.example.myapplication.data.remote.dto.response.FriendDto;
 import com.example.myapplication.databinding.FragmentFriendsListBinding;
 import com.example.myapplication.ui.friends.adapter.FriendsAdapter;
 import com.example.myapplication.ui.main.UiDialogs;
-import java.util.ArrayList;
-import java.util.List;
 
 public class FriendsListFragment extends BaseSocialFragment<FragmentFriendsListBinding> {
     private FriendsAdapter adapter;
-    private final List<FriendDto> data = new ArrayList<>();
-    private int page;
-    private boolean last;
-    private boolean loading;
+    private com.example.myapplication.ui.base.PagedList<FriendDto> pages;
     public FriendsListFragment() { super(FragmentFriendsListBinding::inflate); }
 
-    @Override protected void onScreenCreated(View root, Bundle state) {
-        data.clear(); page = -1; last = false; loading = false;
+    @Override protected void onScreenCreated(View root, Bundle saved) {
+        enableScreenCatalog(binding.tvHeaderTitle);
+        binding.btnBack.setOnClickListener(view -> back());
+        binding.progressBar.setVisibility(View.GONE);
+        pages = friends().friendsPage();
         adapter = new FriendsAdapter(item -> user(item.userId, "FRIEND"),
                 item -> new FriendOptionsDialog(host(), item).show());
         binding.rvFriendsList.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvFriendsList.setAdapter(adapter);
+        pages.state().observe(getViewLifecycleOwner(), state -> {
+            adapter.submit(state.items);
+            state(state.loading, state.error != null);
+            if (state.error != null) error(state.error.message);
+        });
+
         search(binding.etSearchFriends, () -> load(true));
         pageScroll(binding.rvFriendsList, () -> load(false));
         changed(() -> load(true));
         binding.tvEmptyState.setOnClickListener(view -> load(true));
         binding.btnHeaderMenu.setOnClickListener(view -> UiDialogs.showPopup(host(), binding.btnHeaderMenu, R.layout.layout_friends_menu_popup));
-        load(true);
+        if (signedIn()) pages.initialize(binding.etSearchFriends.getText().toString().trim());
+        else state(false, false);
     }
 
     private void load(boolean reset) {
         if (!signedIn()) { state(false, false); return; }
-        if (!reset && (loading || last)) return;
-        int next = reset ? 0 : page + 1;
-        String keyword = binding.etSearchFriends.getText().toString().trim();
-        loading = true; state(true, false);
-        query(keyword.isEmpty() ? friends().getFriends(next, 20, null) : friends().searchFriends(keyword, next, 20, null),
-                response -> {
-                    loading = false;
-                    if (response.data == null || response.data.content == null) { state(false, true); return; }
-                    if (reset) data.clear();
-                    for (FriendDto item : response.data.content) {
-                        if (item == null || item.userId == null) continue;
-                        data.removeIf(existing -> item.userId.equals(existing.userId));
-                        data.add(item);
-                    }
-                    page = next;
-                    last = response.data.totalPages != null && response.data.totalPages > 0
-                            ? next + 1 >= response.data.totalPages : Boolean.TRUE.equals(response.data.last);
-                    adapter.submit(data);
-                    state(false, false);
-                }, failure -> { loading = false; state(false, true); error(failure.message); });
+        pages.load(binding.etSearchFriends.getText().toString().trim(), reset);
     }
+    @Override protected void onQueryInvalidated() { if (pages != null) pages.cancel(); }
 
     private void state(boolean loading, boolean failed) {
         binding.progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);

@@ -6,16 +6,10 @@ import androidx.appcompat.app.AlertDialog;
 import com.example.myapplication.R;
 import com.example.myapplication.data.remote.dto.request.UpdateAcademicInfoRequest;
 import com.example.myapplication.data.remote.dto.request.UpdatePersonalInfoRequest;
-import com.example.myapplication.data.remote.dto.request.UpdateProfileLocationRequest;
-import com.example.myapplication.data.remote.dto.response.BaseResponse;
 import com.example.myapplication.data.remote.dto.response.UserDto;
 import com.example.myapplication.databinding.DialogEditPersonalInfoBinding;
 import com.example.myapplication.ui.main.MainActivity;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import retrofit2.Call;
 
 public class EditPersonalInfoDialog extends BaseProfileDialog<DialogEditPersonalInfoBinding> {
     private UserDto user;
@@ -23,6 +17,14 @@ public class EditPersonalInfoDialog extends BaseProfileDialog<DialogEditPersonal
     public EditPersonalInfoDialog(MainActivity activity, UserDto user) { super(activity, DialogEditPersonalInfoBinding::inflate, user); }
 
     @Override protected void bind(View content, AlertDialog dialog) {
+        binding.btnCancel.setOnClickListener(view -> dialog.dismiss());
+        observe(model.personalSave(), state -> {
+            boolean saving = state.status == com.example.myapplication.ui.base.UiState.Status.LOADING;
+            ProfileUi.inputs(binding.getRoot(), !saving);
+            binding.btnSave.setEnabled(!saving); binding.btnCancel.setEnabled(!saving); dialog.setCancelable(!saving);
+            if (state.status == com.example.myapplication.ui.base.UiState.Status.SUCCESS) { ProfileUi.saved(activity); dialog.dismiss(); }
+            else if (state.status == com.example.myapplication.ui.base.UiState.Status.ERROR) { ProfileUi.updated(activity); error(state.error.message); }
+        });
         loadUser(binding.btnSave, data -> {
             user = data;
             binding.etLastName.setText(ProfileUi.value(data.lastName));
@@ -52,7 +54,7 @@ public class EditPersonalInfoDialog extends BaseProfileDialog<DialogEditPersonal
         String date = ProfileUi.birthDate(binding.etDateOfBirth);
         if (date == null) return;
         String phone = ProfileUi.value(binding.etPhone);
-        if (!phone.isEmpty() && !phone.matches("[+0-9() .-]{6,20}")) {
+        if (!ProfileViewModel.validPhone(phone)) {
             binding.etPhone.setError(activity.getString(R.string.profile_invalid_phone)); return;
         }
         String gender = binding.rbMale.isChecked() ? "MALE" : binding.rbFemale.isChecked() ? "FEMALE" : "OTHER";
@@ -60,37 +62,6 @@ public class EditPersonalInfoDialog extends BaseProfileDialog<DialogEditPersonal
                 ProfileUi.value(binding.etLastName), gender, date, phone, user.email);
         UpdateAcademicInfoRequest academic = new UpdateAcademicInfoRequest(ProfileUi.value(binding.etUniversity), ProfileUi.value(binding.etMajorName));
         String location = ProfileUi.value(binding.etLocation);
-        List<Call<BaseResponse<UserDto>>> changes = new ArrayList<>();
-        if (!Objects.equals(personal.firstName, ProfileUi.value(user.firstName))
-                || !Objects.equals(personal.lastName, ProfileUi.value(user.lastName))
-                || !Objects.equals(personal.gender, user.gender)
-                || !Objects.equals(ProfileUi.date(personal.dateOfBirth), ProfileUi.date(user.dateOfBirth))
-                || !Objects.equals(personal.phone, ProfileUi.value(user.phone)))
-            changes.add(repository.updatePersonalInfo(userId, personal));
-        if (!Objects.equals(academic.university, ProfileUi.value(user.university)) || !Objects.equals(academic.majorName, ProfileUi.value(user.majorName)))
-            changes.add(repository.updateAcademicInfo(userId, academic));
-        if (!Objects.equals(location, ProfileUi.value(user.location)))
-            changes.add(repository.updateProfileLocation(userId, new UpdateProfileLocationRequest(location)));
-        ProfileUi.inputs(binding.getRoot(), false);
-        binding.btnSave.setEnabled(false);
-        binding.btnCancel.setEnabled(false);
-        dialog.setCancelable(false);
-        saveNext(changes, 0, dialog);
-    }
-
-    private void saveNext(List<Call<BaseResponse<UserDto>>> changes, int index, AlertDialog dialog) {
-        if (index == changes.size()) { ProfileUi.saved(activity); dialog.dismiss(); return; }
-        request(changes.get(index), response -> saveNext(changes, index + 1, dialog), failure -> {
-            ProfileUi.inputs(binding.getRoot(), true);
-            binding.btnSave.setEnabled(true);
-            binding.btnCancel.setEnabled(true);
-            dialog.setCancelable(true);
-            if (index > 0) {
-                ProfileUi.updated(activity);
-                error(activity.getString(R.string.profile_partial_save) + "\n" + failure.message);
-            } else {
-                error(failure.message);
-            }
-        });
+        model.savePersonal(user, personal, academic, location);
     }
 }

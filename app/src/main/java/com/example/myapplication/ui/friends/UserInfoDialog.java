@@ -5,8 +5,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import com.example.myapplication.R;
 import com.example.myapplication.data.local.PreferenceManager;
-import com.example.myapplication.data.repository.profile.ProfileRepository;
-import com.example.myapplication.data.repository.social.FriendRepository;
+import com.example.myapplication.ui.profile.ProfileViewModel;
+import com.example.myapplication.ui.friends.FriendViewModel;
 import com.example.myapplication.databinding.DialogUserInfoBinding;
 import com.example.myapplication.ui.base.BasePreviewDialog;
 import com.example.myapplication.ui.main.MainActivity;
@@ -24,13 +24,14 @@ public class UserInfoDialog extends BasePreviewDialog<DialogUserInfoBinding> {
         super(activity, DialogUserInfoBinding::inflate); this.userId = userId; this.status = status; this.distance = distance;
     }
     @Override protected void bind(View content, AlertDialog dialog) {
+        binding.btnViewProfile.setOnClickListener(view -> { dialog.dismiss(); activity.showScreen(com.example.myapplication.ui.main.UiScreen.PROFILE); });
         binding.tvDistance.setVisibility(distance != null && Double.isFinite(distance) && distance >= 0 ? View.VISIBLE : View.GONE);
         if (distance != null) binding.tvDistance.setText(activity.getString(com.example.myapplication.R.string.radar_distance, distance));
         binding.btnViewProfile.setVisibility(View.GONE);
         binding.btnAddFriend.setEnabled(false);
         if (userId == null || userId.isEmpty() || !new PreferenceManager(activity).isLogin()) return;
-        FriendRepository friends = new FriendRepository(activity);
-        request(new ProfileRepository(activity).getProfile(userId), response -> {
+        FriendViewModel friends = viewModel(com.example.myapplication.ui.friends.FriendViewModel.class);
+        request(viewModel(com.example.myapplication.ui.profile.ProfileViewModel.class).getProfile(userId), response -> {
             if (response.data == null) {
                 Toast.makeText(activity, R.string.profile_empty_response, Toast.LENGTH_LONG).show(); return;
             }
@@ -54,7 +55,7 @@ public class UserInfoDialog extends BasePreviewDialog<DialogUserInfoBinding> {
             if (!binding.btnAddFriend.isEnabled()) return;
             binding.btnAddFriend.setEnabled(false);
             if (SocialUi.friend(status)) {
-                request(new com.example.myapplication.data.repository.chat.ConversationRepository(activity)
+                request(viewModel(com.example.myapplication.ui.chat.ConversationViewModel.class)
                         .createOrGetDirectConversation(new com.example.myapplication.data.remote.dto.request.DirectChatRequest(userId)), response -> {
                     if (response.data == null || response.data.id == null) {
                         action(); Toast.makeText(activity, R.string.chat_missing_data, Toast.LENGTH_LONG).show(); return;
