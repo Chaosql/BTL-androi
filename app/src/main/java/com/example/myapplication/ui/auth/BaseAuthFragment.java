@@ -17,6 +17,15 @@ public abstract class BaseAuthFragment<B extends ViewBinding> extends BaseFragme
     protected String email() { return getArguments() == null ? "" : getArguments().getString(ARG_EMAIL, ""); }
     protected String value(EditText view) { return view.getText().toString().trim(); }
 
+    protected Runnable passwordArtwork(android.widget.ImageView artwork, EditText... passwords) {
+        return () -> {
+            boolean visible = false;
+            for (EditText password : passwords)
+                visible |= !(password.getTransformationMethod() instanceof android.text.method.PasswordTransformationMethod);
+            artwork.setImageResource(visible ? R.drawable.frame1 : R.drawable.frame3);
+        };
+    }
+
     protected boolean validEmail(EditText view) {
         if (AuthViewModel.validEmail(value(view))) { view.setError(null); return true; }
         view.setError(getString(R.string.api_invalid_email));

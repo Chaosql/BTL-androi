@@ -12,9 +12,10 @@ public class ForgotPasswordFragment extends BaseAuthFragment<FragmentForgotPassw
     @Override protected void onScreenCreated(View root, Bundle state) {
         bindFlow(binding.tvConfirm);
         enableScreenCatalog(binding.header, binding.ivPic);
+        Runnable artwork = passwordArtwork(binding.ivPic, binding.edtNewPassword, binding.edtConfirmPassword);
+        toggle(binding.ivTogglePassword, binding.edtNewPassword, artwork);
+        toggle(binding.ivToggleConfirmPassword, binding.edtConfirmPassword, artwork);
         binding.btnBack.setOnClickListener(view -> back());
-        toggle(binding.ivToggleConfirmPassword, binding.edtConfirmPassword);
-        toggle(binding.ivTogglePassword, binding.edtNewPassword);
         binding.tvConfirm.setOnClickListener(view -> {
             if (email().isEmpty()) { go(UiScreen.INPUT_EMAIL); return; }
             if (!binding.edtNewPassword.getText().toString().equals(binding.edtConfirmPassword.getText().toString())) {

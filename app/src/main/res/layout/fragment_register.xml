@@ -273,7 +273,7 @@
                     android:layout_marginEnd="@dimen/_5sdp"
                     android:contentDescription="@string/toggle_password"
                     android:padding="@dimen/_10sdp"
-                    android:src="@drawable/ic_visibility"
+                    android:src="@drawable/ic_visibility_off"
                     app:tint="@color/brown" />
             </FrameLayout>
 
@@ -313,7 +313,7 @@
                     android:layout_marginEnd="@dimen/_5sdp"
                     android:contentDescription="@string/toggle_password"
                     android:padding="@dimen/_10sdp"
-                    android:src="@drawable/ic_visibility"
+                    android:src="@drawable/ic_visibility_off"
                     app:tint="@color/brown" />
             </FrameLayout>
 

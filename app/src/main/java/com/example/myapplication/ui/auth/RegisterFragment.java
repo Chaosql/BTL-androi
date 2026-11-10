@@ -13,9 +13,10 @@ public class RegisterFragment extends BaseAuthFragment<FragmentRegisterBinding> 
     @Override protected void onScreenCreated(View root, Bundle state) {
         bindFlow(binding.tvRegister);
         enableScreenCatalog(binding.header, binding.ivPic);
+        Runnable artwork = passwordArtwork(binding.ivPic, binding.edtPassword, binding.edtConfirmPassword);
+        toggle(binding.ivTogglePassword, binding.edtPassword, artwork);
+        toggle(binding.ivToggleConfirmPassword, binding.edtConfirmPassword, artwork);
         binding.btnBack.setOnClickListener(view -> back());
-        toggle(binding.ivTogglePassword, binding.edtPassword);
-        toggle(binding.ivToggleConfirmPassword, binding.edtConfirmPassword);
         genderSpinner(binding.spGender);
         binding.edtDate.setOnClickListener(view -> pickDate(binding.edtDate));
         binding.ivCalendar.setOnClickListener(view -> pickDate(binding.edtDate));

@@ -72,6 +72,44 @@ public class StudyUiTest {
                     .setInsets(WindowInsetsCompat.Type.systemBars(), Insets.of(0, 24, 0, 32)).build();
             ViewCompat.dispatchApplyWindowInsets(root, closed);
             assertEquals(32, root.getPaddingBottom());
+            android.graphics.Bitmap pixels = android.graphics.Bitmap.createBitmap(100, 100, android.graphics.Bitmap.Config.ARGB_8888);
+            android.graphics.drawable.Drawable background = root.getBackground();
+            android.graphics.Rect bounds = new android.graphics.Rect(background.getBounds());
+            background.setBounds(0, 0, 100, 100); background.draw(new android.graphics.Canvas(pixels));
+            assertEquals(controller.get().getColor(R.color.bg), pixels.getPixel(50, 1));
+            assertEquals(controller.get().getColor(R.color.bg_2), pixels.getPixel(50, 99));
+            background.setBounds(bounds); pixels.recycle();
+        }
+    }
+
+    @Test public void sendOtpRemainsInsideViewportWhenKeyboardOpensAndCloses() {
+        try (ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = controller.get();
+            activity.getSupportFragmentManager().executePendingTransactions();
+            activity.showScreen(UiScreen.INPUT_EMAIL);
+            activity.getSupportFragmentManager().executePendingTransactions();
+            View root = activity.findViewById(R.id.main);
+            View button = activity.findViewById(R.id.btnSendEmail);
+            android.widget.EditText email = activity.findViewById(R.id.edtEmail);
+            email.requestFocus(); email.setText("student@example.com");
+            float density = activity.getResources().getDisplayMetrics().density;
+            int width = (int) (360 * density), height = (int) (640 * density);
+            for (int keyboardHeight : new int[]{0, 300, 0}) {
+                ViewCompat.dispatchApplyWindowInsets(root, new WindowInsetsCompat.Builder()
+                        .setInsets(WindowInsetsCompat.Type.systemBars(), Insets.of(0, (int) (24 * density), 0, (int) (32 * density)))
+                        .setInsets(WindowInsetsCompat.Type.ime(), Insets.of(0, 0, 0, (int) (keyboardHeight * density))).build());
+                root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));
+                root.layout(0, 0, width, height);
+                android.graphics.Rect bounds = new android.graphics.Rect(0, 0, button.getWidth(), button.getHeight());
+                ((android.view.ViewGroup) root).offsetDescendantRectToMyCoords(button, bounds);
+                assertEquals(View.VISIBLE, button.getVisibility());
+                assertTrue(button.isEnabled());
+                assertTrue(bounds.height() > 0);
+                assertTrue(bounds.top >= root.getPaddingTop());
+                assertTrue(bounds.bottom <= height - root.getPaddingBottom());
+                assertEquals("student@example.com", email.getText().toString());
+            }
         }
     }
 
@@ -164,7 +202,11 @@ public class StudyUiTest {
             assertEquals(3, form.spGender.getAdapter().getCount());
             form.edtPassword.setText("Password123");
             form.edtConfirmPassword.setText("Password123");
+            assertTrue(!form.ivTogglePassword.isSelected());
             form.ivTogglePassword.performClick();
+            assertTrue(form.ivTogglePassword.isSelected());
+            assertTrue(!form.ivToggleConfirmPassword.isSelected());
+            assertEquals(activity.getString(R.string.password_hide), form.ivTogglePassword.getContentDescription());
             assertEquals(null, form.edtPassword.getTransformationMethod());
             assertTrue(form.edtConfirmPassword.getTransformationMethod()
                     instanceof android.text.method.PasswordTransformationMethod);
@@ -173,6 +215,8 @@ public class StudyUiTest {
             form.ivTogglePassword.performClick();
             assertTrue(form.edtPassword.getTransformationMethod()
                     instanceof android.text.method.PasswordTransformationMethod);
+            assertTrue(!form.ivTogglePassword.isSelected());
+            assertEquals(activity.getString(R.string.password_show), form.ivTogglePassword.getContentDescription());
             assertEquals(form.edtPassword.length(), form.edtPassword.getSelectionStart());
             form.ivCalendar.performClick();
             android.app.DatePickerDialog picker = (android.app.DatePickerDialog)
@@ -186,6 +230,31 @@ public class StudyUiTest {
             assertTrue(activity.getSupportFragmentManager().findFragmentById(R.id.screenHost)
                     instanceof com.example.myapplication.ui.auth.LoginFragment);
         }
+    }
+
+    @Test public void passwordArtworkChangesAndStaysVisibleUntilAllFieldsAreHidden() {
+        try (ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = controller.get(); activity.getSupportFragmentManager().executePendingTransactions();
+            for (UiScreen screen : new UiScreen[]{UiScreen.LOGIN, UiScreen.REGISTER, UiScreen.FORGOT_PASSWORD}) {
+                activity.showScreen(screen); activity.getSupportFragmentManager().executePendingTransactions();
+                View root = activity.getSupportFragmentManager().findFragmentById(R.id.screenHost).requireView();
+                android.widget.ImageView artwork = root.findViewById(R.id.ivPic);
+                View first = root.findViewById(R.id.ivTogglePassword);
+                View second = root.findViewById(R.id.ivToggleConfirmPassword);
+                assertEquals(R.drawable.frame3, imageResource(artwork));
+                first.performClick(); assertEquals(R.drawable.frame1, imageResource(artwork));
+                if (second != null) {
+                    second.performClick(); first.performClick();
+                    assertEquals(R.drawable.frame1, imageResource(artwork));
+                    second.performClick();
+                } else first.performClick();
+                assertEquals(R.drawable.frame3, imageResource(artwork));
+            }
+        }
+    }
+    private int imageResource(android.widget.ImageView view) {
+        org.robolectric.shadows.ShadowDrawable drawable = org.robolectric.shadow.api.Shadow.extract(view.getDrawable());
+        return drawable.getCreatedFromResId();
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

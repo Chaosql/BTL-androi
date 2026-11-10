@@ -103,11 +103,24 @@ public abstract class BaseFragment<B extends androidx.viewbinding.ViewBinding> e
                 String.format(Locale.getDefault(), "%02d/%02d/%04d", day, month + 1, year)),
                 now.getYear(), now.getMonthValue() - 1, now.getDayOfMonth()).show();
     }
-    protected void toggle(View toggle, EditText input) {
+    protected void toggle(android.widget.ImageView toggle, EditText input) {
+        toggle(toggle, input, () -> { });
+    }
+    protected void toggle(android.widget.ImageView toggle, EditText input, Runnable visibilityChanged) {
+        updatePasswordToggle(toggle, input);
+        visibilityChanged.run();
         toggle.setOnClickListener(view -> {
             boolean hidden = input.getTransformationMethod() instanceof PasswordTransformationMethod;
             input.setTransformationMethod(hidden ? null : PasswordTransformationMethod.getInstance());
             input.setSelection(input.length());
+            updatePasswordToggle(toggle, input);
+            visibilityChanged.run();
         });
+    }
+    private void updatePasswordToggle(android.widget.ImageView toggle, EditText input) {
+        boolean visible = !(input.getTransformationMethod() instanceof PasswordTransformationMethod);
+        toggle.setSelected(visible);
+        toggle.setImageResource(visible ? R.drawable.ic_visibility : R.drawable.ic_visibility_off);
+        toggle.setContentDescription(getString(visible ? R.string.password_hide : R.string.password_show));
     }
 }

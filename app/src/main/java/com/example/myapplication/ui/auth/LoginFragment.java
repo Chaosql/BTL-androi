@@ -13,7 +13,8 @@ public class LoginFragment extends BaseAuthFragment<FragmentLoginBinding> {
     public LoginFragment() { super(FragmentLoginBinding::inflate); }
     @Override protected void onScreenCreated(View root, Bundle state) {
         enableScreenCatalog(binding.header, binding.ivPic);
-        toggle(binding.ivTogglePassword, binding.edtPassword);
+        Runnable artwork = passwordArtwork(binding.ivPic, binding.edtPassword);
+        toggle(binding.ivTogglePassword, binding.edtPassword, artwork);
         AuthViewModel model = viewModel(AuthViewModel.class);
         model.signInState().observe(getViewLifecycleOwner(), result -> {
             if (result == null) return;
