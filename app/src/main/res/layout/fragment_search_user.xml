@@ -98,7 +98,8 @@
             android:clipToPadding="false"
             android:paddingTop="@dimen/_10sdp"
             android:paddingBottom="@dimen/_15sdp"
-            tools:listitem="@layout/item_user_search_result" />
+            tools:listitem="@layout/item_user_search_result"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     </LinearLayout>
 

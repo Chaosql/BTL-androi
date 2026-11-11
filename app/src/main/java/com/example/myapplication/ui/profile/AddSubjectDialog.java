@@ -16,6 +16,17 @@ public class AddSubjectDialog extends BaseProfileDialog<DialogAddSubjectBinding>
     }
 
     @Override protected void bind(View content, AlertDialog dialog) {
+        binding.etSubjectName.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence text, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence text, int start, int before, int count) {
+                if (binding != null && binding.btnConfirmAdd.isEnabled()) clearError();
+            }
+            @Override public void afterTextChanged(android.text.Editable text) { }
+        });
+        binding.rgSubjectType.setOnCheckedChangeListener((group, checked) -> {
+            if (binding.btnConfirmAdd.isEnabled()) clearError();
+        });
+        if (userId.isEmpty()) error(activity.getString(R.string.api_invalid_login));
         binding.btnCancelAdd.setOnClickListener(view -> dialog.dismiss());
         binding.btnConfirmAdd.setEnabled(false);
         if (!userId.isEmpty()) request(model.getSubjects(userId, null), response -> {
@@ -23,10 +34,13 @@ public class AddSubjectDialog extends BaseProfileDialog<DialogAddSubjectBinding>
             binding.btnConfirmAdd.setEnabled(true);
         }, failure -> error(failure.message));
         binding.btnConfirmAdd.setOnClickListener(view -> {
-            if (!ProfileUi.required(binding.etSubjectName)) return;
+            clearError();
             String name = ProfileUi.value(binding.etSubjectName);
+            if (name.isEmpty()) {
+                binding.etSubjectName.requestFocus(); error(activity.getString(R.string.profile_subject_required)); return;
+            }
             if (model.hasSubject(name)) {
-                binding.etSubjectName.setError(activity.getString(R.string.profile_duplicate_subject)); return;
+                error(activity.getString(R.string.profile_duplicate_subject)); return;
             }
             if (binding.rgSubjectType.getCheckedRadioButtonId() == -1) {
                 error(activity.getString(R.string.profile_choose_type)); return;
@@ -49,4 +63,14 @@ public class AddSubjectDialog extends BaseProfileDialog<DialogAddSubjectBinding>
             });
         });
     }
+    @Override protected void error(String message) {
+        if (binding == null) return;
+        binding.tvSubjectError.setText(message);
+        binding.tvSubjectError.setVisibility(View.VISIBLE);
+    }
+    private void clearError() {
+        binding.tvSubjectError.setText(null);
+        binding.tvSubjectError.setVisibility(View.GONE);
+    }
+
 }

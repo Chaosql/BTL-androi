@@ -24,6 +24,7 @@ import java.util.*;
 import com.example.myapplication.ui.base.UiOperation;
 
 public class MapFragment extends BaseFragment<FragmentMapBinding> {
+    private android.widget.Toast radarToast;
     private StudyMap studyMap;
     private DeviceLocation location;
     private MapViewModel model;
@@ -77,7 +78,7 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
         users = Collections.emptyList(); link = 0;
         studyMap = new StudyMap(binding.mapView, message -> {
             if (binding == null || message.isEmpty() || message.equals(getString(R.string.map_loading))) return;
-            android.widget.Toast.makeText(requireContext(), message, android.widget.Toast.LENGTH_LONG).show();
+            showRadarToast(message);
         });
         studyMap.create(state == null ? null : state.getBundle("map_state"));
         studyMap.onUserClick(this::openUser);
@@ -93,9 +94,7 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
             else if (result.status == com.example.myapplication.ui.base.UiState.Status.SUCCESS) {
                 busy(false); users = result.data.users;
                 studyMap.showRadar(result.data.latitude, result.data.longitude, result.data.radius, users);
-                binding.tvRadarStatus.setTextColor(requireContext().getColor(R.color.input_text));
-                binding.tvRadarStatus.setVisibility(View.VISIBLE);
-                binding.tvRadarStatus.setText(users.isEmpty() ? getString(R.string.radar_empty, radius)
+                showRadarToast(users.isEmpty() ? getString(R.string.radar_empty, radius)
                         : getString(R.string.radar_results, users.size(), radius)); link = users.isEmpty() ? 0 : 4;
             }
         });
@@ -109,8 +108,11 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
         binding.btnRadar.setOnClickListener(view -> scan());
         binding.imgGroupRadar.setOnClickListener(view -> scan());
         binding.layoutRadar.setOnClickListener(view -> scan());
-        binding.tvRadarStatus.setOnClickListener(view -> statusAction());
-        binding.tvRadarStatus.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
+        for (View radar : new View[]{binding.btnRadar, binding.imgGroupRadar, binding.layoutRadar})
+            radar.setOnLongClickListener(view -> {
+                if (busy || users.isEmpty()) return false;
+                statusAction(); return true;
+            });
         binding.etDistance.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence text, int start, int count, int after) { }
             @Override public void onTextChanged(CharSequence text, int start, int before, int count) {
@@ -130,21 +132,24 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
         binding.btnRadar.setEnabled(!value); binding.imgGroupRadar.setEnabled(!value);
         binding.layoutRadar.setEnabled(!value); binding.etDistance.setEnabled(!value);
         binding.btnRadar.setImageResource(value ? R.drawable.radaring : R.drawable.radar);
+        if (!value && studyMap != null) studyMap.stopRadar();
     }
     private void status(int text, int action) {
-        boolean idle = text == R.string.radar_hint;
-        boolean progress = text == R.string.radar_checking || text == R.string.radar_locating || text == R.string.radar_scanning;
-        if (!idle && !progress) { showRadarError(getString(text)); return; }
-        binding.tvRadarStatus.setTextColor(requireContext().getColor(R.color.input_text));
-        binding.tvRadarStatus.setText(idle ? "" : getString(text));
-        binding.tvRadarStatus.setVisibility(idle ? View.GONE : View.VISIBLE);
         link = action;
+        if (text == R.string.radar_hint) {
+            if (radarToast != null) { radarToast.cancel(); radarToast = null; }
+            return;
+        }
+        showRadarToast(getString(text));
+    }
+    private void showRadarToast(String message) {
+        if (radarToast != null) radarToast.cancel();
+        radarToast = android.widget.Toast.makeText(requireContext(), message, android.widget.Toast.LENGTH_LONG);
+        radarToast.show();
     }
     private void showRadarError(String message) {
-        binding.tvRadarStatus.setText(null);
-        binding.tvRadarStatus.setVisibility(View.GONE);
         link = 0;
-        android.widget.Toast.makeText(requireContext(), message, android.widget.Toast.LENGTH_LONG).show();
+        showRadarToast(message);
     }
     private void scan() {
         if (busy || awaitingPermission) return;
@@ -191,7 +196,10 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
         });
     }
     private void scan(Location point, int current) {
-        if (current(current)) model.scan(point.getLatitude(), point.getLongitude(), radius);
+        if (current(current)) {
+            studyMap.startRadar(point.getLatitude(), point.getLongitude(), radius);
+            model.scan(point.getLatitude(), point.getLongitude(), radius);
+        }
     }
     private void failed(String message) {
         active = null; busy(false);
@@ -241,6 +249,7 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
     }
     @Override public void onLowMemory() { super.onLowMemory(); if (studyMap != null) studyMap.lowMemory(); }
     @Override public void onDestroyView() {
+        if (radarToast != null) { radarToast.cancel(); radarToast = null; }
         ++version;
         if (model != null) model.cancelRadar();
         if (location != null) location.cancel();

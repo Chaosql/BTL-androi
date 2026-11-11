@@ -63,6 +63,7 @@
         android:paddingHorizontal="@dimen/_15sdp"
         android:paddingTop="@dimen/_8sdp"
         android:paddingBottom="@dimen/_15sdp"
-        tools:listitem="@layout/item_blocked_user" />
+        tools:listitem="@layout/item_blocked_user"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
 </LinearLayout>

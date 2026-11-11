@@ -74,18 +74,14 @@
                         android:textSize="@dimen/_15ssp"
                         android:textStyle="bold" />
 
-                    <EditText
+                    <EditText style="@style/StudyDateInput"
                         android:id="@+id/edtLastName"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/_45sdp"
                         android:layout_marginTop="@dimen/_5sdp"
-                        android:background="@drawable/bg_edittext"
-                        android:backgroundTint="@null"
                         android:hint="@string/hint_last_name"
                         android:inputType="textPersonName"
-                        android:paddingHorizontal="@dimen/_10sdp"
-                        android:textColor="@color/input_text"
-                        android:textColorHint="@color/hint" />
+                        android:paddingHorizontal="@dimen/_10sdp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -105,18 +101,14 @@
                         android:textSize="@dimen/_15ssp"
                         android:textStyle="bold" />
 
-                    <EditText
+                    <EditText style="@style/StudyDateInput"
                         android:id="@+id/edtFirstName"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/_45sdp"
                         android:layout_marginTop="@dimen/_5sdp"
-                        android:background="@drawable/bg_edittext"
-                        android:backgroundTint="@null"
                         android:hint="@string/hint_first_name"
                         android:inputType="textPersonName"
-                        android:paddingHorizontal="@dimen/_10sdp"
-                        android:textColor="@color/input_text"
-                        android:textColorHint="@color/hint" />
+                        android:paddingHorizontal="@dimen/_10sdp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -188,17 +180,13 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/_5sdp">
 
-                        <EditText
+                        <EditText style="@style/StudyDateInput"
                             android:id="@+id/edtDate"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/_45sdp"
-                            android:background="@drawable/bg_edittext"
-                            android:backgroundTint="@null"
                             android:hint="@string/hint_birth_date"
                             android:paddingStart="@dimen/_10sdp"
-                            android:paddingEnd="@dimen/_50sdp"
-                            android:textColor="@color/input_text"
-                            android:textColorHint="@color/hint" />
+                            android:paddingEnd="@dimen/_50sdp" />
 
                         <ImageView
                             android:id="@+id/ivCalendar"
@@ -224,18 +212,14 @@
                 android:textSize="@dimen/_15ssp"
                 android:textStyle="bold" />
 
-            <EditText
+            <EditText style="@style/StudyDateInput"
                 android:id="@+id/edtEmail"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_45sdp"
                 android:layout_marginTop="@dimen/_5sdp"
-                android:background="@drawable/bg_edittext"
-                android:backgroundTint="@null"
                 android:hint="@string/email_hint"
                 android:inputType="textEmailAddress"
-                android:paddingHorizontal="@dimen/_10sdp"
-                android:textColor="@color/input_text"
-                android:textColorHint="@color/hint" />
+                android:paddingHorizontal="@dimen/_10sdp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -252,18 +236,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_5sdp">
 
-                <EditText
+                <EditText style="@style/StudyDateInput"
                     android:id="@+id/edtPassword"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_45sdp"
-                    android:background="@drawable/bg_edittext"
-                    android:backgroundTint="@null"
                     android:hint="@string/password_hint"
                     android:inputType="textPassword"
                     android:paddingStart="@dimen/_10sdp"
-                    android:paddingEnd="@dimen/_50sdp"
-                    android:textColor="@color/input_text"
-                    android:textColorHint="@color/hint" />
+                    android:paddingEnd="@dimen/_50sdp" />
 
                 <ImageView
                     android:id="@+id/ivTogglePassword"
@@ -292,18 +272,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_5sdp">
 
-                <EditText
+                <EditText style="@style/StudyDateInput"
                     android:id="@+id/edtConfirmPassword"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_45sdp"
-                    android:background="@drawable/bg_edittext"
-                    android:backgroundTint="@null"
                     android:hint="@string/confirm_password"
                     android:inputType="textPassword"
                     android:paddingStart="@dimen/_10sdp"
-                    android:paddingEnd="@dimen/_50sdp"
-                    android:textColor="@color/input_text"
-                    android:textColorHint="@color/hint" />
+                    android:paddingEnd="@dimen/_50sdp" />
 
                 <ImageView
                     android:id="@+id/ivToggleConfirmPassword"
@@ -317,15 +293,13 @@
                     app:tint="@color/brown" />
             </FrameLayout>
 
-            <TextView
+            <TextView style="@style/StudyDateErrorText"
                 android:id="@+id/tvPasswordError"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/_5sdp"
                 android:layout_marginTop="@dimen/_5sdp"
-                android:textColor="@color/error"
-                android:textSize="@dimen/_15ssp"
-                android:visibility="gone" />
+                android:textSize="@dimen/_15ssp" />
 
             <TextView
                 android:id="@+id/tvRegister"

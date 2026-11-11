@@ -2,7 +2,6 @@ package com.example.myapplication.ui.friends;
 
 import android.os.Bundle;
 import android.view.View;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.myapplication.R;
 import com.example.myapplication.data.remote.dto.response.FriendDto;
 import com.example.myapplication.databinding.FragmentFriendsListBinding;
@@ -21,7 +20,7 @@ public class FriendsListFragment extends BaseSocialFragment<FragmentFriendsListB
         pages = friends().friendsPage();
         adapter = new FriendsAdapter(item -> user(item.userId, "FRIEND"),
                 item -> new FriendOptionsDialog(host(), item).show());
-        binding.rvFriendsList.setLayoutManager(new LinearLayoutManager(requireContext()));
+
         binding.rvFriendsList.setAdapter(adapter);
         pages.state().observe(getViewLifecycleOwner(), state -> {
             adapter.submit(state.items);

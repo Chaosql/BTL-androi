@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_edittext"
+    android:orientation="vertical"
+    android:padding="@dimen/_16sdp">
+    <TextView
+        android:id="@+id/tvChoiceTitle"
+        style="@style/StudyDateDialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center" />
+    <ListView
+        android:id="@+id/listChoices"
+        android:layout_width="match_parent"
+        android:layout_height="320dp"
+        android:layout_marginTop="@dimen/_12sdp"
+        android:divider="@color/hint"
+        android:dividerHeight="1dp" />
+    <TextView
+        android:id="@+id/btnCloseChoices"
+        style="@style/StudyDateDialogActionSecondary"
+        android:layout_width="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="@dimen/_12sdp"
+        android:text="@string/btn_close" />
+</LinearLayout>

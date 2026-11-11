@@ -7,27 +7,27 @@
     android:padding="@dimen/_16sdp">
 
     
-    <TextView
+    <TextView style="@style/StudyDateDialogTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/ui_dialog_add_subject_text_1"
-        android:textColor="@color/brown"
-        android:textSize="@dimen/_16ssp"
-        android:textStyle="bold" />
+        android:text="@string/ui_dialog_add_subject_text_1" />
 
-    <EditText
+    <EditText style="@style/StudyDateInput"
         android:id="@+id/etSubjectName"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_42sdp"
         android:layout_marginTop="@dimen/_12sdp"
-        android:background="@drawable/bg_edittext"
-        android:backgroundTint="@null"
         android:hint="@string/ui_dialog_add_subject_hint_2"
         android:inputType="text"
         android:paddingHorizontal="@dimen/_12sdp"
-        android:textColor="@color/input_text"
-        android:textColorHint="@color/hint"
+        android:textSize="@dimen/_12ssp" />
+
+    <TextView style="@style/StudyDateErrorText"
+        android:id="@+id/tvSubjectError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_6sdp"
+        android:accessibilityLiveRegion="polite"
         android:textSize="@dimen/_12ssp" />
 
     <TextView
@@ -73,30 +73,16 @@
         android:gravity="end"
         android:orientation="horizontal">
 
-        <TextView
+        <TextView style="@style/StudyDateDialogActionSecondary"
             android:id="@+id/btnCancelAdd"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/_36sdp"
             android:layout_marginEnd="@dimen/_10sdp"
-            android:background="@drawable/bg_card_retro"
-            android:gravity="center"
-            android:paddingHorizontal="@dimen/_18sdp"
-            android:text="@string/cancel"
-            android:textColor="@color/brown"
-            android:textSize="@dimen/_12ssp"
-            android:textStyle="bold" />
+            android:text="@string/cancel" />
 
-        <TextView
+        <TextView style="@style/StudyDateDialogActionPrimary"
             android:id="@+id/btnConfirmAdd"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/_36sdp"
-            android:background="@drawable/bg_button"
-            android:gravity="center"
-            android:paddingHorizontal="@dimen/_18sdp"
-            android:text="@string/confirm"
-            android:textColor="@color/brown"
-            android:textSize="@dimen/_12ssp"
-            android:textStyle="bold" />
+            android:text="@string/confirm" />
     </LinearLayout>
 
 </LinearLayout>

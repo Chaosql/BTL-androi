@@ -1,24 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout style="@style/StudyDatePopupContainer" xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/bg_edittext"
-    android:elevation="@dimen/_8sdp"
-    android:orientation="vertical"
-    android:padding="@dimen/_6sdp">
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
-    <LinearLayout
+    <LinearLayout style="@style/StudyDatePopupRow"
         android:id="@+id/btnMenuNewChat"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="@dimen/_12sdp"
-        android:paddingVertical="@dimen/_10sdp">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:layout_width="@dimen/_18sdp"
@@ -26,14 +15,10 @@
             android:src="@drawable/ic_plus"
             app:tint="@color/brown" />
 
-        <TextView
+        <TextView style="@style/StudyDatePopupLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/_10sdp"
-            android:text="@string/ui_layout_friends_menu_popup_text_1"
-            android:textColor="@color/brown"
-            android:textSize="@dimen/_13ssp"
-            android:textStyle="bold" />
+            android:text="@string/ui_layout_friends_menu_popup_text_1" />
     </LinearLayout>
 
     <View
@@ -41,17 +26,10 @@
         android:layout_height="1dp"
         android:background="@color/hint" />
 
-    <LinearLayout
+    <LinearLayout style="@style/StudyDatePopupRow"
         android:id="@+id/btnMenuPendingRequests"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="@dimen/_12sdp"
-        android:paddingVertical="@dimen/_10sdp">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:layout_width="@dimen/_18sdp"
@@ -59,14 +37,10 @@
             android:src="@drawable/ic_notification"
             app:tint="@color/brown" />
 
-        <TextView
+        <TextView style="@style/StudyDatePopupLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/_10sdp"
-            android:text="@string/ui_fragment_pending_requests_text_1"
-            android:textColor="@color/brown"
-            android:textSize="@dimen/_13ssp"
-            android:textStyle="bold" />
+            android:text="@string/ui_fragment_pending_requests_text_1" />
     </LinearLayout>
 
 </LinearLayout>

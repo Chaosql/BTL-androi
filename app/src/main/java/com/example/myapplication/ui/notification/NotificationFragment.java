@@ -16,6 +16,7 @@ import com.example.myapplication.ui.schedule.BookingUi;
 import java.util.Locale;
 
 public class NotificationFragment extends BaseFragment<FragmentNotificationBinding> {
+    private android.widget.PopupWindow notificationMenu;
     private NotificationViewModel model;
     private NotificationAdapter recent, earlier;
     private androidx.appcompat.app.AlertDialog readAllDialog;
@@ -31,10 +32,17 @@ public class NotificationFragment extends BaseFragment<FragmentNotificationBindi
         binding.tvNotificationMore.setOnClickListener(view -> model.loadInbox());
         binding.tvMarkAllRead.setOnClickListener(view -> markAll());
         binding.btnNotificationMenu.setOnClickListener(view -> {
-            android.widget.PopupMenu menu = new android.widget.PopupMenu(requireContext(), view);
-            menu.getMenu().add(0, R.string.notification_settings, 0, R.string.notification_settings).setOnMenuItemClickListener(item -> { go(UiScreen.NOTIFICATION_SETTINGS); return true; });
-            menu.getMenu().add(0, R.string.notification_delete_all, 1, R.string.notification_delete_all).setOnMenuItemClickListener(item -> { delete(null); return true; });
-            menu.show();
+            if (notificationMenu != null && notificationMenu.isShowing()) { notificationMenu.dismiss(); return; }
+            com.example.myapplication.databinding.LayoutNotificationMenuPopupBinding menu =
+                    com.example.myapplication.databinding.LayoutNotificationMenuPopupBinding.inflate(getLayoutInflater());
+            menu.actionNotificationSettings.setOnClickListener(item -> {
+                notificationMenu.dismiss(); go(UiScreen.NOTIFICATION_SETTINGS);
+            });
+            menu.actionNotificationDeleteAll.setOnClickListener(item -> {
+                notificationMenu.dismiss(); delete(null);
+            });
+            notificationMenu = com.example.myapplication.ui.main.UiDialogs.showAnchoredPopup(
+                    (MainActivity) requireActivity(), view, menu.getRoot());
         });
         model.inbox().observe(getViewLifecycleOwner(), this::render);
         model.initializeInbox();
@@ -119,6 +127,7 @@ public class NotificationFragment extends BaseFragment<FragmentNotificationBindi
         Toast.makeText(requireContext(), R.string.notification_no_target, Toast.LENGTH_SHORT).show();
     }
     @Override public void onDestroyView() {
+        if (notificationMenu != null) { notificationMenu.dismiss(); notificationMenu = null; }
         if (readAllDialog != null) { readAllDialog.dismiss(); readAllDialog = null; }
         super.onDestroyView();
     }

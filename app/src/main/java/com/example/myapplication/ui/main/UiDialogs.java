@@ -35,7 +35,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Gravity;
 import android.widget.PopupWindow;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public final class UiDialogs {
     public static final int[] LAYOUTS = {
@@ -57,9 +56,8 @@ public final class UiDialogs {
     }
 
     public static void showCatalog(MainActivity activity) {
-        new MaterialAlertDialogBuilder(activity).setTitle(activity.getString(R.string.ui_mainactivity_text_1))
-                .setItems(titles(activity), (dialog, which) -> show(activity, LAYOUTS[which]))
-                .setNegativeButton(activity.getString(R.string.btn_close), null).show();
+        new ChoiceListDialog(activity, R.string.ui_mainactivity_text_1, titles(activity),
+                which -> show(activity, LAYOUTS[which])).show();
     }
 
     public static void show(MainActivity activity, int layout) {
@@ -87,11 +85,7 @@ public final class UiDialogs {
             binding = com.example.myapplication.databinding.LayoutMessageActionsBinding.inflate(LayoutInflater.from(activity));
         else throw new IllegalArgumentException("Unknown popup layout: " + layout);
         View content = binding.getRoot();
-        PopupWindow popup = new PopupWindow(content, ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        popup.setOutsideTouchable(true);
-        popup.setElevation(8 * activity.getResources().getDisplayMetrics().density);
+        PopupWindow popup = createPopup(activity, content);
         if (binding instanceof com.example.myapplication.databinding.LayoutFriendsMenuPopupBinding) {
             com.example.myapplication.databinding.LayoutFriendsMenuPopupBinding menu =
                     (com.example.myapplication.databinding.LayoutFriendsMenuPopupBinding) binding;
@@ -107,13 +101,7 @@ public final class UiDialogs {
             actions.tvRecall.setOnClickListener(view -> popup.dismiss());
             actions.tvDelete.setOnClickListener(view -> popup.dismiss());
         }
-        android.graphics.Rect bounds = new android.graphics.Rect();
-        anchor.getWindowVisibleDisplayFrame(bounds);
-        int maxWidth = Math.min(bounds.width(), (int) (360 * activity.getResources().getDisplayMetrics().density));
-        content.measure(View.MeasureSpec.makeMeasureSpec(maxWidth, View.MeasureSpec.AT_MOST),
-                View.MeasureSpec.makeMeasureSpec(bounds.height(), View.MeasureSpec.AT_MOST));
-        popup.setWidth(Math.min(maxWidth, content.getMeasuredWidth()));
-        popup.setHeight(Math.min(bounds.height(), content.getMeasuredHeight()));
+        android.graphics.Rect bounds = measurePopup(activity, anchor, popup);
         if (layout == R.layout.layout_friends_menu_popup) {
             popup.showAsDropDown(anchor, 0, 0, Gravity.END);
         } else {
@@ -126,6 +114,32 @@ public final class UiDialogs {
         }
     }
 
+
+    public static PopupWindow showAnchoredPopup(MainActivity activity, View anchor, View content) {
+        PopupWindow popup = createPopup(activity, content);
+        measurePopup(activity, anchor, popup);
+        popup.showAsDropDown(anchor, 0, 0, Gravity.END);
+        return popup;
+    }
+    private static PopupWindow createPopup(MainActivity activity, View content) {
+        PopupWindow popup = new PopupWindow(content, ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        popup.setOutsideTouchable(true);
+        popup.setElevation(8 * activity.getResources().getDisplayMetrics().density);
+        return popup;
+    }
+    private static android.graphics.Rect measurePopup(MainActivity activity, View anchor, PopupWindow popup) {
+        View content = popup.getContentView();
+        android.graphics.Rect bounds = new android.graphics.Rect();
+        anchor.getWindowVisibleDisplayFrame(bounds);
+        int maxWidth = Math.min(bounds.width(), (int) (360 * activity.getResources().getDisplayMetrics().density));
+        content.measure(View.MeasureSpec.makeMeasureSpec(maxWidth, View.MeasureSpec.AT_MOST),
+                View.MeasureSpec.makeMeasureSpec(bounds.height(), View.MeasureSpec.AT_MOST));
+        popup.setWidth(Math.min(maxWidth, content.getMeasuredWidth()));
+        popup.setHeight(Math.min(bounds.height(), content.getMeasuredHeight()));
+        return bounds;
+    }
 
     private UiDialogs() { }
 }

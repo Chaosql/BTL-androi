@@ -47,8 +47,8 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> {
                 saved == null ? 0 : saved.getLong("pending_since", 0), saved == null ? null : saved.getStringArrayList("known_ids"));
         adapter = new MessageAdapter(self, this::actions, id -> new BookingDetailDialog((MainActivity) requireActivity(), id).show(),
                 message -> new ImageViewerDialog((MainActivity) requireActivity(), ChatUi.imageUrl(message)).show(getViewLifecycleOwner()));
-        LinearLayoutManager manager = new LinearLayoutManager(requireContext()); manager.setStackFromEnd(true);
-        binding.rvChatMessages.setLayoutManager(manager); binding.rvChatMessages.setAdapter(adapter);
+        LinearLayoutManager manager = (LinearLayoutManager) binding.rvChatMessages.getLayoutManager();
+        binding.rvChatMessages.setAdapter(adapter);
         binding.tvChatTitle.setText(name.isEmpty() ? getString(R.string.chat_conversations) : name);
         binding.layoutOnlineStatus.setVisibility(View.VISIBLE);
         binding.btnSend.setOnClickListener(view -> { if (binding.btnSend.isEnabled()) model.send(binding.etMessage.getText().toString()); });

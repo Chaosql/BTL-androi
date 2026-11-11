@@ -69,12 +69,10 @@ public class MainActivity extends com.example.myapplication.ui.base.BaseActivity
         String[] labels = new String[screens.length + 1];
         for (int i = 0; i < screens.length; i++) labels[i] = getString(screens[i].title);
         labels[screens.length] = getString(R.string.ui_mainactivity_text_1);
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle(getString(R.string.ui_mainactivity_text_2))
-                .setItems(labels, (dialog, which) -> {
-                    if (which == screens.length) UiDialogs.showCatalog(this);
-                    else showScreen(screens[which]);
-                }).setNegativeButton(getString(R.string.btn_close), null).show();
+        new ChoiceListDialog(this, R.string.ui_mainactivity_text_2, labels, which -> {
+            if (which == screens.length) UiDialogs.showCatalog(this);
+            else showScreen(screens[which]);
+        }).show();
     }
 
     @Override protected void onDestroy() {

@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.profile;
 
 import android.os.Looper;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
@@ -33,6 +34,7 @@ public class ProfileApiUiTest {
     private JsonObject user;
     private JsonArray subjects;
     private final List<String> mutations = Collections.synchronizedList(new ArrayList<>());
+    private volatile boolean failSubject;
     private volatile boolean failAcademic;
     private volatile boolean failIntroduction;
 
@@ -56,6 +58,7 @@ public class ProfileApiUiTest {
                 if (path.endsWith("/status-tag") && failIntroduction)
                     return new MockResponse().setResponseCode(422).setBody("{\"message\":\"Rejected\"}");
                 if (path.endsWith("/subjects")) {
+                    if (failSubject) return new MockResponse().setResponseCode(422).setBody("{\"message\":\"Subject rejected\"}");
                     JsonObject subject = JsonParser.parseString(body).getAsJsonObject();
                     subject.addProperty("id", "s2");
                     subjects.add(subject);
@@ -195,9 +198,15 @@ public class ProfileApiUiTest {
         android.app.Dialog add = ShadowDialog.getLatestDialog();
         await(() -> add.findViewById(R.id.btnConfirmAdd).isEnabled());
         EditText name = add.findViewById(R.id.etSubjectName);
-        name.setText(" java ");
         add.findViewById(R.id.btnConfirmAdd).performClick();
-        assertNotNull(name.getError());
+        assertEquals(activity.getString(R.string.profile_subject_required), ((TextView) add.findViewById(R.id.tvSubjectError)).getText().toString());
+        assertEquals(0, mutations.size());
+        name.setText(" java ");
+        assertEquals(View.GONE, add.findViewById(R.id.tvSubjectError).getVisibility());
+        add.findViewById(R.id.btnConfirmAdd).performClick();
+        assertNull(name.getError());
+        assertEquals(View.VISIBLE, add.findViewById(R.id.tvSubjectError).getVisibility());
+        assertEquals(activity.getString(R.string.profile_duplicate_subject), ((TextView) add.findViewById(R.id.tvSubjectError)).getText().toString());
         assertEquals(0, mutations.size());
         name.setText("Android");
         add.findViewById(R.id.rbReview).performClick();
@@ -207,6 +216,28 @@ public class ProfileApiUiTest {
         assertEquals(2, subjects.size());
         assertTrue(mutations.get(0).contains("NEED_REVIEW"));
         management.dismiss();
+    }
+
+    @Test public void subjectApiFailureStaysInlineAndAllowsRetry() throws Exception {
+        new AddSubjectDialog(activity).show();
+        android.app.Dialog dialog = ShadowDialog.getLatestDialog();
+        await(() -> dialog.findViewById(R.id.btnConfirmAdd).isEnabled());
+        EditText name = dialog.findViewById(R.id.etSubjectName);
+        name.setText("Android");
+        failSubject = true;
+        dialog.findViewById(R.id.btnConfirmAdd).performClick();
+        await(() -> dialog.findViewById(R.id.tvSubjectError).getVisibility() == View.VISIBLE);
+        assertEquals("Subject rejected", ((TextView) dialog.findViewById(R.id.tvSubjectError)).getText().toString());
+        assertTrue(dialog.isShowing());
+        assertTrue(dialog.findViewById(R.id.btnConfirmAdd).isEnabled());
+        assertTrue(dialog.findViewById(R.id.btnCancelAdd).isEnabled());
+        assertEquals(1, subjects.size());
+        name.setText("Android SDK");
+        assertEquals(View.GONE, dialog.findViewById(R.id.tvSubjectError).getVisibility());
+        failSubject = false;
+        dialog.findViewById(R.id.btnConfirmAdd).performClick();
+        await(() -> !dialog.isShowing());
+        assertEquals(2, subjects.size());
     }
 
     @Test public void subjectDeleteUsesServerIdAfterConfirmation() throws Exception {

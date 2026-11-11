@@ -13,13 +13,11 @@
         android:contentDescription="@string/media_photo"
         android:scaleType="fitCenter" />
 
-    <TextView
+    <TextView style="@style/StudyDateErrorText"
         android:id="@+id/tvImageError"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/media_load_error"
-        android:textColor="@color/error"
-        android:visibility="gone" />
+        android:text="@string/media_load_error" />
 
     <TextView
         android:id="@+id/btnClose"

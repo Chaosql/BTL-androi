@@ -54,18 +54,14 @@
                 android:textSize="@dimen/_15ssp"
                 android:textStyle="bold" />
 
-            <EditText
+            <EditText style="@style/StudyDateInput"
                 android:id="@+id/edtEmail"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_45sdp"
                 android:layout_margin="@dimen/_5sdp"
-                android:background="@drawable/bg_edittext"
-                android:backgroundTint="@null"
                 android:hint="@string/email_hint"
                 android:inputType="textEmailAddress"
-                android:paddingHorizontal="@dimen/_10sdp"
-                android:textColor="@color/input_text"
-                android:textColorHint="@color/hint" />
+                android:paddingHorizontal="@dimen/_10sdp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -82,18 +78,14 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/_5sdp">
 
-                <EditText
+                <EditText style="@style/StudyDateInput"
                     android:id="@+id/edtPassword"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_45sdp"
-                    android:background="@drawable/bg_edittext"
-                    android:backgroundTint="@null"
                     android:hint="@string/password_hint"
                     android:inputType="textPassword"
                     android:paddingStart="@dimen/_10sdp"
-                    android:paddingEnd="@dimen/_50sdp"
-                    android:textColor="@color/input_text"
-                    android:textColorHint="@color/hint" />
+                    android:paddingEnd="@dimen/_50sdp" />
 
                 <ImageView
                     android:id="@+id/ivTogglePassword"
@@ -110,15 +102,13 @@
 
             </FrameLayout>
 
-            <TextView
+            <TextView style="@style/StudyDateErrorText"
                 android:id="@+id/tvPasswordError"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/_5sdp"
                 android:layout_marginTop="@dimen/_5sdp"
-                android:textColor="@color/error"
-                android:textSize="@dimen/_15ssp"
-                android:visibility="gone" />
+                android:textSize="@dimen/_15ssp" />
 
             <TextView
                 android:id="@+id/tvForgot"

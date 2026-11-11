@@ -168,18 +168,14 @@
                     android:textColor="@color/brown"
                     android:textSize="@dimen/_10ssp" />
 
-                <EditText
+                <EditText style="@style/StudyDateInput"
                     android:id="@+id/etLocationName"
                     android:hint="@string/hint_location_name"
-                    android:textColorHint="@color/hint"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
                     android:layout_marginTop="@dimen/_3sdp"
-                    android:background="@drawable/bg_edittext"
-                    android:backgroundTint="@null"
                     android:inputType="text"
                     android:paddingHorizontal="@dimen/_10sdp"
-                    android:textColor="@color/input_text"
                     android:textSize="@dimen/_11ssp" />
 
                 <TextView
@@ -190,18 +186,14 @@
                     android:textColor="@color/brown"
                     android:textSize="@dimen/_10ssp" />
 
-                <EditText
+                <EditText style="@style/StudyDateInput"
                     android:id="@+id/etStreet"
                     android:hint="@string/hint_street"
-                    android:textColorHint="@color/hint"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
                     android:layout_marginTop="@dimen/_3sdp"
-                    android:background="@drawable/bg_edittext"
-                    android:backgroundTint="@null"
                     android:inputType="text"
                     android:paddingHorizontal="@dimen/_10sdp"
-                    android:textColor="@color/input_text"
                     android:textSize="@dimen/_10ssp" />
 
                 <TextView
@@ -212,18 +204,14 @@
                     android:textColor="@color/brown"
                     android:textSize="@dimen/_10ssp" />
 
-                <EditText
+                <EditText style="@style/StudyDateInput"
                     android:id="@+id/etDistrict"
                     android:hint="@string/hint_district"
-                    android:textColorHint="@color/hint"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
                     android:layout_marginTop="@dimen/_3sdp"
-                    android:background="@drawable/bg_edittext"
-                    android:backgroundTint="@null"
                     android:inputType="text"
                     android:paddingHorizontal="@dimen/_10sdp"
-                    android:textColor="@color/input_text"
                     android:textSize="@dimen/_10ssp" />
 
                 <TextView
@@ -234,29 +222,23 @@
                     android:textColor="@color/brown"
                     android:textSize="@dimen/_10ssp" />
 
-                <EditText
+                <EditText style="@style/StudyDateInput"
                     android:id="@+id/etProvince"
                     android:hint="@string/hint_province"
-                    android:textColorHint="@color/hint"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
                     android:layout_marginTop="@dimen/_3sdp"
-                    android:background="@drawable/bg_edittext"
-                    android:backgroundTint="@null"
                     android:inputType="text"
                     android:paddingHorizontal="@dimen/_10sdp"
-                    android:textColor="@color/input_text"
                     android:textSize="@dimen/_10ssp" />
             </LinearLayout>
 
-            <TextView
+            <TextView style="@style/StudyDateErrorText"
                 android:id="@+id/tvErrorMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_3sdp"
-                android:textColor="@color/error"
                 android:textSize="@dimen/_11ssp"
-                android:visibility="gone"
                 tools:text="Vui lòng nhập đầy đủ thông tin" />
 
             <CheckBox

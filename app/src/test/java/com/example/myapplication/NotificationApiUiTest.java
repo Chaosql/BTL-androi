@@ -222,7 +222,8 @@ public class NotificationApiUiTest {
     @Test public void deletesAllIncludingHiddenGroups() throws Exception {
         new NotificationPreferences(activity).setScheduleEnabled(false); open(); loaded();
         activity.findViewById(R.id.btnNotificationMenu).performClick();
-        org.robolectric.shadows.ShadowPopupMenu.getLatestPopupMenu().getMenu().performIdentifierAction(R.string.notification_delete_all, 0);
+        org.robolectric.Shadows.shadowOf(org.robolectric.RuntimeEnvironment.getApplication()).getLatestPopupWindow()
+                .getContentView().findViewById(R.id.action_notification_delete_all).performClick();
         androidx.appcompat.app.AlertDialog dialog = (androidx.appcompat.app.AlertDialog) org.robolectric.shadows.ShadowDialog.getLatestDialog();
         dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).performClick();
         await(() -> list(R.id.rvRecentNotifications).getAdapter().getItemCount() == 0);

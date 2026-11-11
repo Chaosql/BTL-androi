@@ -63,6 +63,7 @@
         android:paddingHorizontal="@dimen/_15sdp"
         android:paddingTop="@dimen/_8sdp"
         android:paddingBottom="@dimen/_15sdp"
-        tools:listitem="@layout/item_pending_request" />
+        tools:listitem="@layout/item_pending_request"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
 </LinearLayout>

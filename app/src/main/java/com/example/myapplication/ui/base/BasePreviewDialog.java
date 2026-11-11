@@ -47,18 +47,17 @@ public abstract class BasePreviewDialog<B extends androidx.viewbinding.ViewBindi
         if (dialogOwner.lifecycle.getCurrentState() == androidx.lifecycle.Lifecycle.State.DESTROYED)
             dialogOwner = new DialogOwner();
         dialogOwner.lifecycle.setCurrentState(androidx.lifecycle.Lifecycle.State.CREATED);
-        binding = inflater.inflate(LayoutInflater.from(activity), null, false);
+        com.example.myapplication.databinding.LayoutDialogContainerBinding shell =
+                com.example.myapplication.databinding.LayoutDialogContainerBinding.inflate(LayoutInflater.from(activity));
+        binding = inflater.inflate(LayoutInflater.from(activity), shell.contentHost, false);
         if (owner.getLifecycle().getCurrentState() == androidx.lifecycle.Lifecycle.State.DESTROYED) {
             dialogOwner.close(); onDismissed(); binding = null; return;
         }
         View content = binding.getRoot();
         View container = content;
         if (!(content instanceof ScrollView)) {
-            ScrollView scroll = new ScrollView(activity);
-            scroll.setFillViewport(false);
-            scroll.addView(content, new ScrollView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT));
-            container = scroll;
+            shell.contentHost.addView(content);
+            container = shell.getRoot();
         }
         AlertDialog dialog = new AlertDialog.Builder(activity).setView(container).create();
         bind(content, dialog);

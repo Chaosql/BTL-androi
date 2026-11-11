@@ -3,7 +3,6 @@ package com.example.myapplication.ui.schedule;
 import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.myapplication.R;
 import com.example.myapplication.data.local.PreferenceManager;
 import com.example.myapplication.databinding.FragmentScheduleBinding;
@@ -24,7 +23,7 @@ public class ScheduleFragment extends BaseFragment<FragmentScheduleBinding> {
         adapter = new ScheduleAdapter(booking -> {
             if (booking.id != null && !booking.id.isEmpty()) new BookingDetailDialog((MainActivity) requireActivity(), booking.id).show();
         });
-        binding.rvScheduleList.setLayoutManager(new LinearLayoutManager(requireContext()));
+
         binding.rvScheduleList.setAdapter(adapter);
         binding.tvEmptyState.setOnClickListener(view -> model.refresh());
         View[] tabs = {binding.tabMon, binding.tabTue, binding.tabWed, binding.tabThu, binding.tabFri, binding.tabSat, binding.tabSun};
@@ -55,7 +54,6 @@ public class ScheduleFragment extends BaseFragment<FragmentScheduleBinding> {
         int selected = state.date.getDayOfWeek().getValue() - 1;
         for (int i = 0; i < tabs.length; i++) {
             tabs[i].setSelected(i == selected);
-            tabs[i].setBackgroundResource(i == selected ? R.drawable.bg_tab_selected : R.drawable.bg_tab_unselected);
             tabs[i].setAlpha(1f);
         }
         View root = binding.getRoot();

@@ -64,33 +64,27 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
-            <EditText
+            <EditText style="@style/StudyDateInput"
                 android:id="@+id/edtEmail"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_45sdp"
                 android:layout_marginHorizontal="@dimen/_15sdp"
                 android:layout_marginTop="@dimen/_5sdp"
-                android:background="@drawable/bg_edittext"
-                android:backgroundTint="@null"
                 android:hint="@string/email_hint"
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
                 android:imeOptions="actionDone"
                 android:paddingHorizontal="@dimen/_10sdp"
-                android:textColor="@color/input_text"
-                android:textColorHint="@color/hint"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvDescription" />
 
-            <TextView
+            <TextView style="@style/StudyDateErrorText"
                 android:id="@+id/tvEmailError"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/_15sdp"
                 android:layout_marginTop="@dimen/_5sdp"
-                android:textColor="@color/error"
                 android:textSize="@dimen/_15ssp"
-                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/edtEmail" />

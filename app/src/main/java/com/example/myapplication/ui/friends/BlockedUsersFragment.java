@@ -2,7 +2,6 @@ package com.example.myapplication.ui.friends;
 
 import android.os.Bundle;
 import android.view.View;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.myapplication.R;
 import com.example.myapplication.databinding.FragmentBlockedUsersBinding;
 import com.example.myapplication.ui.friends.adapter.BlockedUsersAdapter;
@@ -17,7 +16,7 @@ public class BlockedUsersFragment extends BaseSocialFragment<FragmentBlockedUser
         adapter = new BlockedUsersAdapter(item -> new ConfirmDeleteDialog(host(),
                 getString(R.string.social_unblock_confirm, SocialUi.name(item.firstName, item.lastName)),
                 ConfirmDeleteDialog.Action.UNBLOCK, item.id).show());
-        binding.rvBlockedUsers.setLayoutManager(new LinearLayoutManager(requireContext()));
+
         binding.rvBlockedUsers.setAdapter(adapter);
         binding.tvEmptyState.setOnClickListener(view -> load());
         changed(this::load);

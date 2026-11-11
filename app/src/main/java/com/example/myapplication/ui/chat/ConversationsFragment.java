@@ -2,7 +2,6 @@ package com.example.myapplication.ui.chat;
 
 import android.os.Bundle;
 import android.view.View;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.myapplication.R;
 import com.example.myapplication.data.local.PreferenceManager;
 import com.example.myapplication.data.remote.dto.response.ConversationResponse;
@@ -11,10 +10,10 @@ import com.example.myapplication.databinding.FragmentFriendsListBinding;
 import com.example.myapplication.ui.chat.adapter.ConversationsAdapter;
 import com.example.myapplication.ui.friends.BaseSocialFragment;
 import com.example.myapplication.ui.main.UiScreen;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.*;
 
 public class ConversationsFragment extends BaseSocialFragment<FragmentFriendsListBinding> {
+    private android.widget.PopupWindow menuPopup;
     private ConversationsAdapter adapter;
     private com.example.myapplication.ui.base.PagedList<ConversationResponse> pages;
     public ConversationsFragment() { super(FragmentFriendsListBinding::inflate); }
@@ -29,7 +28,7 @@ public class ConversationsFragment extends BaseSocialFragment<FragmentFriendsLis
             args.putBoolean("is_disabled", Boolean.TRUE.equals(item.hasLeft) || Integer.valueOf(1).equals(item.memberCount));
             go(UiScreen.CHAT, args);
         });
-        binding.rvFriendsList.setLayoutManager(new LinearLayoutManager(requireContext()));
+
         binding.rvFriendsList.setAdapter(adapter);
         pages.state().observe(getViewLifecycleOwner(), state -> {
             adapter.submit(state.items);
@@ -41,12 +40,25 @@ public class ConversationsFragment extends BaseSocialFragment<FragmentFriendsLis
         pageScroll(binding.rvFriendsList, () -> load(false));
         binding.tvEmptyState.setOnClickListener(view -> load(true));
         getParentFragmentManager().setFragmentResultListener(ChatUi.UPDATED, getViewLifecycleOwner(), (key, value) -> load(true));
-        binding.btnHeaderMenu.setOnClickListener(view -> new MaterialAlertDialogBuilder(requireContext())
-                .setItems(new CharSequence[]{getString(R.string.title_friends), getString(R.string.ui_fragment_search_user_text_1),
-                        getString(R.string.ui_fragment_pending_requests_text_1)}, (dialog, which) ->
-                        go(which == 0 ? UiScreen.FRIENDS : which == 1 ? UiScreen.SEARCH_USER : UiScreen.PENDING_REQUESTS)).show());
+        binding.btnHeaderMenu.setOnClickListener(view -> {
+            if (menuPopup != null && menuPopup.isShowing()) { menuPopup.dismiss(); return; }
+            com.example.myapplication.databinding.LayoutConversationsMenuPopupBinding menu =
+                    com.example.myapplication.databinding.LayoutConversationsMenuPopupBinding.inflate(getLayoutInflater());
+            menu.actionConversationsFriends.setOnClickListener(item -> selectMenu(UiScreen.FRIENDS));
+            menu.actionConversationsSearch.setOnClickListener(item -> selectMenu(UiScreen.SEARCH_USER));
+            menu.actionConversationsRequests.setOnClickListener(item -> selectMenu(UiScreen.PENDING_REQUESTS));
+            menuPopup = com.example.myapplication.ui.main.UiDialogs.showAnchoredPopup(host(), view, menu.getRoot());
+        });
         if (signedIn()) pages.initialize(binding.etSearchFriends.getText().toString().trim());
         else state(false, false);
+    }
+    private void selectMenu(UiScreen screen) {
+        if (menuPopup != null) menuPopup.dismiss();
+        go(screen);
+    }
+    @Override public void onDestroyView() {
+        if (menuPopup != null) { menuPopup.dismiss(); menuPopup = null; }
+        super.onDestroyView();
     }
     private void load(boolean reset) {
         if (!signedIn()) { state(false, false); return; }

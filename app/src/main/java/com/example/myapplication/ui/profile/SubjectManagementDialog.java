@@ -3,7 +3,6 @@ package com.example.myapplication.ui.profile;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import com.example.myapplication.R;
 import com.example.myapplication.data.remote.dto.response.SubjectDto;
@@ -72,10 +71,8 @@ public class SubjectManagementDialog extends BaseProfileDialog<DialogSubjectMana
 
     private void empty(LinearLayout container) {
         if (container.getChildCount() == 0) {
-            TextView empty = new TextView(activity);
-            empty.setText(R.string.profile_empty_subjects);
-            empty.setTextColor(activity.getColor(R.color.brown));
-            container.addView(empty);
+            container.addView(com.example.myapplication.databinding.ItemSubjectEmptyBinding
+                    .inflate(LayoutInflater.from(activity), container, false).getRoot());
         }
     }
 }

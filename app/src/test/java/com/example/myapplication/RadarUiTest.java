@@ -76,15 +76,14 @@ public class RadarUiTest {
     @After public void cleanup() throws Exception { controller.close(); preferences.logout(); RetrofitClient.setApiServiceForTests(null); server.shutdown(); }
     private void await(BooleanSupplier check) throws Exception {
         long end = System.nanoTime() + TimeUnit.SECONDS.toNanos(8);
-        while (!check.getAsBoolean() && System.nanoTime() < end) { Shadows.shadowOf(Looper.getMainLooper()).idle(); Thread.sleep(10); }
+        while (!check.getAsBoolean() && System.nanoTime() < end) { Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(20)); Thread.sleep(10); }
         assertTrue("Radar timed out", check.getAsBoolean());
     }
     private void assertToastError(int message) {
         assertEquals(activity.getString(message), ShadowToast.getTextOfLatestToast());
-        assertEquals(View.GONE, activity.findViewById(R.id.tvRadarStatus).getVisibility());
-        assertTrue(status().isEmpty());
+
     }
-    private String status() { return ((TextView) activity.findViewById(R.id.tvRadarStatus)).getText().toString(); }
+    private String status() { return ShadowToast.getTextOfLatestToast() == null ? "" : ShadowToast.getTextOfLatestToast(); }
     private void scan() { ((EditText) activity.findViewById(R.id.etDistance)).setText("2.5"); activity.findViewById(R.id.btnRadar).performClick(); }
     @Test public void openingMapDoesNotTransmitLocationAndInvalidRadiusDoesNotScan() {
         assertTrue(radarRequests.isEmpty());
@@ -93,9 +92,23 @@ public class RadarUiTest {
         assertToastError(R.string.radar_invalid_radius);
         assertTrue(radarRequests.isEmpty());
         ((EditText) activity.findViewById(R.id.etDistance)).setText("3");
-        assertEquals(View.GONE, activity.findViewById(R.id.tvRadarStatus).getVisibility());
         assertTrue(radarRequests.isEmpty());
     }
+    @Test public void scanWaitsThreeSecondsWithoutRotatingTheButton() throws Exception {
+        long started = SystemClock.elapsedRealtime();
+        scan();
+        await(() -> radarRequests.size() == 2);
+        assertFalse(activity.findViewById(R.id.btnRadar).isEnabled());
+        assertNull(activity.findViewById(R.id.layoutRadar).getAnimation());
+        assertEquals(0f, activity.findViewById(R.id.layoutRadar).getRotation(), 0f);
+        long remaining = Math.max(0, 2999 - (SystemClock.elapsedRealtime() - started));
+        Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(remaining));
+        assertFalse(activity.findViewById(R.id.btnRadar).isEnabled());
+        await(() -> activity.findViewById(R.id.btnRadar).isEnabled());
+        assertNull(activity.findViewById(R.id.layoutRadar).getAnimation());
+        assertTrue(status().contains("Tìm thấy"));
+    }
+
     @Test public void buddyOffPreventsLocationRequests() throws Exception {
         buddy = false; scan(); await(() -> activity.getString(R.string.radar_buddy_off).equals(ShadowToast.getTextOfLatestToast()));
         assertToastError(R.string.radar_buddy_off);
@@ -117,7 +130,7 @@ public class RadarUiTest {
         JsonObject body = JsonParser.parseString(radarRequests.get(0).getBody().readUtf8()).getAsJsonObject();
         assertEquals(21, body.get("latitude").getAsDouble(), 0); assertEquals(105, body.get("longitude").getAsDouble(), 0);
         assertEquals("2.5", radarRequests.get(1).getRequestUrl().queryParameter("radius"));
-        activity.findViewById(R.id.tvRadarStatus).performClick(); AlertDialog dialog = (AlertDialog) ShadowDialog.getLatestDialog();
+        activity.findViewById(R.id.btnRadar).performLongClick(); AlertDialog dialog = (AlertDialog) ShadowDialog.getLatestDialog();
         assertEquals(1, dialog.getListView().getAdapter().getCount());
         dialog.getListView().performItemClick(null, 0, 0);
         await(() -> ShadowDialog.getLatestDialog().findViewById(R.id.tvSchool) != null
@@ -126,7 +139,6 @@ public class RadarUiTest {
     }
     @Test public void failedUpdateNeverQueriesRadarOrShowsSuccess() throws Exception {
         failUpdate = true; scan(); await(() -> radarRequests.size() == 1 && activity.findViewById(R.id.btnRadar).isEnabled());
-        assertEquals(View.GONE, activity.findViewById(R.id.tvRadarStatus).getVisibility());
         assertNotNull(ShadowToast.getTextOfLatestToast());
         assertFalse(ShadowToast.getTextOfLatestToast().isEmpty());
         assertEquals(1, radarRequests.size()); assertTrue(radarRequests.get(0).getPath().endsWith("/update"));

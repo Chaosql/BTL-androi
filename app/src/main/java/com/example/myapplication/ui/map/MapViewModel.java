@@ -39,13 +39,16 @@ public final class MapViewModel extends BaseViewModel {
     private final androidx.lifecycle.MutableLiveData<com.example.myapplication.ui.base.UiState<RadarResult>> radar = new androidx.lifecycle.MutableLiveData<>();
     private UiOperation<?> activeRadar;
     private int radarVersion;
+    private final android.os.Handler scanTimer = new android.os.Handler(android.os.Looper.getMainLooper());
     public androidx.lifecycle.LiveData<com.example.myapplication.ui.base.UiState<RadarResult>> radar() { return radar; }
     public void cancelRadar() {
+        scanTimer.removeCallbacksAndMessages(null);
         radarVersion++; if (activeRadar != null) activeRadar.cancel(); activeRadar = null; radar.setValue(null);
     }
     public void scan(double lat, double lng, double radius) {
         cancelRadar();
         int current = radarVersion;
+        long started = android.os.SystemClock.elapsedRealtime();
         String owner = new com.example.myapplication.data.local.PreferenceManager(getApplication()).getUserId();
         radar.setValue(com.example.myapplication.ui.base.UiState.loading());
         UiOperation<BaseResponse<CommonResponse>> update = updateLocation(new UpdateLocationRequest(lat, lng)); activeRadar = update;
@@ -54,11 +57,26 @@ public final class MapViewModel extends BaseViewModel {
             UiOperation<BaseResponse<List<NearbyUserResponse>>> query = getNearbyUsers(lat, lng, radius); activeRadar = query;
             watch(query, data -> {
                 if (!radarCurrent(current, owner)) return;
-                activeRadar = null;
-                if (data.data == null) { radar.setValue(com.example.myapplication.ui.base.UiState.error(new com.example.myapplication.data.remote.network.ApiError(422, null))); return; }
-                radar.setValue(com.example.myapplication.ui.base.UiState.success(new RadarResult(lat, lng, radius, RadarData.filter(data.data, owner, lat, lng, radius))));
-            }, error -> { if (radarCurrent(current, owner)) radar.setValue(com.example.myapplication.ui.base.UiState.error(error)); });
-        }, error -> { if (radarCurrent(current, owner)) radar.setValue(com.example.myapplication.ui.base.UiState.error(error)); });
+                if (data.data == null) {
+                    completeScan(current, owner, started, com.example.myapplication.ui.base.UiState.error(
+                            new com.example.myapplication.data.remote.network.ApiError(422, null))); return;
+                }
+                completeScan(current, owner, started, com.example.myapplication.ui.base.UiState.success(
+                        new RadarResult(lat, lng, radius, RadarData.filter(data.data, owner, lat, lng, radius))));
+            }, error -> { if (radarCurrent(current, owner)) completeScan(current, owner, started, com.example.myapplication.ui.base.UiState.error(error)); });
+        }, error -> { if (radarCurrent(current, owner)) completeScan(current, owner, started, com.example.myapplication.ui.base.UiState.error(error)); });
+    }
+    private void completeScan(int version, String owner, long started,
+            com.example.myapplication.ui.base.UiState<RadarResult> result) {
+        activeRadar = null;
+        long remaining = Math.max(0, 3000 - (android.os.SystemClock.elapsedRealtime() - started));
+        Runnable publish = () -> { if (radarCurrent(version, owner)) radar.setValue(result); };
+        if (remaining == 0) publish.run();
+        else scanTimer.postDelayed(publish, remaining);
+    }
+    @Override protected void onCleared() {
+        cancelRadar();
+        super.onCleared();
     }
     private boolean radarCurrent(int version, String owner) {
         if (version != radarVersion) return false;

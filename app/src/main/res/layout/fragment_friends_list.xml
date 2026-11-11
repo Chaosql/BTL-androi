@@ -104,6 +104,7 @@
         android:clipToPadding="false"
         android:paddingTop="@dimen/_4sdp"
         android:paddingBottom="@dimen/_15sdp"
-        tools:listitem="@layout/item_friend" />
+        tools:listitem="@layout/item_friend"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
 </LinearLayout>

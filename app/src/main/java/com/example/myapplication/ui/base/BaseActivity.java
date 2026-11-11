@@ -18,13 +18,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     protected final void applyWindowInsets(View root) {
-        android.graphics.drawable.LayerDrawable background = new android.graphics.drawable.LayerDrawable(
-                new android.graphics.drawable.Drawable[]{
-                        new android.graphics.drawable.ColorDrawable(getColor(com.example.myapplication.R.color.bg_2)),
-                        new android.graphics.drawable.ColorDrawable(getColor(com.example.myapplication.R.color.bg))});
-        background.setLayerGravity(1, android.view.Gravity.TOP);
-        background.setLayerHeight(1, 0);
-        root.setBackground(background);
+        android.graphics.drawable.LayerDrawable background =
+                (android.graphics.drawable.LayerDrawable) root.getBackground();
         ViewCompat.setOnApplyWindowInsetsListener(root, (view, insets) -> {
             Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             int keyboard = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;

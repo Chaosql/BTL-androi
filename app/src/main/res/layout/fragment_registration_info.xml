@@ -61,18 +61,14 @@
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold" />
 
-            <EditText
+            <EditText style="@style/StudyDateInput"
                 android:id="@+id/etEmail"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_42sdp"
                 android:layout_marginTop="@dimen/_6sdp"
-                android:background="@drawable/bg_edittext"
-                android:backgroundTint="@null"
                 android:hint="@string/ui_fragment_registration_info_hint_3"
                 android:inputType="textEmailAddress"
                 android:paddingHorizontal="@dimen/_12sdp"
-                android:textColor="@color/input_text"
-                android:textColorHint="@color/hint"
                 android:textSize="@dimen/_12ssp" />
 
             <TextView
@@ -84,18 +80,14 @@
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold" />
 
-            <EditText
+            <EditText style="@style/StudyDateInput"
                 android:id="@+id/etId"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_42sdp"
                 android:layout_marginTop="@dimen/_6sdp"
-                android:background="@drawable/bg_edittext"
-                android:backgroundTint="@null"
                 android:hint="@string/ui_fragment_registration_info_hint_5"
                 android:inputType="text"
                 android:paddingHorizontal="@dimen/_12sdp"
-                android:textColor="@color/input_text"
-                android:textColorHint="@color/hint"
                 android:textSize="@dimen/_12ssp" />
 
             <LinearLayout
@@ -119,18 +111,14 @@
                         android:textSize="@dimen/_12ssp"
                         android:textStyle="bold" />
 
-                    <EditText
+                    <EditText style="@style/StudyDateInput"
                         android:id="@+id/etLastName"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/_42sdp"
                         android:layout_marginTop="@dimen/_6sdp"
-                        android:background="@drawable/bg_edittext"
-                        android:backgroundTint="@null"
                         android:hint="@string/hint_last_name"
                         android:inputType="textPersonName"
                         android:paddingHorizontal="@dimen/_12sdp"
-                        android:textColor="@color/input_text"
-                        android:textColorHint="@color/hint"
                         android:textSize="@dimen/_12ssp" />
                 </LinearLayout>
 
@@ -149,18 +137,14 @@
                         android:textSize="@dimen/_12ssp"
                         android:textStyle="bold" />
 
-                    <EditText
+                    <EditText style="@style/StudyDateInput"
                         android:id="@+id/etFirstName"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/_42sdp"
                         android:layout_marginTop="@dimen/_6sdp"
-                        android:background="@drawable/bg_edittext"
-                        android:backgroundTint="@null"
                         android:hint="@string/hint_first_name"
                         android:inputType="textPersonName"
                         android:paddingHorizontal="@dimen/_12sdp"
-                        android:textColor="@color/input_text"
-                        android:textColorHint="@color/hint"
                         android:textSize="@dimen/_12ssp" />
                 </LinearLayout>
             </LinearLayout>

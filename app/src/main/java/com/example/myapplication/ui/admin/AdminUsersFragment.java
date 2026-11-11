@@ -30,7 +30,8 @@ public class AdminUsersFragment extends BaseFragment<FragmentAdminUsersBinding> 
             if (event.consume() != null) ((com.example.myapplication.ui.main.MainActivity) requireActivity()).showRootScreen(UiScreen.LOGIN);
         });
         preferences = new PreferenceManager(requireContext()); users.clear(); busy = false; pages = api().users();
-        binding.rvUsers.setLayoutManager(new LinearLayoutManager(requireContext())); binding.rvUsers.setAdapter(adapter);
+
+        binding.rvUsers.setAdapter(adapter);
         binding.btnReload.setOnClickListener(view -> { if (!busy && allowed()) pages.load("", true); });
         binding.tvStatus.setOnClickListener(view -> load()); binding.btnMore.setOnClickListener(view -> load());
         binding.btnLogout.setOnClickListener(view -> logout());

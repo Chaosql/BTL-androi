@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/StudyDatePopupContainer"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:minWidth="@dimen/_210sdp">
+    <LinearLayout
+        android:id="@+id/action_conversations_friends"
+        style="@style/StudyDatePopupRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="@dimen/_18sdp"
+            android:layout_height="@dimen/_18sdp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_friend"
+            app:tint="@color/brown" />
+        <TextView
+            style="@style/StudyDatePopupLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title_friends" />
+    </LinearLayout>
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/hint" />
+    <LinearLayout
+        android:id="@+id/action_conversations_search"
+        style="@style/StudyDatePopupRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="@dimen/_18sdp"
+            android:layout_height="@dimen/_18sdp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_search"
+            app:tint="@color/brown" />
+        <TextView
+            style="@style/StudyDatePopupLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ui_fragment_search_user_text_1" />
+    </LinearLayout>
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/hint" />
+    <LinearLayout
+        android:id="@+id/action_conversations_requests"
+        style="@style/StudyDatePopupRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="@dimen/_18sdp"
+            android:layout_height="@dimen/_18sdp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_notification"
+            app:tint="@color/brown" />
+        <TextView
+            style="@style/StudyDatePopupLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ui_fragment_pending_requests_text_1" />
+    </LinearLayout>
+</LinearLayout>

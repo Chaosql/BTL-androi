@@ -98,7 +98,9 @@
         android:clipToPadding="false"
         android:paddingTop="@dimen/_10sdp"
         android:paddingBottom="@dimen/_10sdp"
-        tools:listitem="@layout/item_chat_incoming" />
+        tools:listitem="@layout/item_chat_incoming"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:stackFromEnd="true" />
 
     <LinearLayout
         android:id="@+id/layoutInputContainer"

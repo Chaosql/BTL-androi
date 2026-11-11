@@ -10,14 +10,10 @@
         android:orientation="vertical"
         android:padding="@dimen/_16sdp">
 
-        <TextView
+        <TextView style="@style/StudyDateDialogTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/ui_dialog_edit_personal_info_text_1"
-            android:textColor="@color/brown"
-            android:textSize="@dimen/_16ssp"
-            android:textStyle="bold" />
+            android:text="@string/ui_dialog_edit_personal_info_text_1" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -32,27 +28,21 @@
                 android:layout_marginEnd="@dimen/_4sdp"
                 android:orientation="vertical">
 
-                <EditText
+                <EditText style="@style/StudyDateInput"
                     android:id="@+id/etLastName"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
-                    android:background="@drawable/bg_edittext"
-                    android:backgroundTint="@null"
                     android:hint="@string/hint_last_name"
                     android:inputType="textPersonName"
                     android:paddingHorizontal="@dimen/_10sdp"
-                    android:textColor="@color/input_text"
-                    android:textColorHint="@color/hint"
                     android:textSize="@dimen/_12ssp" />
 
-                <TextView
+                <TextView style="@style/StudyDateErrorText"
                     android:id="@+id/tvErrorLastName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_2sdp"
-                    android:textColor="@color/error"
-                    android:textSize="@dimen/_10ssp"
-                    android:visibility="gone" />
+                    android:textSize="@dimen/_10ssp" />
             </LinearLayout>
 
             <LinearLayout
@@ -62,27 +52,21 @@
                 android:layout_marginStart="@dimen/_4sdp"
                 android:orientation="vertical">
 
-                <EditText
+                <EditText style="@style/StudyDateInput"
                     android:id="@+id/etFirstName"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
-                    android:background="@drawable/bg_edittext"
-                    android:backgroundTint="@null"
                     android:hint="@string/hint_first_name"
                     android:inputType="textPersonName"
                     android:paddingHorizontal="@dimen/_10sdp"
-                    android:textColor="@color/input_text"
-                    android:textColorHint="@color/hint"
                     android:textSize="@dimen/_12ssp" />
 
-                <TextView
+                <TextView style="@style/StudyDateErrorText"
                     android:id="@+id/tvErrorFirstName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_2sdp"
-                    android:textColor="@color/error"
-                    android:textSize="@dimen/_10ssp"
-                    android:visibility="gone" />
+                    android:textSize="@dimen/_10ssp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -95,28 +79,22 @@
             android:textSize="@dimen/_11ssp"
             android:textStyle="bold" />
 
-        <EditText
+        <EditText style="@style/StudyDateInput"
             android:id="@+id/etDateOfBirth"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_40sdp"
             android:layout_marginTop="@dimen/_4sdp"
-            android:background="@drawable/bg_edittext"
-            android:backgroundTint="@null"
             android:hint="@string/hint_birth_date"
             android:inputType="date"
             android:paddingHorizontal="@dimen/_10sdp"
-            android:textColor="@color/input_text"
-            android:textColorHint="@color/hint"
             android:textSize="@dimen/_12ssp" />
 
-        <TextView
+        <TextView style="@style/StudyDateErrorText"
             android:id="@+id/tvErrorDateOfBirth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_2sdp"
-            android:textColor="@color/error"
-            android:textSize="@dimen/_10ssp"
-            android:visibility="gone" />
+            android:textSize="@dimen/_10ssp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -170,28 +148,22 @@
             android:textSize="@dimen/_11ssp"
             android:textStyle="bold" />
 
-        <EditText
+        <EditText style="@style/StudyDateInput"
             android:id="@+id/etUniversity"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_40sdp"
             android:layout_marginTop="@dimen/_4sdp"
-            android:background="@drawable/bg_edittext"
-            android:backgroundTint="@null"
             android:hint="@string/ui_dialog_edit_personal_info_hint_8"
             android:inputType="text"
             android:paddingHorizontal="@dimen/_10sdp"
-            android:textColor="@color/input_text"
-            android:textColorHint="@color/hint"
             android:textSize="@dimen/_12ssp" />
 
-        <TextView
+        <TextView style="@style/StudyDateErrorText"
             android:id="@+id/tvErrorUniversity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_2sdp"
-            android:textColor="@color/error"
-            android:textSize="@dimen/_10ssp"
-            android:visibility="gone" />
+            android:textSize="@dimen/_10ssp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -202,28 +174,22 @@
             android:textSize="@dimen/_11ssp"
             android:textStyle="bold" />
 
-        <EditText
+        <EditText style="@style/StudyDateInput"
             android:id="@+id/etMajorName"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_40sdp"
             android:layout_marginTop="@dimen/_4sdp"
-            android:background="@drawable/bg_edittext"
-            android:backgroundTint="@null"
             android:hint="@string/ui_dialog_edit_personal_info_hint_10"
             android:inputType="text"
             android:paddingHorizontal="@dimen/_10sdp"
-            android:textColor="@color/input_text"
-            android:textColorHint="@color/hint"
             android:textSize="@dimen/_12ssp" />
 
-        <TextView
+        <TextView style="@style/StudyDateErrorText"
             android:id="@+id/tvErrorMajorName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_2sdp"
-            android:textColor="@color/error"
-            android:textSize="@dimen/_10ssp"
-            android:visibility="gone" />
+            android:textSize="@dimen/_10ssp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -234,18 +200,14 @@
             android:textSize="@dimen/_11ssp"
             android:textStyle="bold" />
 
-        <EditText
+        <EditText style="@style/StudyDateInput"
             android:id="@+id/etPhone"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_40sdp"
             android:layout_marginTop="@dimen/_4sdp"
-            android:background="@drawable/bg_edittext"
-            android:backgroundTint="@null"
             android:hint="@string/ui_dialog_edit_personal_info_hint_12"
             android:inputType="phone"
             android:paddingHorizontal="@dimen/_10sdp"
-            android:textColor="@color/input_text"
-            android:textColorHint="@color/hint"
             android:textSize="@dimen/_12ssp" />
 
         <TextView
@@ -257,18 +219,14 @@
             android:textSize="@dimen/_11ssp"
             android:textStyle="bold" />
 
-        <EditText
+        <EditText style="@style/StudyDateInput"
             android:id="@+id/etLocation"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_40sdp"
             android:layout_marginTop="@dimen/_4sdp"
-            android:background="@drawable/bg_edittext"
-            android:backgroundTint="@null"
             android:hint="@string/ui_dialog_edit_personal_info_hint_14"
             android:inputType="text"
             android:paddingHorizontal="@dimen/_10sdp"
-            android:textColor="@color/input_text"
-            android:textColorHint="@color/hint"
             android:textSize="@dimen/_12ssp" />
 
         <LinearLayout
@@ -278,30 +236,16 @@
             android:gravity="end"
             android:orientation="horizontal">
 
-            <TextView
+            <TextView style="@style/StudyDateDialogActionSecondary"
                 android:id="@+id/btnCancel"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/_36sdp"
                 android:layout_marginEnd="@dimen/_10sdp"
-                android:background="@drawable/bg_card_retro"
-                android:gravity="center"
-                android:paddingHorizontal="@dimen/_18sdp"
-                android:text="@string/cancel"
-                android:textColor="@color/brown"
-                android:textSize="@dimen/_12ssp"
-                android:textStyle="bold" />
+                android:text="@string/cancel" />
 
-            <TextView
+            <TextView style="@style/StudyDateDialogActionPrimary"
                 android:id="@+id/btnSave"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/_36sdp"
-                android:background="@drawable/bg_button"
-                android:gravity="center"
-                android:paddingHorizontal="@dimen/_18sdp"
-                android:text="@string/ui_dialog_edit_introduction_text_4"
-                android:textColor="@color/brown"
-                android:textSize="@dimen/_12ssp"
-                android:textStyle="bold" />
+                android:text="@string/ui_dialog_edit_introduction_text_4" />
         </LinearLayout>
 
     </LinearLayout>

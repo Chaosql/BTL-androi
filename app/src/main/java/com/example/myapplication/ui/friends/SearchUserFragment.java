@@ -3,7 +3,6 @@ package com.example.myapplication.ui.friends;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.myapplication.R;
 import com.example.myapplication.data.remote.dto.response.UserSearchDto;
 import com.example.myapplication.databinding.FragmentSearchUserBinding;
@@ -19,7 +18,7 @@ public class SearchUserFragment extends BaseSocialFragment<FragmentSearchUserBin
         binding.btnBack.setOnClickListener(view -> back());
         binding.progressBar.setVisibility(View.GONE);
         adapter = new UserSearchAdapter(item -> user(item.id, item.friendshipStatus), this::add);
-        binding.rvSearchResults.setLayoutManager(new LinearLayoutManager(requireContext()));
+
         binding.rvSearchResults.setAdapter(adapter);
         binding.btnSearch.setOnClickListener(view -> load());
         binding.edtKeyword.setOnEditorActionListener((view, action, event) -> {

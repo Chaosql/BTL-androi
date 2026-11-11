@@ -2,7 +2,6 @@ package com.example.myapplication.ui.friends;
 
 import android.os.Bundle;
 import android.view.View;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.myapplication.R;
 import com.example.myapplication.data.remote.dto.response.FriendDto;
 import com.example.myapplication.databinding.FragmentPendingRequestsBinding;
@@ -19,7 +18,7 @@ public class PendingRequestsFragment extends BaseSocialFragment<FragmentPendingR
         pages = friends().pendingPage();
         adapter = new PendingRequestsAdapter(item -> user(item.userId, "PENDING"),
                 item -> answer(item, true), item -> answer(item, false));
-        binding.rvPendingRequests.setLayoutManager(new LinearLayoutManager(requireContext()));
+
         binding.rvPendingRequests.setAdapter(adapter);
         pages.state().observe(getViewLifecycleOwner(), state -> {
             adapter.submit(state.items);
