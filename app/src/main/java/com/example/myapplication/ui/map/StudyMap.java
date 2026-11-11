@@ -23,7 +23,8 @@ final class StudyMap {
     private MapLibreMap map;
     private boolean started, resumed, restored;
     private int generation, styleVersion;
-    private boolean ready, located;
+    private boolean ready, located, fallback;
+    private final android.os.Handler loader = new android.os.Handler(android.os.Looper.getMainLooper());
     private double radarLat, radarLng, radius;
     private List<NearbyUserResponse> users = Collections.emptyList();
     private final Map<Marker, String> markers = new HashMap<>();
@@ -37,13 +38,17 @@ final class StudyMap {
         status.accept(host.getContext().getString(R.string.map_loading));
         try {
             MapLibre.getInstance(host.getContext());
+            MapHttp.install(host.getContext());
             MapView next = new MapView(host.getContext());
             view = next;
             host.addView(next, new FrameLayout.LayoutParams(-1, -1));
             restored = state != null && !state.isEmpty();
             next.onCreate(state);
             next.addOnDidFailLoadingMapListener(error -> {
-                if (version == generation) status.accept(host.getContext().getString(R.string.map_unavailable));
+                if (version != generation) return;
+                if (BuildConfig.DEBUG) android.util.Log.w("StudyMap", "Map loading failed: " + error);
+                if (!fallback && !ready) loadStyle(true);
+                else status.accept(host.getContext().getString(R.string.map_unavailable));
             });
             next.getMapAsync(result -> {
                 if (version != generation) return;
@@ -67,14 +72,23 @@ final class StudyMap {
             status.accept(host.getContext().getString(R.string.map_unavailable));
         }
     }
-    private void loadStyle() {
+    private void loadStyle() { loadStyle(false); }
+    private void loadStyle(boolean useFallback) {
         if (map == null) return;
-        ready = false;
+        ready = false; fallback = useFallback;
         int version = generation, styleRequest = ++styleVersion;
+        loader.removeCallbacksAndMessages(null);
         status.accept(host.getContext().getString(R.string.map_loading));
-        map.setStyle(new Style.Builder().fromUri(BuildConfig.MAP_STYLE_URL), style -> {
-            if (version == generation && styleRequest == styleVersion) { ready = true; status.accept(""); renderRadar(); }
+        map.setStyle(new Style.Builder().fromUri(useFallback ? "asset://map_fallback.json" : BuildConfig.MAP_STYLE_URL), style -> {
+            if (version != generation || styleRequest != styleVersion) return;
+            loader.removeCallbacksAndMessages(null);
+            ready = true; status.accept(""); renderRadar();
         });
+        loader.postDelayed(() -> {
+            if (version != generation || styleRequest != styleVersion || ready) return;
+            if (!useFallback) loadStyle(true);
+            else status.accept(host.getContext().getString(R.string.map_unavailable));
+        }, 15000);
     }
     void onUserClick(Consumer<String> click) { userClick = click; }
     void showRadar(double lat, double lng, double radius, List<NearbyUserResponse> users) {
@@ -104,13 +118,14 @@ final class StudyMap {
             markers.put(marker, user.userId);
         }
     }
-    void start() { started = true; if (view != null) view.onStart(); }
+    void start() { started = true; if (view != null) view.onStart(); if (map != null && !ready) loadStyle(fallback); }
     void resume() { resumed = true; if (view != null) view.onResume(); }
     void pause() { resumed = false; if (view != null) view.onPause(); }
-    void stop() { started = false; if (view != null) view.onStop(); }
+    void stop() { started = false; loader.removeCallbacksAndMessages(null); if (view != null) view.onStop(); }
     void save(Bundle state) { if (view != null) view.onSaveInstanceState(state); }
     void lowMemory() { if (view != null) view.onLowMemory(); }
     private void destroyView() {
+        loader.removeCallbacksAndMessages(null);
         ++generation; map = null; ready = false; markers.clear();
         if (view != null) {
             try { if (resumed) view.onPause(); if (started) view.onStop(); view.onDestroy(); }

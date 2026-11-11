@@ -79,15 +79,26 @@ public class RadarUiTest {
         while (!check.getAsBoolean() && System.nanoTime() < end) { Shadows.shadowOf(Looper.getMainLooper()).idle(); Thread.sleep(10); }
         assertTrue("Radar timed out", check.getAsBoolean());
     }
+    private void assertToastError(int message) {
+        assertEquals(activity.getString(message), ShadowToast.getTextOfLatestToast());
+        assertEquals(View.GONE, activity.findViewById(R.id.tvRadarStatus).getVisibility());
+        assertTrue(status().isEmpty());
+    }
     private String status() { return ((TextView) activity.findViewById(R.id.tvRadarStatus)).getText().toString(); }
     private void scan() { ((EditText) activity.findViewById(R.id.etDistance)).setText("2.5"); activity.findViewById(R.id.btnRadar).performClick(); }
     @Test public void openingMapDoesNotTransmitLocationAndInvalidRadiusDoesNotScan() {
         assertTrue(radarRequests.isEmpty());
         ((EditText) activity.findViewById(R.id.etDistance)).setText("6"); activity.findViewById(R.id.btnRadar).performClick();
-        assertNotNull(((EditText) activity.findViewById(R.id.etDistance)).getError()); assertTrue(radarRequests.isEmpty());
+        assertNull(((EditText) activity.findViewById(R.id.etDistance)).getError());
+        assertToastError(R.string.radar_invalid_radius);
+        assertTrue(radarRequests.isEmpty());
+        ((EditText) activity.findViewById(R.id.etDistance)).setText("3");
+        assertEquals(View.GONE, activity.findViewById(R.id.tvRadarStatus).getVisibility());
+        assertTrue(radarRequests.isEmpty());
     }
     @Test public void buddyOffPreventsLocationRequests() throws Exception {
-        buddy = false; scan(); await(() -> status().equals(activity.getString(R.string.radar_buddy_off)));
+        buddy = false; scan(); await(() -> activity.getString(R.string.radar_buddy_off).equals(ShadowToast.getTextOfLatestToast()));
+        assertToastError(R.string.radar_buddy_off);
         assertTrue(radarRequests.isEmpty()); assertTrue(activity.findViewById(R.id.btnRadar).isEnabled());
     }
     @Test public void deniedPermissionDoesNotTransmitLocation() throws Exception {
@@ -96,7 +107,8 @@ public class RadarUiTest {
         ShadowActivity.PermissionsRequest request = Shadows.shadowOf(activity).getLastRequestedPermission();
         int[] denied = new int[request.requestedPermissions.length]; Arrays.fill(denied, android.content.pm.PackageManager.PERMISSION_DENIED);
         activity.onRequestPermissionsResult(request.requestCode, request.requestedPermissions, denied);
-        await(() -> status().equals(activity.getString(R.string.radar_permission_denied)));
+        await(() -> activity.getString(R.string.radar_permission_denied).equals(ShadowToast.getTextOfLatestToast()));
+        assertToastError(R.string.radar_permission_denied);
         assertTrue(radarRequests.isEmpty()); assertTrue(activity.findViewById(R.id.btnRadar).isEnabled());
     }
     @Test public void scanUpdatesLocationThenQueriesAndOpensActualUser() throws Exception {
@@ -113,7 +125,10 @@ public class RadarUiTest {
         assertEquals(View.VISIBLE, ShadowDialog.getLatestDialog().findViewById(R.id.tvDistance).getVisibility());
     }
     @Test public void failedUpdateNeverQueriesRadarOrShowsSuccess() throws Exception {
-        failUpdate = true; scan(); await(() -> status().contains("Bấm radar để thử lại"));
+        failUpdate = true; scan(); await(() -> radarRequests.size() == 1 && activity.findViewById(R.id.btnRadar).isEnabled());
+        assertEquals(View.GONE, activity.findViewById(R.id.tvRadarStatus).getVisibility());
+        assertNotNull(ShadowToast.getTextOfLatestToast());
+        assertFalse(ShadowToast.getTextOfLatestToast().isEmpty());
         assertEquals(1, radarRequests.size()); assertTrue(radarRequests.get(0).getPath().endsWith("/update"));
     }
     @Test public void expiredSessionDoesNotLeaveRadarBusy() throws Exception {
@@ -125,15 +140,16 @@ public class RadarUiTest {
         assertTrue(radarRequests.isEmpty()); Shadows.shadowOf(locations).simulateLocation(point(false));
         await(() -> radarRequests.size() == 2 && activity.findViewById(R.id.btnRadar).isEnabled());
     }
-    @Test public void disabledLocationShowsSettingsActionWithoutSendingCoordinates() throws Exception {
+    @Test public void disabledLocationShowsToastWithoutSendingCoordinates() throws Exception {
         Shadows.shadowOf(locations).setLocationEnabled(false); scan();
-        await(() -> status().equals(activity.getString(R.string.radar_gps_disabled)));
+        await(() -> activity.getString(R.string.radar_gps_disabled).equals(ShadowToast.getTextOfLatestToast()));
+        assertToastError(R.string.radar_gps_disabled);
         assertTrue(radarRequests.isEmpty()); assertTrue(activity.findViewById(R.id.btnRadar).isEnabled());
     }
     @Test public void locationTimeoutRestoresScanButton() throws Exception {
         cache(true); scan(); await(() -> status().equals(activity.getString(R.string.radar_locating)));
         Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(26));
-        assertEquals(activity.getString(R.string.radar_location_timeout), status());
+        assertToastError(R.string.radar_location_timeout);
         assertTrue(activity.findViewById(R.id.btnRadar).isEnabled()); assertTrue(radarRequests.isEmpty());
     }
     @Test public void approximatePermissionWorksWithNetworkProvider() throws Exception {

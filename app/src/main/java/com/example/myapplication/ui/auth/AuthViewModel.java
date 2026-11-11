@@ -89,10 +89,17 @@ public final class AuthViewModel extends BaseViewModel {
     public androidx.lifecycle.LiveData<com.example.myapplication.ui.base.UiState<FlowResult>> flowState() { return flow; }
     public void acknowledgeFlow() { flow.setValue(null); }
     private <T> void perform(UiOperation<T> operation, FlowResult next) {
+        perform(operation, next, () -> { });
+    }
+    private <T> void perform(UiOperation<T> operation, FlowResult next, Runnable success) {
         if (flow.getValue() != null && flow.getValue().status == com.example.myapplication.ui.base.UiState.Status.LOADING) { operation.cancel(); return; }
         flow.setValue(com.example.myapplication.ui.base.UiState.loading());
-        watch(operation, response -> flow.setValue(com.example.myapplication.ui.base.UiState.success(next)),
-                error -> flow.setValue(com.example.myapplication.ui.base.UiState.error(error)));
+        watch(operation, response -> {
+            success.run(); flow.setValue(com.example.myapplication.ui.base.UiState.success(next));
+        }, error -> {
+            if (error.code == 429) startOtpCooldown();
+            flow.setValue(com.example.myapplication.ui.base.UiState.error(error));
+        });
     }
     public void registerAccount(RegisterRequest request) {
         perform(register(request), new FlowResult(com.example.myapplication.ui.main.UiScreen.VERIFY_EMAIL, request.email, false, 0));
@@ -103,6 +110,13 @@ public final class AuthViewModel extends BaseViewModel {
     public void sendRegistrationOtp(String email) {
         perform(sendOtp(new SendOtpRequest(email)), new FlowResult(com.example.myapplication.ui.main.UiScreen.VERIFY_OTP, email, false, 0));
     }
+    private boolean initialOtpHandled;
+    public void ensureInitialOtp(String email, boolean reset, boolean alreadySent) {
+        if (initialOtpHandled) return;
+        initialOtpHandled = true;
+        if (alreadySent) startOtpCooldown();
+        else if (validEmail(email)) resendOtp(email, reset);
+    }
     public static boolean validOtp(String otp) { return otp.matches("[0-9]{5}"); }
     public void verifyOtp(String email, String otp, boolean reset) {
         VerifyOtpRequest request = new VerifyOtpRequest(email, otp);
@@ -111,8 +125,28 @@ public final class AuthViewModel extends BaseViewModel {
                         email, reset, reset ? 0 : com.example.myapplication.R.string.api_verified));
     }
     public void resendOtp(String email, boolean reset) {
+        if (otpCooldown.getValue() != null && otpCooldown.getValue() > 0) return;
         SendOtpRequest request = new SendOtpRequest(email);
-        perform(reset ? forgotPasswordSendOtp(request) : sendOtp(request), new FlowResult(null, email, reset, com.example.myapplication.R.string.api_otp_sent));
+        perform(reset ? forgotPasswordSendOtp(request) : sendOtp(request), new FlowResult(null, email, reset, com.example.myapplication.R.string.api_otp_sent), this::startOtpCooldown);
+    }
+    private final android.os.Handler otpTimer = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final androidx.lifecycle.MutableLiveData<Integer> otpCooldown = new androidx.lifecycle.MutableLiveData<>(0);
+    private long otpRetryAt;
+    public androidx.lifecycle.LiveData<Integer> otpCooldown() { return otpCooldown; }
+    private final Runnable otpTick = new Runnable() {
+        @Override public void run() {
+            int remaining = (int) Math.max(0, (otpRetryAt - android.os.SystemClock.elapsedRealtime() + 999) / 1000);
+            otpCooldown.setValue(remaining);
+            if (remaining > 0) otpTimer.postDelayed(this, 1000);
+        }
+    };
+    private void startOtpCooldown() {
+        otpRetryAt = android.os.SystemClock.elapsedRealtime() + 60000;
+        otpTimer.removeCallbacks(otpTick); otpTick.run();
+    }
+    @Override protected void onCleared() {
+        otpTimer.removeCallbacksAndMessages(null);
+        super.onCleared();
     }
     public void resetAccountPassword(ResetPasswordRequest request) {
         perform(resetPassword(request), new FlowResult(com.example.myapplication.ui.main.UiScreen.LOGIN, request.email, true, com.example.myapplication.R.string.api_reset_success));

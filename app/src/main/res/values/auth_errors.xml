@@ -1,0 +1,8 @@
+<resources>
+    <string name="auth_email_required">Vui lòng nhập email.</string>
+    <string name="auth_password_required">Vui lòng nhập mật khẩu.</string>
+    <string name="auth_confirm_required">Vui lòng nhập lại mật khẩu.</string>
+    <string name="auth_first_name_required">Vui lòng nhập tên.</string>
+    <string name="auth_last_name_required">Vui lòng nhập họ.</string>
+    <string name="otp_recipient_email">Email nhận mã OTP:\n%1$s</string>
+</resources>

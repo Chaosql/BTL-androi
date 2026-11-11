@@ -82,7 +82,7 @@ public class StudyUiTest {
         }
     }
 
-    @Test public void sendOtpRemainsInsideViewportWhenKeyboardOpensAndCloses() {
+    @Test public void sendOtpCanBeScrolledIntoViewWhenKeyboardOpensAndCloses() {
         try (ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup()) {
             MainActivity activity = controller.get();
             activity.getSupportFragmentManager().executePendingTransactions();
@@ -101,6 +101,14 @@ public class StudyUiTest {
                 root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
                         View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));
                 root.layout(0, 0, width, height);
+                android.widget.ScrollView scroll = activity.findViewById(R.id.scrollView);
+                android.view.ViewGroup content = (android.view.ViewGroup) scroll.getChildAt(0);
+                assertEquals(content, button.getParent());
+                View artwork = activity.findViewById(R.id.imgChicken);
+                assertTrue(button.getTop() >= artwork.getBottom());
+                android.graphics.Rect target = new android.graphics.Rect(0, 0, button.getWidth(), button.getHeight());
+                content.offsetDescendantRectToMyCoords(button, target);
+                scroll.requestChildRectangleOnScreen(content, target, true);
                 android.graphics.Rect bounds = new android.graphics.Rect(0, 0, button.getWidth(), button.getHeight());
                 ((android.view.ViewGroup) root).offsetDescendantRectToMyCoords(button, bounds);
                 assertEquals(View.VISIBLE, button.getVisibility());

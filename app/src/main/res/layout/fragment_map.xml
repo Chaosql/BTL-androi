@@ -16,20 +16,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" >
 
-    <TextView
-        android:id="@+id/tvMapStatus"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:background="@color/bg_2"
-        android:padding="8dp"
-        android:textColor="@color/input_text"
-        android:textSize="12sp"
-        app:layout_constraintTop_toBottomOf="@id/cardSearch"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+    </FrameLayout>
 
     <TextView
         android:id="@+id/tvRadarStatus"
@@ -38,10 +27,10 @@
         android:layout_marginHorizontal="16dp"
         android:background="@color/bg_2"
         android:padding="8dp"
-        android:text="@string/radar_hint"
         android:textColor="@color/input_text"
         android:textSize="12sp"
-        app:layout_constraintTop_toBottomOf="@id/tvMapStatus"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/cardSearch"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -92,12 +81,14 @@
                 android:imeOptions="actionDone"
                 android:singleLine="true" />
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/imgAvatar"
                 android:layout_width="@dimen/_40sdp"
                 android:layout_height="@dimen/_40sdp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_launcher_foreground" />
+                android:src="@drawable/avatar"
+                android:contentDescription="@string/profile_title"
+                app:shapeAppearanceOverlay="@style/RadarAvatarShape" />
 
         </LinearLayout>
 

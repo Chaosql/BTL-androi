@@ -48,7 +48,7 @@ public class ScreenStructureTest {
             activity.findViewById(R.id.btnSendEmail).performClick();
             activity.getSupportFragmentManager().executePendingTransactions();
             assertTrue(current(activity) instanceof InputEmailFragment);
-            assertTrue(((android.widget.EditText) activity.findViewById(R.id.edtEmail)).getError() != null);
+            assertEquals(android.view.View.VISIBLE, activity.findViewById(R.id.tvEmailError).getVisibility());
             activity.getOnBackPressedDispatcher().onBackPressed();
             activity.getSupportFragmentManager().executePendingTransactions();
             assertTrue(current(activity) instanceof com.example.myapplication.ui.auth.LoginFragment);

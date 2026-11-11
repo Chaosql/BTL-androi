@@ -5,16 +5,16 @@
     <string name="radar_checking">Đang kiểm tra trạng thái tìm bạn…</string>
     <string name="radar_locating">Đang xác định vị trí…</string>
     <string name="radar_scanning">Đang tìm bạn học gần đây…</string>
-    <string name="radar_buddy_off">Bạn đang tắt tìm bạn học. Bấm để mở Hồ sơ và bật lại.</string>
-    <string name="radar_permission_denied">Chưa có quyền vị trí. Bấm để mở cài đặt ứng dụng, hoặc bấm radar để thử cấp quyền lại.</string>
-    <string name="radar_gps_disabled">Hãy bật vị trí trên điện thoại. Bấm để mở cài đặt định vị.</string>
-    <string name="radar_approximate_unavailable">Chưa lấy được vị trí gần đúng. Hãy bật định vị mạng hoặc cho phép vị trí chính xác trong cài đặt ứng dụng.</string>
-    <string name="radar_location_timeout">Chưa lấy được vị trí hiện tại. Kiểm tra định vị rồi bấm radar để thử lại.</string>
+    <string name="radar_buddy_off">Bạn đang tắt tìm bạn học.</string>
+    <string name="radar_permission_denied">Chưa cấp quyền vị trí.</string>
+    <string name="radar_gps_disabled">Vị trí trên điện thoại đang tắt.</string>
+    <string name="radar_approximate_unavailable">Chưa lấy được vị trí gần đúng.</string>
+    <string name="radar_location_timeout">Chưa lấy được vị trí hiện tại.</string>
     <string name="radar_invalid_radius">Nhập bán kính từ 1 đến 5 km.</string>
-    <string name="radar_results">Tìm thấy %1$d bạn học trong %2$.1f km. Bấm để xem danh sách.</string>
-    <string name="radar_empty">Chưa có bạn học trong %1$.1f km. Bấm radar để quét lại.</string>
+    <string name="radar_results">Tìm thấy %1$d bạn học trong %2$.1f km.</string>
+    <string name="radar_empty">Chưa có bạn học trong %1$.1f km.</string>
     <string name="radar_user_distance">%1$s · %2$.1f km</string>
     <string name="radar_results_title">Bạn học gần đây</string>
     <string name="radar_me">Vị trí của bạn</string>
-    <string name="radar_retry">%1$s\nBấm radar để thử lại.</string>
+    <string name="radar_retry">%1$s</string>
 </resources>

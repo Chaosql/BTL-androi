@@ -28,7 +28,7 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
     private DeviceLocation location;
     private MapViewModel model;
     private UiOperation<?> active;
-    private boolean busy, awaitingPermission;
+    private boolean busy, awaitingPermission, radiusError;
     private int version, link;
     private double radius = 3;
     private String owner;
@@ -47,6 +47,11 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
         super.onResume();
         if (studyMap != null) studyMap.resume();
         if (binding == null || !new com.example.myapplication.data.local.PreferenceManager(requireContext()).isLogin()) return;
+        String avatarOwner = new PreferenceManager(requireContext()).getUserId();
+        request(viewModel(ProfileViewModel.class).getCurrentUser(), response -> {
+            if (response.data != null && avatarOwner.equals(response.data.id)
+                    && avatarOwner.equals(new PreferenceManager(requireContext()).getUserId())) showAvatar(response.data.avatar);
+        }, error -> { });
         request(viewModel(com.example.myapplication.ui.notification.NotificationViewModel.class)
                 .getUnreadNotificationCount(), response -> {
             int count = response.data == null ? 0 : Math.max(0, response.data);
@@ -57,6 +62,12 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
         }, error -> { });
     }
 
+    private void showAvatar(String url) {
+        com.bumptech.glide.Glide.with(binding.imgAvatar).load(url)
+                .placeholder(R.drawable.avatar).error(R.drawable.avatar).fallback(R.drawable.avatar)
+                .circleCrop().into(binding.imgAvatar);
+    }
+
     @Override protected void onScreenCreated(View root, Bundle state) {
         enableScreenCatalog(binding.imgCrown);
         model = viewModel(com.example.myapplication.ui.map.MapViewModel.class); location = new DeviceLocation(requireContext());
@@ -65,9 +76,8 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
         radius = state == null ? 3 : state.getDouble("radar_radius", 3);
         users = Collections.emptyList(); link = 0;
         studyMap = new StudyMap(binding.mapView, message -> {
-            if (binding == null) return;
-            binding.tvMapStatus.setText(message);
-            binding.tvMapStatus.setVisibility(message.isEmpty() ? View.GONE : View.VISIBLE);
+            if (binding == null || message.isEmpty() || message.equals(getString(R.string.map_loading))) return;
+            android.widget.Toast.makeText(requireContext(), message, android.widget.Toast.LENGTH_LONG).show();
         });
         studyMap.create(state == null ? null : state.getBundle("map_state"));
         studyMap.onUserClick(this::openUser);
@@ -83,11 +93,12 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
             else if (result.status == com.example.myapplication.ui.base.UiState.Status.SUCCESS) {
                 busy(false); users = result.data.users;
                 studyMap.showRadar(result.data.latitude, result.data.longitude, result.data.radius, users);
+                binding.tvRadarStatus.setTextColor(requireContext().getColor(R.color.input_text));
+                binding.tvRadarStatus.setVisibility(View.VISIBLE);
                 binding.tvRadarStatus.setText(users.isEmpty() ? getString(R.string.radar_empty, radius)
                         : getString(R.string.radar_results, users.size(), radius)); link = users.isEmpty() ? 0 : 4;
             }
         });
-        binding.tvMapStatus.setOnClickListener(view -> studyMap.create(null));
         binding.btnProfile.setOnClickListener(bindingView -> go(UiScreen.PROFILE));
         binding.imgAvatar.setOnClickListener(bindingView -> go(UiScreen.PROFILE));
         binding.btnFriend.setOnClickListener(bindingView -> go(UiScreen.CONVERSATIONS));
@@ -99,6 +110,14 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
         binding.imgGroupRadar.setOnClickListener(view -> scan());
         binding.layoutRadar.setOnClickListener(view -> scan());
         binding.tvRadarStatus.setOnClickListener(view -> statusAction());
+        binding.tvRadarStatus.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
+        binding.etDistance.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence text, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence text, int start, int before, int count) {
+                if (radiusError && binding != null) { radiusError = false; status(R.string.radar_hint, 0); }
+            }
+            @Override public void afterTextChanged(android.text.Editable text) { }
+        });
         binding.etDistance.setOnEditorActionListener((view, action, event) -> {
             if (action != android.view.inputmethod.EditorInfo.IME_ACTION_DONE) return false;
             scan(); return true;
@@ -112,13 +131,30 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
         binding.layoutRadar.setEnabled(!value); binding.etDistance.setEnabled(!value);
         binding.btnRadar.setImageResource(value ? R.drawable.radaring : R.drawable.radar);
     }
-    private void status(int text, int action) { binding.tvRadarStatus.setText(text); link = action; }
+    private void status(int text, int action) {
+        boolean idle = text == R.string.radar_hint;
+        boolean progress = text == R.string.radar_checking || text == R.string.radar_locating || text == R.string.radar_scanning;
+        if (!idle && !progress) { showRadarError(getString(text)); return; }
+        binding.tvRadarStatus.setTextColor(requireContext().getColor(R.color.input_text));
+        binding.tvRadarStatus.setText(idle ? "" : getString(text));
+        binding.tvRadarStatus.setVisibility(idle ? View.GONE : View.VISIBLE);
+        link = action;
+    }
+    private void showRadarError(String message) {
+        binding.tvRadarStatus.setText(null);
+        binding.tvRadarStatus.setVisibility(View.GONE);
+        link = 0;
+        android.widget.Toast.makeText(requireContext(), message, android.widget.Toast.LENGTH_LONG).show();
+    }
     private void scan() {
         if (busy || awaitingPermission) return;
         if (!new PreferenceManager(requireContext()).isLogin()) { go(UiScreen.LOGIN); return; }
         try { radius = RadarData.radius(binding.etDistance.getText().toString()); }
-        catch (IllegalArgumentException error) { binding.etDistance.setError(getString(R.string.radar_invalid_radius)); return; }
-        binding.etDistance.setError(null);
+        catch (IllegalArgumentException error) {
+            radiusError = true;
+            binding.etDistance.requestFocus(); status(R.string.radar_invalid_radius, 0); return;
+        }
+        radiusError = false;
         android.view.inputmethod.InputMethodManager keyboard = (android.view.inputmethod.InputMethodManager) requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
         if (keyboard != null) keyboard.hideSoftInputFromWindow(binding.etDistance.getWindowToken(), 0);
         binding.etDistance.clearFocus();
@@ -130,7 +166,7 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
             if (!current(current)) return;
             active = null;
             if (response.data == null || !owner.equals(response.data.id)) { failed(getString(R.string.feature_invalid)); return; }
-            SocialUi.avatar(binding.imgAvatar, response.data.avatar);
+            showAvatar(response.data.avatar);
             if (!Boolean.TRUE.equals(response.data.buddyActive)) { busy(false); status(R.string.radar_buddy_off, 1); return; }
             if (!location.permitted()) {
                 awaitingPermission = true;
@@ -158,8 +194,8 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
         if (current(current)) model.scan(point.getLatitude(), point.getLongitude(), radius);
     }
     private void failed(String message) {
-        active = null; busy(false); link = 0;
-        binding.tvRadarStatus.setText(getString(R.string.radar_retry, message));
+        active = null; busy(false);
+        showRadarError(message);
     }
     private void statusAction() {
         if (busy) return;
