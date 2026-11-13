@@ -22,14 +22,28 @@ public class CancelBookingDialog extends BasePreviewDialog<DialogCancelReasonBin
     @Override protected void bind(View content, AlertDialog dialog) {
         binding.btnCancel.setOnClickListener(view -> dialog.dismiss());
         binding.btnConfirmCancel.setEnabled(bookingId != null && !bookingId.isEmpty());
+        binding.etCancelReason.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence text, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence text, int start, int before, int count) { }
+            @Override public void afterTextChanged(android.text.Editable text) {
+                if (binding != null && !busy) binding.tvCancelError.setVisibility(View.GONE);
+            }
+        });
         binding.btnCancel.setOnClickListener(view -> { if (!busy) { dialog.dismiss(); closed.run(); } });
         dialog.setOnCancelListener(cancel -> closed.run());
         binding.btnConfirmCancel.setOnClickListener(view -> {
             if (busy || bookingId == null || bookingId.isEmpty()) return;
+            binding.tvCancelError.setVisibility(View.GONE);
+            String reason = binding.etCancelReason.getText().toString().trim();
+            if (reason.isEmpty()) {
+                binding.tvCancelError.setText(R.string.booking_cancel_reason_required);
+                binding.tvCancelError.setVisibility(View.VISIBLE);
+                binding.etCancelReason.requestFocus();
+                return;
+            }
             busy = true;
             binding.btnConfirmCancel.setEnabled(false); binding.btnCancel.setEnabled(false);
             binding.etCancelReason.setEnabled(false); dialog.setCancelable(false);
-            String reason = binding.etCancelReason.getText().toString().trim();
             request(viewModel(com.example.myapplication.ui.schedule.BookingViewModel.class).cancelBooking(bookingId, new CancelBookingRequest(reason)), response -> {
                 BookingReminders.cancel(activity, bookingId);
                 BookingUi.updated(activity);
@@ -39,7 +53,8 @@ public class CancelBookingDialog extends BasePreviewDialog<DialogCancelReasonBin
                 busy = false;
                 binding.btnConfirmCancel.setEnabled(true); binding.btnCancel.setEnabled(true);
                 binding.etCancelReason.setEnabled(true); dialog.setCancelable(true);
-                binding.etCancelReason.setError(failure.message);
+                binding.tvCancelError.setText(failure.message);
+                binding.tvCancelError.setVisibility(View.VISIBLE);
             });
         });
     }

@@ -43,8 +43,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/error"
         android:textSize="@dimen/_11ssp"
-        android:textStyle="bold"
-        tools:text="Thời gian: 16:00 05/08/2026 (60 phút)" />
+        android:textStyle="bold" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -73,17 +72,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_13ssp"
-                android:textStyle="bold"
-                tools:text="Cuộc hẹn học nhóm" />
-
-            <TextView
-                android:id="@+id/tvPartnerName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_2sdp"
-                android:textColor="@color/hint"
-                android:textSize="@dimen/_11ssp"
-                tools:text="Với: Nam Phong" />
+                android:textStyle="bold" />
         </LinearLayout>
 
         <TextView
@@ -95,8 +84,7 @@
             android:paddingVertical="@dimen/_4sdp"
             android:textColor="@color/brown"
             android:textSize="@dimen/_10ssp"
-            android:textStyle="bold"
-            tools:text="PENDING" />
+            android:textStyle="bold" />
     </LinearLayout>
 
     <TextView
@@ -105,8 +93,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_6sdp"
         android:textColor="@color/brown"
-        android:textSize="@dimen/_11ssp"
-        tools:text="Địa điểm: Thư viện ĐH Công Nghiệp" />
+        android:textSize="@dimen/_11ssp" />
 
     <TextView
         android:id="@+id/tvNote"
@@ -114,8 +101,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_6sdp"
         android:textColor="@color/brown"
-        android:textSize="@dimen/_11ssp"
-        tools:text="Ghi chú: Nhớ mang máy tính" />
+        android:textSize="@dimen/_11ssp" />
 
     <LinearLayout
         android:id="@+id/layoutRatingSection"
@@ -163,8 +149,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_6sdp"
         android:gravity="center"
-        android:textSize="@dimen/_11ssp"
-        tools:text="Thông báo lỗi" />
+        android:textSize="@dimen/_11ssp" />
 
     <LinearLayout
         android:id="@+id/layoutActionButtons"

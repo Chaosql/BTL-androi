@@ -8,8 +8,16 @@ import java.util.LinkedHashMap;
 import com.example.myapplication.data.model.*;
 
 public class PageResponse<T> {
-    @SerializedName("content")
+    @SerializedName(value = "content", alternate = {"items"})
     public List<T> content = new ArrayList<>();
+    @SerializedName("meta")
+    public PagingMeta meta;
+
+    public static final class PagingMeta {
+        public Integer pageNum, pageSize, totalPages;
+        public Long totalElements;
+    }
+
     @SerializedName("pageable")
     public PageableInfo pageable;
     @SerializedName("totalPages")

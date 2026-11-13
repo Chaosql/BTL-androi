@@ -36,14 +36,18 @@ public abstract class BaseProfileFragment<B extends ViewBinding> extends BaseFra
     protected void bindProfile(View root, boolean editingProfile) {
         views = profileViews();
         model = viewModel(ProfileViewModel.class);
+        user = null;
+        loading = false;
+        uploading = false;
+        renderLoading();
         model.summary().observe(getViewLifecycleOwner(), state -> {
             loading = state.status == com.example.myapplication.ui.base.UiState.Status.LOADING;
             if (state.status == com.example.myapplication.ui.base.UiState.Status.ERROR) {
                 Toast.makeText(requireContext(), state.error.message, Toast.LENGTH_LONG).show();
             } else if (state.status == com.example.myapplication.ui.base.UiState.Status.SUCCESS) {
                 user = state.data.user; render(root, user);
-                text(views.tvSubjectCount, state.data.subjects == null ? "—" : String.valueOf(state.data.subjects));
-                text(views.tvAppointmentCount, state.data.bookings == null ? "—" : String.valueOf(state.data.bookings));
+                text(views.tvSubjectCount, state.data.subjects == null ? getString(R.string.profile_loading_value) : String.valueOf(state.data.subjects));
+                text(views.tvAppointmentCount, state.data.bookings == null ? getString(R.string.profile_loading_value) : String.valueOf(state.data.bookings));
             }
         });
         model.avatarState().observe(getViewLifecycleOwner(), state -> {
@@ -55,10 +59,6 @@ public abstract class BaseProfileFragment<B extends ViewBinding> extends BaseFra
                 model.acknowledgeAvatar(); ProfileUi.saved(requireActivity());
             }
         });
-        user = null;
-        loading = false;
-        uploading = false;
-        render(root, new UserDto());
         getParentFragmentManager().setFragmentResultListener(ProfileUi.UPDATED, getViewLifecycleOwner(),
                 (key, data) -> loadProfile(root));
         on(views.btnUpdateProfile, () -> {
@@ -71,35 +71,15 @@ public abstract class BaseProfileFragment<B extends ViewBinding> extends BaseFra
         on(views.cvSettings, () -> go(UiScreen.ACCOUNT_SETTINGS));
         on(views.cvAppointment, () -> go(UiScreen.SCHEDULE));
         on(views.cvHonor, () -> new SubjectManagementDialog(host()).show());
-        on(views.tvBuddyStatus, () -> {
-            if (user == null || loading || uploading) return;
-            boolean enable = !Boolean.TRUE.equals(user.buddyActive);
-            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-                    .setMessage(getString(R.string.buddy_confirm, getString(enable ? R.string.feature_enable : R.string.feature_disable)))
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                        if (user == null || loading) return;
-                        loading = true;
-                        request(viewModel(com.example.myapplication.ui.profile.ProfileViewModel.class).toggleBuddyStatus(
-                                new PreferenceManager(requireContext()).getUserId(),
-                                new com.example.myapplication.data.remote.dto.request.ToggleBuddyStatusRequest(enable)), response -> {
-                            loading = false;
-                            if (response.data == null || !Boolean.valueOf(enable).equals(response.data.buddyActive)) {
-                                Toast.makeText(requireContext(), R.string.feature_invalid, Toast.LENGTH_LONG).show(); return;
-                            }
-                            user = response.data; render(root, user); ProfileUi.updated(host());
-                        }, error -> { loading = false; Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show(); });
-                    }).show();
-        });
         Runnable personal = () -> {
             if (user != null) new EditPersonalInfoDialog(host(), user).show();
         };
         Runnable intro = () -> {
             if (user != null) new EditIntroductionDialog(host(), user).show();
         };
-        on(views.tvAddInfo, personal);
-        on(views.cvInfo, personal);
         if (editingProfile) {
+            on(views.tvAddInfo, personal);
+            on(views.cvInfo, personal);
             on(views.tvIntroduction, intro);
             on(views.ivTogglePassword, intro);
         }
@@ -115,6 +95,17 @@ public abstract class BaseProfileFragment<B extends ViewBinding> extends BaseFra
 
     private String display(String value) {
         return value == null || value.trim().isEmpty() ? getString(R.string.profile_unknown) : value;
+    }
+
+    private void renderLoading() {
+        String placeholder = getString(R.string.profile_loading_value);
+        for (android.widget.TextView field : new android.widget.TextView[] {
+                views.tvUsername, views.tvBuddyStatus, views.tvIntroduction, views.tvAge,
+                views.tvGender, views.tvSchool, views.tvMajor, views.tvLocation,
+                views.tvFavoriteRating, views.tvAppointmentCount, views.tvSubjectCount }) {
+            text(field, placeholder);
+        }
+        views.avatar.setImageResource(R.drawable.avatar);
     }
 
     private void render(View root, UserDto data) {
@@ -133,11 +124,10 @@ public abstract class BaseProfileFragment<B extends ViewBinding> extends BaseFra
         text(views.tvSchool, getString(R.string.profile_school, display(data.university)));
         text(views.tvMajor, getString(R.string.profile_major, display(data.majorName)));
         text(views.tvLocation, getString(R.string.profile_location, display(data.location)));
-        String score = data.trustScore == null ? "â€”" : String.format(Locale.US, "%.1f", data.trustScore);
-        text(views.tvFriendsCount, getString(R.string.profile_score, score));
+        String score = data.trustScore == null ? getString(R.string.profile_loading_value) : String.format(Locale.US, "%.1f", data.trustScore);
         text(views.tvFavoriteRating, score);
-        text(views.tvAppointmentCount, "â€”");
-        text(views.tvSubjectCount, data.subjects == null ? "â€”" : String.valueOf(data.subjects.size()));
+        text(views.tvAppointmentCount, getString(R.string.profile_loading_value));
+        text(views.tvSubjectCount, data.subjects == null ? getString(R.string.profile_loading_value) : String.valueOf(data.subjects.size()));
         Glide.with(this).load(data.avatar).placeholder(R.drawable.avatar).error(R.drawable.avatar).into(views.avatar);
     }
 
@@ -160,7 +150,6 @@ public abstract class BaseProfileFragment<B extends ViewBinding> extends BaseFra
         final android.widget.TextView tvAppointmentCount;
         final android.widget.TextView tvBuddyStatus;
         final android.widget.TextView tvFavoriteRating;
-        final android.widget.TextView tvFriendsCount;
         final android.widget.TextView tvGender;
         final android.widget.TextView tvIntroduction;
         final android.widget.TextView tvLocation;
@@ -183,7 +172,6 @@ public abstract class BaseProfileFragment<B extends ViewBinding> extends BaseFra
             tvAppointmentCount = binding.tvAppointmentCount;
             tvBuddyStatus = binding.tvBuddyStatus;
             tvFavoriteRating = binding.tvFavoriteRating;
-            tvFriendsCount = null;
             tvGender = binding.tvGender;
             tvIntroduction = binding.tvIntroduction;
             tvLocation = binding.tvLocation;
@@ -207,7 +195,6 @@ public abstract class BaseProfileFragment<B extends ViewBinding> extends BaseFra
             tvAppointmentCount = null;
             tvBuddyStatus = binding.tvBuddyStatus;
             tvFavoriteRating = null;
-            tvFriendsCount = binding.tvFriendsCount;
             tvGender = binding.tvGender;
             tvIntroduction = binding.tvIntroduction;
             tvLocation = binding.tvLocation;

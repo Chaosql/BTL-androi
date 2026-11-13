@@ -1,6 +1,5 @@
 package com.example.myapplication;
 
-import com.example.myapplication.ui.main.UiDialogs;
 import com.example.myapplication.ui.main.ScreenFactory;
 import com.example.myapplication.ui.main.UiScreen;
 import com.example.myapplication.ui.main.MainActivity;
@@ -44,10 +43,12 @@ public class StudyUiTest {
                 renderRows(root);
                 assertNotNull(screen.name(), activity.getSupportFragmentManager().findFragmentById(R.id.screenHost).getView());
             }
-            for (int layout : UiDialogs.LAYOUTS) {
+            for (int layout : new int[] { R.layout.dialog_add_subject, R.layout.dialog_booking_detail,
+                    R.layout.dialog_cancel_reason, R.layout.dialog_confirm_delete, R.layout.dialog_edit_introduction,
+                    R.layout.dialog_edit_personal_info, R.layout.dialog_friend_options, R.layout.dialog_subject_management,
+                    R.layout.dialog_user_info, R.layout.dialog_admin_user_detail, R.layout.layout_friends_menu_popup,
+                    R.layout.layout_message_actions }) {
                 assertNotNull(LayoutInflater.from(activity).inflate(layout, null, false));
-                UiDialogs.show(activity, layout);
-                org.robolectric.shadows.ShadowDialog.getLatestDialog().dismiss();
             }
         }
     }
@@ -137,7 +138,7 @@ public class StudyUiTest {
             activity.getSupportFragmentManager().executePendingTransactions();
             assertEquals("Tạo cuộc hẹn", ((TextView) activity.findViewById(R.id.tvScreenTitle)).getText().toString());
             assertEquals(activity.getColor(R.color.brown), ((NumberPicker) activity.findViewById(R.id.npHour)).getTextColor());
-            UiDialogs.show(activity, R.layout.dialog_booking_detail);
+            new com.example.myapplication.ui.schedule.BookingDetailDialog(activity).show();
             android.app.Dialog dialog = org.robolectric.shadows.ShadowDialog.getLatestDialog();
             assertEquals(View.GONE, dialog.findViewById(R.id.layoutRatingSection).getVisibility());
             assertEquals(View.GONE, dialog.findViewById(R.id.btnComplete).getVisibility());
@@ -192,8 +193,6 @@ public class StudyUiTest {
                     ((EditText) info.findViewById(R.id.etDateOfBirth)).getHint().toString());
             View password = LayoutInflater.from(activity).inflate(R.layout.fragment_forgot_password, null, false);
             assertEquals(activity.getColor(R.color.input_text), ((EditText) password.findViewById(R.id.edtNewPassword)).getCurrentTextColor());
-            View success = LayoutInflater.from(activity).inflate(R.layout.dialog_login_success, null, false);
-            assertTrue(((TextView) success.findViewById(R.id.tvMessage)).getText().toString().contains("Study Date"));
             assertTrue(!activity.getString(R.string.verify_your_email).contains("abc123@gmail.com"));
         }
     }

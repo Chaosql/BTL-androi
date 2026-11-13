@@ -14,7 +14,6 @@ public class SearchUserFragment extends BaseSocialFragment<FragmentSearchUserBin
     private UserSearchAdapter adapter;
     public SearchUserFragment() { super(FragmentSearchUserBinding::inflate); }
     @Override protected void onScreenCreated(View root, Bundle state) {
-        enableScreenCatalog(binding.tvHeaderTitle);
         binding.btnBack.setOnClickListener(view -> back());
         binding.progressBar.setVisibility(View.GONE);
         adapter = new UserSearchAdapter(item -> user(item.id, item.friendshipStatus), this::add);

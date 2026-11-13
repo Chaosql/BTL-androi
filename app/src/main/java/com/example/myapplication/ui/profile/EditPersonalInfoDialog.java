@@ -18,6 +18,13 @@ public class EditPersonalInfoDialog extends BaseProfileDialog<DialogEditPersonal
 
     @Override protected void bind(View content, AlertDialog dialog) {
         binding.btnCancel.setOnClickListener(view -> dialog.dismiss());
+        ProfileUi.clearOnEdit(binding.etLastName, binding.tvErrorLastName, binding.tvFormError);
+        ProfileUi.clearOnEdit(binding.etFirstName, binding.tvErrorFirstName, binding.tvFormError);
+        ProfileUi.clearOnEdit(binding.etDateOfBirth, binding.tvErrorDateOfBirth, binding.tvFormError);
+        ProfileUi.clearOnEdit(binding.etPhone, binding.tvErrorPhone, binding.tvFormError);
+        ProfileUi.clearOnEdit(binding.etUniversity, binding.tvFormError);
+        ProfileUi.clearOnEdit(binding.etMajorName, binding.tvFormError);
+        ProfileUi.clearOnEdit(binding.etLocation, binding.tvFormError);
         observe(model.personalSave(), state -> {
             boolean saving = state.status == com.example.myapplication.ui.base.UiState.Status.LOADING;
             ProfileUi.inputs(binding.getRoot(), !saving);
@@ -49,13 +56,19 @@ public class EditPersonalInfoDialog extends BaseProfileDialog<DialogEditPersonal
         binding.btnSave.setOnClickListener(view -> save(dialog));
     }
 
+    @Override protected void error(String message) { ProfileUi.showError(binding.tvFormError, message); }
+
     private void save(AlertDialog dialog) {
-        if (user == null || !ProfileUi.required(binding.etLastName) || !ProfileUi.required(binding.etFirstName)) return;
-        String date = ProfileUi.birthDate(binding.etDateOfBirth);
+        ProfileUi.clearErrors(binding.tvFormError, binding.tvErrorLastName, binding.tvErrorFirstName,
+                binding.tvErrorDateOfBirth, binding.tvErrorPhone);
+        if (user == null || !ProfileUi.required(binding.etLastName, binding.tvErrorLastName)
+                || !ProfileUi.required(binding.etFirstName, binding.tvErrorFirstName)) return;
+        String date = ProfileUi.birthDate(binding.etDateOfBirth, binding.tvErrorDateOfBirth);
         if (date == null) return;
         String phone = ProfileUi.value(binding.etPhone);
         if (!ProfileViewModel.validPhone(phone)) {
-            binding.etPhone.setError(activity.getString(R.string.profile_invalid_phone)); return;
+            ProfileUi.showError(binding.tvErrorPhone, activity.getString(R.string.profile_invalid_phone));
+            binding.etPhone.requestFocus(); return;
         }
         String gender = binding.rbMale.isChecked() ? "MALE" : binding.rbFemale.isChecked() ? "FEMALE" : "OTHER";
         UpdatePersonalInfoRequest personal = new UpdatePersonalInfoRequest(ProfileUi.value(binding.etFirstName),

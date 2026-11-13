@@ -33,7 +33,6 @@ public final class ChatViewModel extends BaseViewModel implements ChatSocket.Lis
     private final MutableLiveData<State> state = new MutableLiveData<>();
     private final MutableLiveData<UiEvent<String>> errors = new MutableLiveData<>(), confirmed = new MutableLiveData<>();
     private final MutableLiveData<UiEvent<Boolean>> changes = new MutableLiveData<>();
-    private final MutableLiveData<UiEvent<ChatImage>> images = new MutableLiveData<>();
     private final List<MessageResponse> items = new ArrayList<>();
     private final Set<String> deleted = new HashSet<>(), recalled = new HashSet<>(), knownBeforeSend = new HashSet<>(), mutations = new HashSet<>();
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -55,7 +54,6 @@ public final class ChatViewModel extends BaseViewModel implements ChatSocket.Lis
     public LiveData<UiEvent<String>> errors() { return errors; }
     public LiveData<UiEvent<String>> confirmed() { return confirmed; }
     public LiveData<UiEvent<Boolean>> changes() { return changes; }
-    public LiveData<UiEvent<ChatImage>> images() { return images; }
     public State snapshot() { return new State(this); }
     public String pendingText() { return pendingText; }
     public long pendingSince() { return pendingSince; }
@@ -181,28 +179,47 @@ public final class ChatViewModel extends BaseViewModel implements ChatSocket.Lis
         }, error -> { mutations.remove(message.id); errors.setValue(new UiEvent<>(error.message)); });
     }
     public void prepareImage(Uri uri) {
-        if (preparingImage || cleared) return;
+        if (preparingImage || cleared || !valid() || disabled || pendingText != null) return;
         preparingImage = true; notice(R.string.media_preparing); int generation = ++imageGeneration;
+        String owner = self, destination = conversation;
         imageWorker.execute(() -> {
             try {
                 ChatImage image = ChatImage.prepare(getApplication().getContentResolver(), uri, getApplication().getCacheDir());
                 imageResults.post(() -> {
                     if (cleared || generation != imageGeneration) { image.close(); return; }
-                    preparingImage = false; pendingImage = image; forceRefresh = false; notice = 0; publish();
-                    images.setValue(new UiEvent<>(image));
+                    if (disabled || !owner.equals(self) || !destination.equals(conversation)) {
+                        image.close(); preparingImage = false; publish(); return;
+                    }
+                    pendingImage = image;
+                    notice(R.string.media_uploading);
+                    watch(execute(repository.uploadImage(destination, image.part())), response -> {
+                        finishImage(image);
+                        forceRefresh = false; notice = 0; publish();
+                        changes.setValue(new UiEvent<>(true));
+                        imageUploaded();
+                    }, error -> {
+                        finishImage(image);
+                        forceRefresh = false; notice = 0; publish();
+                        errors.setValue(new UiEvent<>(error.code == 0
+                                ? getApplication().getString(R.string.media_uncertain) : error.message));
+                    });
                 });
             } catch (Exception error) {
                 imageResults.post(() -> { if (!cleared && generation == imageGeneration) { preparingImage = false; notice(R.string.media_image_error); } });
             }
         });
     }
-    public void imageTaken(ChatImage image) { if (pendingImage == image) pendingImage = null; }
+    private void finishImage(ChatImage image) {
+        image.close();
+        if (pendingImage == image) pendingImage = null;
+        preparingImage = false;
+    }
     public void imageUploaded() { load(0); handler.postDelayed(refresh, 1000); handler.postDelayed(refresh, 3000); }
     private void publish() { if (!cleared) state.setValue(new State(this)); }
     @Override protected void onCleared() {
         cleared = true; imageGeneration++; imageWorker.shutdownNow(); handler.removeCallbacksAndMessages(null);
         if (socket != null) socket.close(); socket = null;
-        if (pendingImage != null) pendingImage.close(); pendingImage = null;
         super.onCleared();
+        if (pendingImage != null) pendingImage.close(); pendingImage = null;
     }
 }

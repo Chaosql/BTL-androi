@@ -18,7 +18,6 @@ public class ConversationsFragment extends BaseSocialFragment<FragmentFriendsLis
     private com.example.myapplication.ui.base.PagedList<ConversationResponse> pages;
     public ConversationsFragment() { super(FragmentFriendsListBinding::inflate); }
     @Override protected void onScreenCreated(View root, Bundle saved) {
-        enableScreenCatalog(binding.tvHeaderTitle);
         binding.btnBack.setOnClickListener(view -> back());
         binding.progressBar.setVisibility(View.GONE);
         pages = viewModel(ConversationViewModel.class).conversations();

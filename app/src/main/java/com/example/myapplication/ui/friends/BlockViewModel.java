@@ -17,11 +17,11 @@ public final class BlockViewModel extends BaseViewModel {
         repository = new BlockRepository(application);
     }
 
-    public UiOperation<BaseResponse<CommonResponse>> blockUser(String userId) {
+    public UiOperation<BaseResponse<Object>> blockUser(String userId) {
         return execute(repository.blockUser(userId));
     }
 
-    public UiOperation<BaseResponse<CommonResponse>> unblockUser(String userId) {
+    public UiOperation<BaseResponse<Object>> unblockUser(String userId) {
         return execute(repository.unblockUser(userId));
     }
 

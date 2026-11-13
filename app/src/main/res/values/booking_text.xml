@@ -17,7 +17,6 @@
     <string name="booking_with">Tạo cuộc hẹn với %1$s</string>
     <string name="booking_created">Tạo cuộc hẹn thành công.</string>
     <string name="booking_updated">Đã cập nhật cuộc hẹn.</string>
-    <string name="booking_partner">Với: %1$s</string>
     <string name="booking_time_detail">Thời gian: %1$s (%2$d phút)</string>
     <string name="booking_location_detail">Địa điểm: %1$s</string>
     <string name="booking_note_detail">Ghi chú: %1$s</string>
@@ -25,4 +24,7 @@
     <string name="booking_row">%1$s • %2$s</string>
     <string name="booking_invalid_rating">Vui lòng chọn từ 1 đến 5 sao.</string>
     <string name="booking_rated">Đã gửi đánh giá.</string>
+    <string name="booking_note_label">Ghi chú (không bắt buộc)</string>
+    <string name="booking_note_hint">Nhập ghi chú cho cuộc hẹn</string>
+    <string name="booking_update_unconfirmed">Máy chủ chưa xác nhận cập nhật cuộc hẹn. Vui lòng tải lại.</string>
 </resources>

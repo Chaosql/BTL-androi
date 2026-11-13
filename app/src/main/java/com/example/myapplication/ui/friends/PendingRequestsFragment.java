@@ -12,7 +12,6 @@ public class PendingRequestsFragment extends BaseSocialFragment<FragmentPendingR
     private com.example.myapplication.ui.base.PagedList<FriendDto> pages;
     public PendingRequestsFragment() { super(FragmentPendingRequestsBinding::inflate); }
     @Override protected void onScreenCreated(View root, Bundle saved) {
-        enableScreenCatalog(binding.tvHeaderTitle);
         binding.btnBack.setOnClickListener(view -> back());
         binding.progressBar.setVisibility(View.GONE);
         pages = friends().pendingPage();

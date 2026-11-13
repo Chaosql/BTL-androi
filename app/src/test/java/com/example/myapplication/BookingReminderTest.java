@@ -19,6 +19,8 @@ public class BookingReminderTest {
     private BookingDto booking;
     @Before public void setup() {
         context = RuntimeEnvironment.getApplication(); session = new PreferenceManager(context); session.logout();
+        Shadows.shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS);
+        context.getSharedPreferences("studydate_reminder_deliveries", 0).edit().clear().commit();
         context.getSharedPreferences("notification_prefs", 0).edit().clear().commit();
         context.getSharedPreferences("studydate_reminders", 0).edit().clear().commit();
         session.saveLogin(new LoginData("Bearer", "access", "refresh", "self", null), "test@example.com");
@@ -42,6 +44,46 @@ public class BookingReminderTest {
         BookingReminders.sync(context, booking); BookingReminders.restore(context); assertEquals(1, alarms());
         BookingReminders.clear(context); session.logout(); BookingReminders.restore(context); assertEquals(0, alarms());
     }
+    private org.robolectric.shadows.ShadowNotificationManager notifications() {
+        return Shadows.shadowOf(context.getSystemService(android.app.NotificationManager.class));
+    }
+    @Test public void bookingLoadedTwentyEightMinutesBeforeStartNotifiesOnceAndRefreshKeepsIt() {
+        booking.scheduledAt = Instant.now().plusSeconds(28 * 60).toString();
+        BookingReminders.sync(context, booking);
+        assertEquals(1, notifications().size());
+        android.app.Notification first = notifications().getAllNotifications().get(0);
+        BookingReminders.sync(context, booking); BookingReminders.restore(context);
+        assertEquals(1, notifications().size());
+        assertSame(first, notifications().getAllNotifications().get(0));
+        assertEquals(0, alarms());
+    }
+    @Test public void deniedNotificationPermissionCanRetryAfterGrantWithoutBeingMarkedDelivered() {
+        booking.scheduledAt = Instant.now().plusSeconds(28 * 60).toString();
+        Shadows.shadowOf(RuntimeEnvironment.getApplication()).denyPermissions(android.Manifest.permission.POST_NOTIFICATIONS);
+        BookingReminders.sync(context, booking); assertEquals(0, notifications().size());
+        Shadows.shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS);
+        BookingReminders.restore(context); assertEquals(1, notifications().size());
+    }
+    @Test public void cancellingBookingRemovesAlreadyDisplayedReminder() {
+        booking.scheduledAt = Instant.now().plusSeconds(28 * 60).toString();
+        BookingReminders.sync(context, booking); assertEquals(1, notifications().size());
+        booking.status = "CANCELLED";
+        BookingReminders.sync(context, booking); assertEquals(0, notifications().size());
+    }
+    @Test public void expiredBookingDoesNotPostLateReminder() {
+        booking.scheduledAt = Instant.now().minusSeconds(60).toString();
+        BookingReminders.sync(context, booking);
+        assertEquals(0, alarms()); assertEquals(0, notifications().size());
+    }
+    @Test public void rescheduledBookingCanNotifyAgainForNewStartTime() {
+        booking.scheduledAt = Instant.now().plusSeconds(28 * 60).toString();
+        BookingReminders.sync(context, booking);
+        android.app.Notification first = notifications().getAllNotifications().get(0);
+        booking.scheduledAt = Instant.now().plusSeconds(29 * 60).toString();
+        BookingReminders.sync(context, booking);
+        assertNotSame(first, notifications().getAllNotifications().get(0));
+    }
+
     @Test public void pendingAndLateBookingsDoNotSchedule() {
         booking.status = "PENDING"; BookingReminders.sync(context, booking); assertEquals(0, alarms());
         booking.status = "CONFIRMED"; booking.scheduledAt = Instant.now().plusSeconds(60).toString();

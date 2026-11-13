@@ -38,8 +38,7 @@
         android:textSize="@dimen/_11ssp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/imgAvatar"
-        app:layout_constraintTop_toTopOf="@id/imgAvatar"
-        tools:text="Bạn có một cuộc hẹn với Nam Phong lúc 15h30!" />
+        app:layout_constraintTop_toTopOf="@id/imgAvatar" />
 
     <TextView
         android:id="@+id/tvTimeAgo"
@@ -50,7 +49,6 @@
         android:textColor="@color/hint"
         android:textSize="@dimen/_9ssp"
         app:layout_constraintStart_toEndOf="@id/imgAvatar"
-        app:layout_constraintTop_toBottomOf="@id/tvContent"
-        tools:text="15 phút" />
+        app:layout_constraintTop_toBottomOf="@id/tvContent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

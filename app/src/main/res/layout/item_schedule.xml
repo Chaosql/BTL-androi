@@ -27,8 +27,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/imgItemIcon"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="18h - 20h" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tvTaskDescription"
@@ -40,7 +39,6 @@
         android:textSize="@dimen/_11ssp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/imgItemIcon"
-        app:layout_constraintTop_toBottomOf="@id/tvTime"
-        tools:text="Học online Toán thầy Giang" />
+        app:layout_constraintTop_toBottomOf="@id/tvTime" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

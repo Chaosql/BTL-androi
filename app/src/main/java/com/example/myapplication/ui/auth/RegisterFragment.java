@@ -13,7 +13,6 @@ public class RegisterFragment extends BaseAuthFragment<FragmentRegisterBinding> 
     @Override protected void onScreenCreated(View root, Bundle state) {
         bindErrors(binding.tvPasswordError, binding.edtEmail, binding.edtLastName, binding.edtFirstName, binding.edtDate, binding.edtPassword, binding.edtConfirmPassword);
         bindFlow(binding.tvRegister);
-        enableScreenCatalog(binding.header, binding.ivPic);
         Runnable artwork = passwordArtwork(binding.ivPic, binding.edtPassword, binding.edtConfirmPassword);
         toggle(binding.ivTogglePassword, binding.edtPassword, artwork);
         toggle(binding.ivToggleConfirmPassword, binding.edtConfirmPassword, artwork);

@@ -52,8 +52,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/btnUnblock"
         app:layout_constraintStart_toEndOf="@id/layoutAvatar"
-        app:layout_constraintTop_toTopOf="@id/layoutAvatar"
-        tools:text="Nguyễn Văn A" />
+        app:layout_constraintTop_toTopOf="@id/layoutAvatar" />
 
     <TextView
         android:id="@+id/tvUserPhone"
@@ -66,8 +65,7 @@
         android:textSize="@dimen/_12ssp"
         app:layout_constraintEnd_toStartOf="@id/btnUnblock"
         app:layout_constraintStart_toEndOf="@id/layoutAvatar"
-        app:layout_constraintTop_toBottomOf="@id/tvUserName"
-        tools:text="0123456789" />
+        app:layout_constraintTop_toBottomOf="@id/tvUserName" />
 
     <TextView
         android:id="@+id/btnUnblock"

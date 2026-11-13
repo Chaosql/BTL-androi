@@ -94,7 +94,14 @@ public class SocialApiUiTest {
                     }
                     if (path.equals("/api/v1/users/blocked")) {
                         JsonArray users = new JsonArray();
-                        if (blocked) users.add(user("target", "Target", "NONE"));
+                        if (blocked) {
+                            JsonObject blockedUser = new JsonObject();
+                            blockedUser.addProperty("userId", "target");
+                            blockedUser.addProperty("firstName", "Target");
+                            blockedUser.addProperty("lastName", "Nguyen");
+                            blockedUser.addProperty("avatar", "");
+                            users.add(blockedUser);
+                        }
                         return response(users);
                     }
                     if (path.startsWith("/api/v1/profile/")) {
@@ -117,7 +124,10 @@ public class SocialApiUiTest {
                     else answered.add(path.split("/")[5]);
                 }
                 if (path.equals("/api/v1/friends/target")) removed = true;
-                if (path.equals("/api/v1/users/block/target")) blocked = "POST".equals(request.getMethod());
+                if (path.equals("/api/v1/users/block/target")) {
+                    blocked = "POST".equals(request.getMethod());
+                    return response(new JsonPrimitive(blocked ? "success.chat.user.blocked" : "success.chat.user.unblocked"));
+                }
                 JsonObject success = new JsonObject(); success.addProperty("status", true); return response(success);
             }
         });
@@ -219,18 +229,77 @@ public class SocialApiUiTest {
         open(UiScreen.FRIENDS);
         await(() -> list(R.id.rvFriendsList).getAdapter().getItemCount() == 1);
         row(R.id.rvFriendsList, 0).findViewById(R.id.btnMore).performClick();
+        await(() -> ShadowDialog.getLatestDialog().findViewById(R.id.tvOptionBlock).isEnabled());
         ShadowDialog.getLatestDialog().findViewById(R.id.tvOptionBlock).performClick();
         android.app.Dialog confirmation = ShadowDialog.getLatestDialog();
         confirmation.findViewById(R.id.btnConfirm).performClick();
         await(() -> !confirmation.isShowing());
+        assertEquals(activity.getString(R.string.social_block_success),
+                org.robolectric.shadows.ShadowToast.getTextOfLatestToast());
         open(UiScreen.BLOCKED_USERS);
         await(() -> list(R.id.rvBlockedUsers).getAdapter().getItemCount() == 1);
+        assertTrue(row(R.id.rvBlockedUsers, 0).findViewById(R.id.btnUnblock).isEnabled());
         row(R.id.rvBlockedUsers, 0).findViewById(R.id.btnUnblock).performClick();
         ShadowDialog.getLatestDialog().findViewById(R.id.btnConfirm).performClick();
         await(() -> list(R.id.rvBlockedUsers).getAdapter().getItemCount() == 0);
+        assertEquals(activity.getString(R.string.social_unblock_success),
+                org.robolectric.shadows.ShadowToast.getTextOfLatestToast());
         assertTrue(mutations.contains("POST /api/v1/users/block/target"));
         assertTrue(mutations.contains("DELETE /api/v1/users/block/target"));
     }
+    @Test public void blockedFriendOffersUnblockInsteadOfAnotherBlockRequest() throws Exception {
+        blocked = true;
+        open(UiScreen.FRIENDS);
+        await(() -> list(R.id.rvFriendsList).getAdapter().getItemCount() == 1);
+        row(R.id.rvFriendsList, 0).findViewById(R.id.btnMore).performClick();
+        android.app.Dialog options = ShadowDialog.getLatestDialog();
+        await(() -> options.findViewById(R.id.tvOptionBlock).isEnabled());
+        assertEquals(activity.getString(R.string.ui_item_blocked_user_text_1),
+                ((TextView) options.findViewById(R.id.tvOptionBlock)).getText().toString());
+        options.findViewById(R.id.tvOptionBlock).performClick();
+        android.app.Dialog confirmation = ShadowDialog.getLatestDialog();
+        confirmation.findViewById(R.id.btnConfirm).performClick();
+        confirmation.findViewById(R.id.btnConfirm).performClick();
+        await(() -> !confirmation.isShowing());
+        assertFalse(blocked);
+        assertFalse(mutations.contains("POST /api/v1/users/block/target"));
+        assertEquals(1, Collections.frequency(mutations, "DELETE /api/v1/users/block/target"));
+        row(R.id.rvFriendsList, 0).findViewById(R.id.btnMore).performClick();
+        android.app.Dialog refreshed = ShadowDialog.getLatestDialog();
+        await(() -> refreshed.findViewById(R.id.tvOptionBlock).isEnabled());
+        assertEquals(activity.getString(R.string.option_block),
+                ((TextView) refreshed.findViewById(R.id.tvOptionBlock)).getText().toString());
+    }
+
+    @Test public void blockedUserIdAcceptsBackendFieldAndLegacyId() {
+        Gson gson = new Gson();
+        assertEquals("backend-user", gson.fromJson("{\"userId\":\"backend-user\"}",
+                com.example.myapplication.data.remote.dto.response.BlockedUserDto.class).id);
+        assertEquals("legacy-user", gson.fromJson("{\"id\":\"legacy-user\"}",
+                com.example.myapplication.data.remote.dto.response.BlockedUserDto.class).id);
+    }
+
+    @Test public void rejectedBlockKeepsConfirmationAndDoesNotShowSuccess() throws Exception {
+        open(UiScreen.FRIENDS);
+        await(() -> list(R.id.rvFriendsList).getAdapter().getItemCount() == 1);
+        row(R.id.rvFriendsList, 0).findViewById(R.id.btnMore).performClick();
+        await(() -> ShadowDialog.getLatestDialog().findViewById(R.id.tvOptionBlock).isEnabled());
+        ShadowDialog.getLatestDialog().findViewById(R.id.tvOptionBlock).performClick();
+        android.app.Dialog confirmation = ShadowDialog.getLatestDialog();
+        failAction = true;
+        confirmation.findViewById(R.id.btnConfirm).performClick();
+        await(() -> confirmation.findViewById(R.id.btnConfirm).isEnabled());
+        assertTrue(confirmation.isShowing());
+        assertFalse(blocked);
+        assertEquals("Rejected", org.robolectric.shadows.ShadowToast.getTextOfLatestToast());
+        failAction = false;
+        confirmation.findViewById(R.id.btnConfirm).performClick();
+        await(() -> !confirmation.isShowing());
+        assertTrue(blocked);
+        assertEquals(activity.getString(R.string.social_block_success),
+                org.robolectric.shadows.ShadowToast.getTextOfLatestToast());
+    }
+
     @Test public void olderSearchCannotReplaceLatestResults() throws Exception {
         open(UiScreen.SEARCH_USER); search("old");
         await(() -> server.getRequestCount() > 0);

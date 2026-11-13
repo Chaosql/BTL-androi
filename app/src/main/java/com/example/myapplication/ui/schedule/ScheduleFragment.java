@@ -18,7 +18,6 @@ public class ScheduleFragment extends BaseFragment<FragmentScheduleBinding> {
     public ScheduleFragment() { super(FragmentScheduleBinding::inflate); }
     @Override protected void onScreenCreated(View root, Bundle saved) {
         model = viewModel(ScheduleViewModel.class);
-        enableScreenCatalog(binding.tvScreenTitle);
         binding.btnBack.setOnClickListener(view -> back());
         adapter = new ScheduleAdapter(booking -> {
             if (booking.id != null && !booking.id.isEmpty()) new BookingDetailDialog((MainActivity) requireActivity(), booking.id).show();

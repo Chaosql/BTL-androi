@@ -36,21 +36,39 @@ final class ProfileUi {
         LocalDate date = date(value);
         return date == null ? "" : date.format(DISPLAY);
     }
-    static boolean required(EditText input) {
-        if (!value(input).isEmpty()) { input.setError(null); return true; }
-        input.setError(input.getContext().getString(R.string.api_required));
+    static boolean required(EditText input, android.widget.TextView error) {
+        if (!value(input).isEmpty()) { clearErrors(error); return true; }
+        showError(error, input.getContext().getString(R.string.api_required));
         input.requestFocus();
         return false;
     }
-    static String birthDate(EditText input) {
+    static String birthDate(EditText input, android.widget.TextView error) {
         String date = ProfileViewModel.validBirthDate(value(input));
         if (date == null) {
-            input.setError(input.getContext().getString(R.string.api_invalid_date));
+            showError(error, input.getContext().getString(R.string.api_invalid_date));
             input.requestFocus();
             return null;
         }
-        input.setError(null);
+        clearErrors(error);
         return date;
+    }
+    static void showError(android.widget.TextView view, String message) {
+        view.setText(message);
+        view.setVisibility(android.view.View.VISIBLE);
+    }
+    static void clearErrors(android.widget.TextView... views) {
+        for (android.widget.TextView view : views) {
+            view.setText(""); view.setVisibility(android.view.View.GONE);
+        }
+    }
+    static void clearOnEdit(EditText input, android.widget.TextView... errors) {
+        input.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence text, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence text, int start, int before, int count) { }
+            @Override public void afterTextChanged(android.text.Editable text) {
+                if (input.isEnabled()) clearErrors(errors);
+            }
+        });
     }
     static int genderIndex(String gender) { return "MALE".equals(gender) ? 0 : "FEMALE".equals(gender) ? 1 : 2; }
     static String gender(int index) { return index == 0 ? "MALE" : index == 1 ? "FEMALE" : "OTHER"; }

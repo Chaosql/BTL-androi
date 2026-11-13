@@ -59,8 +59,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/tvTime"
         app:layout_constraintStart_toEndOf="@id/layoutAvatar"
-        app:layout_constraintTop_toTopOf="@id/layoutAvatar"
-        tools:text="Nam Phong" />
+        app:layout_constraintTop_toTopOf="@id/layoutAvatar" />
 
     <TextView
         android:id="@+id/tvLastMessage"
@@ -75,8 +74,7 @@
         android:textSize="@dimen/_12ssp"
         app:layout_constraintEnd_toStartOf="@id/btnMore"
         app:layout_constraintStart_toEndOf="@id/layoutAvatar"
-        app:layout_constraintTop_toBottomOf="@id/tvFriendName"
-        tools:text="Phong: oke c." />
+        app:layout_constraintTop_toBottomOf="@id/tvFriendName" />
 
     <TextView
         android:id="@+id/tvTime"
@@ -85,8 +83,7 @@
         android:textColor="@color/hint"
         android:textSize="@dimen/_12ssp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tvFriendName"
-        tools:text="21:26" />
+        app:layout_constraintTop_toTopOf="@id/tvFriendName" />
 
     <ImageView
         android:id="@+id/btnMore"

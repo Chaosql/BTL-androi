@@ -2,7 +2,6 @@ package com.example.myapplication.ui.profile;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 import com.example.myapplication.R;
 import com.example.myapplication.data.local.PreferenceManager;
 import com.example.myapplication.data.remote.dto.request.UpdatePersonalInfoRequest;
@@ -16,9 +15,11 @@ public class RegistrationInfoFragment extends BaseFragment<FragmentRegistrationI
     public RegistrationInfoFragment() { super(FragmentRegistrationInfoBinding::inflate); }
 
     @Override protected void onScreenCreated(View root, Bundle state) {
-        enableScreenCatalog(binding.tvHeaderTitle);
         binding.btnBack.setOnClickListener(view -> back());
         genderSpinner(binding.spinnerGender);
+        ProfileUi.clearOnEdit(binding.etLastName, binding.tvFormError);
+        ProfileUi.clearOnEdit(binding.etFirstName, binding.tvFormError);
+        ProfileUi.clearOnEdit(binding.etDateOfBirth, binding.tvFormError);
         binding.etDateOfBirth.setOnClickListener(view -> pickDate(binding.etDateOfBirth));
         binding.btnPickDate.setOnClickListener(view -> pickDate(binding.etDateOfBirth));
         user = null;
@@ -27,9 +28,10 @@ public class RegistrationInfoFragment extends BaseFragment<FragmentRegistrationI
         binding.etId.setKeyListener(null);
         binding.etId.setFocusable(false);
         binding.btnSave.setOnClickListener(view -> {
+            ProfileUi.clearErrors(binding.tvFormError);
             if (user == null) { load(); return; }
-            if (!ProfileUi.required(binding.etLastName) || !ProfileUi.required(binding.etFirstName)) return;
-            String birth = ProfileUi.birthDate(binding.etDateOfBirth);
+            if (!ProfileUi.required(binding.etLastName, binding.tvFormError) || !ProfileUi.required(binding.etFirstName, binding.tvFormError)) return;
+            String birth = ProfileUi.birthDate(binding.etDateOfBirth, binding.tvFormError);
             if (birth == null) return;
             binding.btnSave.setEnabled(false);
             ProfileUi.inputs(binding.getRoot(), false);
@@ -44,20 +46,21 @@ public class RegistrationInfoFragment extends BaseFragment<FragmentRegistrationI
                     }, error -> {
                         binding.btnSave.setEnabled(true);
                         ProfileUi.inputs(binding.getRoot(), true);
-                        Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show();
+                        ProfileUi.showError(binding.tvFormError, error.message);
                     });
         });
         load();
     }
 
     private void load() {
+        ProfileUi.clearErrors(binding.tvFormError);
         binding.btnSave.setEnabled(false);
         ProfileUi.inputs(binding.getRoot(), false);
         if (!new PreferenceManager(requireContext()).isLogin()) return;
         request(viewModel(com.example.myapplication.ui.profile.ProfileViewModel.class).getCurrentUser(), response -> {
             binding.btnSave.setEnabled(true);
             if (response.data == null) {
-                Toast.makeText(requireContext(), R.string.profile_empty_response, Toast.LENGTH_LONG).show(); return;
+                ProfileUi.showError(binding.tvFormError, getString(R.string.profile_empty_response)); return;
             }
             user = response.data;
             ProfileUi.inputs(binding.getRoot(), true);
@@ -69,7 +72,7 @@ public class RegistrationInfoFragment extends BaseFragment<FragmentRegistrationI
             binding.spinnerGender.setSelection(ProfileUi.genderIndex(user.gender));
         }, error -> {
             binding.btnSave.setEnabled(true);
-            Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show();
+            ProfileUi.showError(binding.tvFormError, error.message);
         });
     }
 

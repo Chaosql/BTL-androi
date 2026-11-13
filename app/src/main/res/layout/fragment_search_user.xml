@@ -72,34 +72,40 @@
                 app:tint="@color/brown" />
         </LinearLayout>
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/_15sdp"
-            android:visibility="gone" />
+        <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        <TextView
-            android:id="@+id/tvEmptyState"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="@string/social_no_results"
-            android:textColor="@color/brown"
-            android:visibility="gone" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSearchResults"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingTop="@dimen/_10sdp"
+                android:paddingBottom="@dimen/_15sdp"
+                tools:listitem="@layout/item_user_search_result"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvSearchResults"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:clipToPadding="false"
-            android:paddingTop="@dimen/_10sdp"
-            android:paddingBottom="@dimen/_15sdp"
-            tools:listitem="@layout/item_user_search_result"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            <TextView
+            android:layout_gravity="center"
+                android:id="@+id/tvEmptyState"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="@string/social_no_results"
+                android:textColor="@color/brown"
+                android:visibility="gone" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+        </FrameLayout>
 
     </LinearLayout>
 

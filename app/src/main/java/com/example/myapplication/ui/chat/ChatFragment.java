@@ -27,7 +27,7 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> {
     private ChatViewModel model;
     private MessageAdapter adapter;
     private String conversation, target, name, self;
-    private boolean pickingImage, imageDialogVisible;
+    private boolean pickingImage;
     private int revision = -1;
     private final ActivityResultLauncher<String> imagePicker = registerForActivityResult(
             new ActivityResultContracts.GetContent(), uri -> {
@@ -42,7 +42,7 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> {
         Bundle args = getArguments() == null ? new Bundle() : getArguments();
         conversation = args.getString(ChatUi.CONVERSATION, ""); target = args.getString(ChatUi.TARGET, ""); name = args.getString(ChatUi.NAME, "");
         self = new PreferenceManager(requireContext()).getUserId();
-        revision = -1; pickingImage = false; imageDialogVisible = false;
+        revision = -1; pickingImage = false;
         model.initialize(conversation, target, args.getBoolean("is_disabled", false), saved == null ? null : saved.getString("pending_text"),
                 saved == null ? 0 : saved.getLong("pending_since", 0), saved == null ? null : saved.getStringArrayList("known_ids"));
         adapter = new MessageAdapter(self, this::actions, id -> new BookingDetailDialog((MainActivity) requireActivity(), id).show(),
@@ -79,15 +79,7 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> {
             if (text != null && binding.etMessage.getText().toString().trim().equals(text)) binding.etMessage.setText("");
         });
         model.changes().observe(getViewLifecycleOwner(), event -> { if (event.consume() != null) ChatUi.updated(requireActivity()); });
-        model.images().observe(getViewLifecycleOwner(), event -> {
-            ChatImage image = event.consume(); if (image == null) return;
-            model.imageTaken(image);
-            if (model.snapshot().disabled) { image.close(); return; }
-            imageDialogVisible = true; updateControls();
-            new SendImageDialog((MainActivity) requireActivity(), conversation, image, model::imageUploaded, () -> {
-                imageDialogVisible = false; updateControls();
-            }).show(getViewLifecycleOwner());
-        });
+
     }
     private void render(ChatViewModel.State state) {
         if (state.revision != revision) {
@@ -108,9 +100,9 @@ public class ChatFragment extends BaseFragment<FragmentChatBinding> {
         if (binding == null || model == null) return;
         ChatViewModel.State state = model.snapshot();
         binding.btnSend.setEnabled(model.valid() && state.loaded && state.connected && !state.disabled && !state.pending
-                && !state.preparingImage && !imageDialogVisible && !pickingImage);
+                && !state.preparingImage && !pickingImage);
         binding.btnGallery.setEnabled(model.valid() && state.loaded && !state.disabled && !state.pending
-                && !state.preparingImage && !imageDialogVisible && !pickingImage);
+                && !state.preparingImage && !pickingImage);
         binding.etMessage.setEnabled(model.valid() && !state.disabled && !state.pending);
         binding.btnCreateSchedule.setEnabled(model.valid() && !state.disabled);
         binding.tvOnlineStatus.setText(state.disabled ? R.string.chat_disabled : state.connected ? R.string.chat_connected : R.string.chat_disconnected);

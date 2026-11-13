@@ -70,7 +70,6 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
     }
 
     @Override protected void onScreenCreated(View root, Bundle state) {
-        enableScreenCatalog(binding.imgCrown);
         model = viewModel(com.example.myapplication.ui.map.MapViewModel.class); location = new DeviceLocation(requireContext());
         owner = new PreferenceManager(requireContext()).getUserId();
         awaitingPermission = state != null && state.getBoolean("radar_permission");
@@ -174,7 +173,17 @@ public class MapFragment extends BaseFragment<FragmentMapBinding> {
             showAvatar(response.data.avatar);
             if (!Boolean.TRUE.equals(response.data.buddyActive)) { busy(false); status(R.string.radar_buddy_off, 1); return; }
             if (!location.permitted()) {
+                android.content.SharedPreferences asked = requireContext().getSharedPreferences("permission_requests", android.content.Context.MODE_PRIVATE);
+                if (asked.getBoolean("location", false)
+                        && !shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
+                        && !shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                    busy(false);
+                    status(R.string.radar_permission_denied, 3);
+                    statusAction();
+                    return;
+                }
                 awaitingPermission = true;
+                asked.edit().putBoolean("location", true).apply();
                 permissions.launch(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION});
             } else locate();
         }, error -> { if (current(current)) failed(error.message); });

@@ -28,8 +28,15 @@ public final class ChatUi {
         }
     }
     public static String time(String raw) {
+        return time(raw, Clock.systemUTC());
+    }
+    static String time(String raw, Clock clock) {
         Instant time = instant(raw);
-        return time.equals(Instant.EPOCH) ? "" : DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.of("Asia/Ho_Chi_Minh")).format(time);
+        if (time.equals(Instant.EPOCH)) return "";
+        ZoneId zone = ZoneId.of("Asia/Ho_Chi_Minh");
+        boolean today = time.atZone(zone).toLocalDate().equals(LocalDate.now(clock.withZone(zone)));
+        return DateTimeFormatter.ofPattern(today ? "HH:mm" : "HH:mm, dd/MM/yyyy")
+                .withZone(zone).format(time);
     }
     public static JsonObject data(String body) {
         JsonObject raw = JsonParser.parseString(body).getAsJsonObject();

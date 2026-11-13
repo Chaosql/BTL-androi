@@ -23,6 +23,7 @@ public class BookingDetailDialog extends BasePreviewDialog<DialogBookingDetailBi
     private final BookingViewModel model;
     private final String userId;
     private BookingDto booking;
+    private String verifiedOwner;
     private boolean busy;
     public BookingDetailDialog(MainActivity activity) { this(activity, null); }
     public BookingDetailDialog(MainActivity activity, String id) {
@@ -38,7 +39,7 @@ public class BookingDetailDialog extends BasePreviewDialog<DialogBookingDetailBi
         binding.btnReject.setOnClickListener(view -> update(view, () -> model.rejectBooking(bookingId), dialog));
         binding.btnComplete.setOnClickListener(view -> update(view, () -> model.completeBooking(bookingId), dialog));
         binding.btnCancel.setOnClickListener(view -> {
-            if (busy || booking == null || binding.btnCancel.getVisibility() != View.VISIBLE) return;
+            if (busy || booking == null || !member() || binding.btnCancel.getVisibility() != View.VISIBLE) return;
             busy = true; buttons();
             new CancelBookingDialog(activity, bookingId, () -> {
                 if (binding != null) dialog.dismiss();
@@ -57,6 +58,7 @@ public class BookingDetailDialog extends BasePreviewDialog<DialogBookingDetailBi
         binding.layoutRatingSection.setVisibility(View.GONE);
     }
     private void load() {
+        verifiedOwner = null;
         busy = true; hideActions();
         binding.tvErrorMessage.setTextColor(activity.getColor(R.color.brown));
         binding.tvErrorMessage.setText(R.string.booking_loading);
@@ -66,18 +68,22 @@ public class BookingDetailDialog extends BasePreviewDialog<DialogBookingDetailBi
             if (response.data == null || !bookingId.equals(response.data.id)) {
                 error(activity.getString(R.string.booking_invalid_response)); return;
             }
+            if (!sessionValid()) { error(activity.getString(R.string.api_invalid_login)); return; }
             booking = response.data;
+            verifiedOwner = userId;
             binding.tvErrorMessage.setVisibility(View.GONE);
             render();
         }, failure -> { busy = false; error(failure.message); });
     }
-    private boolean creator() { return model.creator(booking); }
-    private boolean member() { return model.member(booking); }
+    private boolean sessionValid() {
+        PreferenceManager session = new PreferenceManager(activity);
+        return session.isLogin() && userId.equals(session.getUserId());
+    }
+    private boolean creator() { return sessionValid() && model.creator(booking); }
+    private boolean member() { return sessionValid() && (model.member(booking) || model.verifiedMember(booking, verifiedOwner)); }
     private void render() {
         BookingReminders.sync(activity, booking);
         binding.tvSubject.setText(BookingUi.value(booking.subject));
-        String name = creator() ? booking.partnerName : booking.creatorName;
-        binding.tvPartnerName.setText(activity.getString(R.string.booking_partner, BookingUi.value(name)));
         binding.tvStatus.setText(BookingUi.statusText(BookingUi.status(booking)));
         ZonedDateTime time = BookingUi.time(booking.scheduledAt);
         binding.tvTimeAndDate.setText(activity.getString(R.string.booking_time_detail,
@@ -92,7 +98,7 @@ public class BookingDetailDialog extends BasePreviewDialog<DialogBookingDetailBi
         Glide.with(activity).load(creator() ? booking.partnerAvatar : booking.creatorAvatar)
                 .placeholder(R.drawable.avatar).error(R.drawable.avatar).into(binding.imgPartnerAvatar);
         hideActions();
-        BookingViewModel.Actions actions = model.actions(booking);
+        BookingViewModel.Actions actions = sessionValid() ? model.actions(booking, verifiedOwner) : model.actions(null);
         binding.btnAccept.setVisibility(actions.accept ? View.VISIBLE : View.GONE);
         binding.btnReject.setVisibility(actions.reject ? View.VISIBLE : View.GONE);
         binding.btnCancel.setVisibility(actions.cancel ? View.VISIBLE : View.GONE);
@@ -104,6 +110,7 @@ public class BookingDetailDialog extends BasePreviewDialog<DialogBookingDetailBi
             binding.btnRate.setVisibility(actions.rated ? View.GONE : View.VISIBLE);
         }
         buttons();
+
     }
     private void buttons() {
         binding.btnAccept.setEnabled(!busy); binding.btnReject.setEnabled(!busy);

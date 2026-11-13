@@ -1,4 +1,5 @@
 <resources>
+    <string name="profile_loading_value">-</string>
     <string name="profile_saved">Đã lưu thay đổi.</string>
     <string name="profile_empty_response">Không tải được thông tin hồ sơ. Vui lòng thử lại.</string>
     <string name="profile_unknown">Chưa cập nhật</string>

@@ -1,16 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@color/bg_2" android:orientation="vertical" android:padding="16dp">
-    <TextView android:id="@+id/tvScreenTitle" android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:gravity="center" android:text="@string/admin_title" android:textStyle="bold" android:textSize="22sp" android:textColor="@color/brown" />
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnReload" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/admin_reload" android:backgroundTint="@color/brown" android:textColor="@color/white" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnLogout" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/feature_logout" android:backgroundTint="@color/brown" android:textColor="@color/white" />
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_2"
+    android:orientation="vertical"
+    android:padding="16dp">
+    <TextView android:id="@+id/tvScreenTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/admin_title"
+        android:textStyle="bold"
+        android:textSize="22sp"
+        android:textColor="@color/brown" />
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnReload"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="@dimen/_10sdp"
+            android:text="@string/admin_reload"
+            android:backgroundTint="@color/brown"
+            android:textColor="@color/white" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLogout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/feature_logout"
+            android:backgroundTint="@color/brown"
+            android:textColor="@color/white" />
     </LinearLayout>
-    <TextView android:id="@+id/tvStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:textColor="@color/input_text" />
-    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvUsers" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/_5sdp"
+        android:textColor="@color/input_text" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvUsers"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-    <com.google.android.material.button.MaterialButton android:id="@+id/btnMore" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/feature_more" android:visibility="gone" android:backgroundTint="@color/brown" android:textColor="@color/white" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnMore"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/feature_more"
+        android:visibility="gone"
+        android:backgroundTint="@color/brown"
+        android:textColor="@color/white" />
 </LinearLayout>

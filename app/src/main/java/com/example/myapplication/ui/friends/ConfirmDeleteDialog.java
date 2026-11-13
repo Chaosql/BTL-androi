@@ -38,7 +38,9 @@ public class ConfirmDeleteDialog extends BasePreviewDialog<DialogConfirmDeleteBi
             }
             request(operation, response -> {
                 SocialUi.updated(activity);
-                Toast.makeText(activity, R.string.social_success, Toast.LENGTH_SHORT).show();
+                int successMessage = action == Action.BLOCK ? R.string.social_block_success
+                        : action == Action.UNBLOCK ? R.string.social_unblock_success : R.string.social_success;
+                Toast.makeText(activity, successMessage, Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
             }, failure -> {
                 submitting = false;

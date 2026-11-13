@@ -36,7 +36,9 @@ public class BookingApiUiTest {
     private JsonObject booking;
     private LocalDate day;
     private volatile boolean failAction;
+    private volatile boolean unchangedAction;
     private volatile boolean failLoad;
+    private volatile boolean forbiddenDetail;
     private volatile boolean duplicate;
     private final List<String> mutations = Collections.synchronizedList(new ArrayList<>());
     private final List<JsonObject> bodies = Collections.synchronizedList(new ArrayList<>());
@@ -67,7 +69,10 @@ public class BookingApiUiTest {
                     if (path.equals("/api/v1/bookings")) {
                         JsonArray list = new JsonArray(); list.add(booking.deepCopy()); return response(list);
                     }
-                    if (path.equals("/api/v1/bookings/b1")) return response(booking);
+                    if (path.equals("/api/v1/bookings/b1")) {
+                        if (forbiddenDetail) return new MockResponse().setResponseCode(403).setBody("{\"message\":\"Denied\"}");
+                        return response(booking);
+                    }
                     if (path.equals("/api/v1/friends")) {
                         JsonObject friend = new JsonObject(); friend.addProperty("userId", "peer");
                         friend.addProperty("firstName", "Peer"); friend.addProperty("lastName", "Nguyen");
@@ -82,6 +87,7 @@ public class BookingApiUiTest {
                 bodies.add(body);
                 mutations.add(request.getMethod() + " " + path);
                 if (failAction) return new MockResponse().setResponseCode(409).setBody("{\"message\":\"Conflict\"}");
+                if (unchangedAction && (path.endsWith("/complete") || path.endsWith("/cancel"))) return response(booking);
                 if (path.equals("/api/v1/chat/conversations/direct")) {
                     JsonObject conversation = new JsonObject(); conversation.addProperty("id", "c1"); return response(conversation);
                 }
@@ -90,7 +96,7 @@ public class BookingApiUiTest {
                     booking.addProperty("creatorId", "self"); booking.addProperty("partnerId", "peer");
                     return response(booking);
                 }
-                if (path.endsWith("/accept")) booking.addProperty("status", "ACCEPTED");
+                if (path.endsWith("/accept")) booking.addProperty("status", "CONFIRMED");
                 if (path.endsWith("/reject")) booking.addProperty("status", "REJECTED");
                 if (path.endsWith("/complete")) booking.addProperty("status", "COMPLETED");
                 if (path.endsWith("/cancel")) {
@@ -158,7 +164,7 @@ public class BookingApiUiTest {
     @Test public void pendingRecipientCanAcceptThenCompleteAndRate() throws Exception {
         android.app.Dialog dialog = detail();
         assertEquals(View.VISIBLE, dialog.findViewById(R.id.btnAccept).getVisibility());
-        assertEquals(View.GONE, dialog.findViewById(R.id.btnCancel).getVisibility());
+        assertEquals(View.VISIBLE, dialog.findViewById(R.id.btnCancel).getVisibility());
         dialog.findViewById(R.id.btnAccept).performClick();
         await(() -> dialog.findViewById(R.id.btnComplete).getVisibility() == View.VISIBLE);
         dialog.findViewById(R.id.btnComplete).performClick();
@@ -180,6 +186,96 @@ public class BookingApiUiTest {
         assertTrue(mutations.isEmpty());
         dialog.dismiss();
     }
+    @Test public void confirmedCreatorCanCompleteOwnBooking() throws Exception {
+        booking.addProperty("creatorId", "self"); booking.addProperty("partnerId", "peer");
+        booking.addProperty("participantStatus", "CREATOR"); booking.addProperty("status", "CONFIRMED");
+        android.app.Dialog dialog = detail();
+        assertEquals(View.VISIBLE, dialog.findViewById(R.id.btnComplete).getVisibility());
+        assertEquals(View.VISIBLE, dialog.findViewById(R.id.btnCancel).getVisibility());
+        dialog.findViewById(R.id.btnComplete).performClick();
+        await(() -> dialog.findViewById(R.id.layoutRatingSection).getVisibility() == View.VISIBLE);
+        assertEquals(Collections.singletonList("PATCH /api/v1/bookings/b1/complete"), mutations);
+        dialog.dismiss();
+    }
+    @Test public void pendingInvitedParticipantCanCancelWithReason() throws Exception {
+        android.app.Dialog parent = detail();
+        parent.findViewById(R.id.btnCancel).performClick();
+        android.app.Dialog cancel = ShadowDialog.getLatestDialog();
+        ((EditText) cancel.findViewById(R.id.etCancelReason)).setText("Cannot attend");
+        cancel.findViewById(R.id.btnConfirmCancel).performClick();
+        await(() -> !cancel.isShowing() && !parent.isShowing());
+        assertEquals(Collections.singletonList("PATCH /api/v1/bookings/b1/cancel"), mutations);
+        assertEquals("Cannot attend", bodies.get(0).get("cancelReason").getAsString());
+    }
+    @Test public void serverCreatorRoleCanIdentifyCreatorWhenCreatorIdIsMissing() throws Exception {
+        booking.remove("creatorId"); booking.remove("partnerId");
+        booking.addProperty("participantStatus", "CREATOR"); booking.addProperty("status", "CONFIRMED");
+        android.app.Dialog dialog = detail();
+        assertEquals(View.VISIBLE, dialog.findViewById(R.id.btnComplete).getVisibility());
+        assertEquals(View.VISIBLE, dialog.findViewById(R.id.btnCancel).getVisibility());
+        dialog.dismiss();
+    }
+    @Test public void participantsUserIdIdentifiesInvitedParticipant() throws Exception {
+        booking.addProperty("partnerId", "creator"); booking.addProperty("status", "CONFIRMED");
+        booking.add("participants", JsonParser.parseString("[{\"id\":\"invitation-1\",\"userId\":\"self\",\"status\":\"ACCEPTED\"}]"));
+        android.app.Dialog dialog = detail();
+        assertEquals(View.VISIBLE, dialog.findViewById(R.id.btnComplete).getVisibility());
+        assertEquals(View.VISIBLE, dialog.findViewById(R.id.btnCancel).getVisibility());
+        dialog.dismiss();
+    }
+    @Test public void verifiedDetailAllowsCommonActionsWithoutCreatorMetadata() throws Exception {
+        booking.remove("creatorId"); booking.remove("partnerId"); booking.addProperty("status", "CONFIRMED");
+        BookingViewModel model = new BookingViewModel(RuntimeEnvironment.getApplication());
+        com.example.myapplication.data.remote.dto.response.BookingDto raw = new Gson().fromJson(booking,
+                com.example.myapplication.data.remote.dto.response.BookingDto.class);
+        assertFalse(model.actions(raw).complete);
+        assertFalse(model.actions(raw).cancel);
+        android.app.Dialog dialog = detail();
+        assertEquals(View.VISIBLE, dialog.findViewById(R.id.btnComplete).getVisibility());
+        assertEquals(View.VISIBLE, dialog.findViewById(R.id.btnCancel).getVisibility());
+        assertEquals(View.GONE, dialog.findViewById(R.id.tvErrorMessage).getVisibility());
+        dialog.findViewById(R.id.btnComplete).performClick();
+        await(() -> dialog.findViewById(R.id.layoutRatingSection).getVisibility() == View.VISIBLE);
+        assertEquals(Collections.singletonList("PATCH /api/v1/bookings/b1/complete"), mutations);
+        dialog.dismiss();
+    }
+    @Test public void verifiedPendingDetailWithoutRoleCanCancelButCannotAcceptOrReject() throws Exception {
+        booking.remove("creatorId"); booking.remove("partnerId");
+        android.app.Dialog dialog = detail();
+        assertEquals(View.VISIBLE, dialog.findViewById(R.id.btnCancel).getVisibility());
+        assertEquals(View.GONE, dialog.findViewById(R.id.btnComplete).getVisibility());
+        assertEquals(View.GONE, dialog.findViewById(R.id.btnAccept).getVisibility());
+        assertEquals(View.GONE, dialog.findViewById(R.id.btnReject).getVisibility());
+        dialog.dismiss();
+    }
+    @Test public void forbiddenDetailNeverEnablesActions() throws Exception {
+        forbiddenDetail = true;
+        new BookingDetailDialog(activity, "b1").show();
+        android.app.Dialog dialog = ShadowDialog.getLatestDialog();
+        await(() -> "Denied".equals(((TextView) dialog.findViewById(R.id.tvErrorMessage)).getText().toString()));
+        assertEquals(View.GONE, dialog.findViewById(R.id.btnCancel).getVisibility());
+        assertEquals(View.GONE, dialog.findViewById(R.id.btnComplete).getVisibility());
+        dialog.findViewById(R.id.btnComplete).performClick();
+        assertTrue(mutations.isEmpty()); dialog.dismiss();
+    }
+    @Test public void changingAccountInvalidatesVerifiedDetailActions() throws Exception {
+        booking.remove("creatorId"); booking.remove("partnerId"); booking.addProperty("status", "CONFIRMED");
+        android.app.Dialog dialog = detail();
+        preferences.saveLogin(new LoginData("Bearer", "other-token", "refresh", "other-user", null), "other@example.com");
+        dialog.findViewById(R.id.btnComplete).performClick();
+        dialog.findViewById(R.id.btnCancel).performClick();
+        assertTrue(mutations.isEmpty()); dialog.dismiss();
+    }
+    @Test public void unchangedCompleteResponseShowsErrorInsteadOfSuccess() throws Exception {
+        booking.addProperty("status", "CONFIRMED"); unchangedAction = true;
+        android.app.Dialog dialog = detail();
+        dialog.findViewById(R.id.btnComplete).performClick();
+        await(() -> dialog.findViewById(R.id.btnComplete).isEnabled());
+        assertEquals(activity.getString(R.string.booking_update_unconfirmed), ((TextView) dialog.findViewById(R.id.tvErrorMessage)).getText().toString());
+        assertEquals(View.GONE, dialog.findViewById(R.id.layoutRatingSection).getVisibility());
+        dialog.dismiss();
+    }
+
     @Test public void rejectedInvitationHasNoActions() throws Exception {
         android.app.Dialog dialog = detail();
         dialog.findViewById(R.id.btnReject).performClick();
@@ -193,11 +289,17 @@ public class BookingApiUiTest {
         android.app.Dialog parent = detail();
         parent.findViewById(R.id.btnCancel).performClick();
         android.app.Dialog cancel = ShadowDialog.getLatestDialog();
+        cancel.findViewById(R.id.btnConfirmCancel).performClick();
+        assertTrue(mutations.isEmpty());
+        assertEquals(View.VISIBLE, cancel.findViewById(R.id.tvCancelError).getVisibility());
+        assertNull(((EditText) cancel.findViewById(R.id.etCancelReason)).getError());
         ((EditText) cancel.findViewById(R.id.etCancelReason)).setText("Busy");
+        assertEquals(View.GONE, cancel.findViewById(R.id.tvCancelError).getVisibility());
         failAction = true;
         cancel.findViewById(R.id.btnConfirmCancel).performClick();
         await(() -> cancel.findViewById(R.id.btnConfirmCancel).isEnabled());
         assertTrue(cancel.isShowing()); assertTrue(parent.isShowing());
+        assertEquals(View.VISIBLE, cancel.findViewById(R.id.tvCancelError).getVisibility());
         assertEquals("Busy", ((EditText) cancel.findViewById(R.id.etCancelReason)).getText().toString());
         failAction = false;
         cancel.findViewById(R.id.btnConfirmCancel).performClick();
@@ -245,11 +347,15 @@ public class BookingApiUiTest {
         failAction = true; openCreate(true);
         ((EditText) activity.findViewById(R.id.etLocationName)).setText("Library");
         ((Spinner) activity.findViewById(R.id.spDuration)).setSelection(2);
+        ((EditText) activity.findViewById(R.id.etNote)).setText("  Bring laptop\nReview Java  ");
         activity.findViewById(R.id.btnCreate).performClick();
         await(() -> activity.findViewById(R.id.btnCreate).isEnabled());
         assertEquals("Library", ((EditText) activity.findViewById(R.id.etLocationName)).getText().toString());
         assertEquals(day.atTime(3, 0).toInstant(ZoneOffset.UTC).toString(), bodies.get(0).get("scheduledAt").getAsString());
         assertEquals(60, bodies.get(0).get("durationMinutes").getAsInt());
+        assertEquals("Bring laptop\nReview Java", bodies.get(0).get("note").getAsString());
+        assertEquals("  Bring laptop\nReview Java  ", ((EditText) activity.findViewById(R.id.etNote)).getText().toString());
+        assertTrue(activity.findViewById(R.id.etNote).isEnabled());
     }
     @Test public void createFromScheduleChoosesFriendAndGetsConversation() throws Exception {
         openSchedule();
@@ -268,6 +374,22 @@ public class BookingApiUiTest {
         assertEquals("peer", bodies.get(0).get("targetUserId").getAsString());
         assertEquals("POST /api/v1/bookings/conversation/c1", mutations.get(1));
     }
+    @Test public void optionalNoteCanBeEmpty() throws Exception {
+        openCreate(true);
+        ((EditText) activity.findViewById(R.id.etLocationName)).setText("Library");
+        activity.findViewById(R.id.btnCreate).performClick();
+        await(() -> !bodies.isEmpty());
+        assertEquals("", bodies.get(0).get("note").getAsString());
+        await(() -> activity.findViewById(R.id.rvScheduleList) != null);
+    }
+    @Test public void serverNoteAppearsInDetail() throws Exception {
+        booking.addProperty("note", "Bring laptop");
+        android.app.Dialog dialog = detail();
+        assertEquals(activity.getString(R.string.booking_note_detail, "Bring laptop"),
+                ((TextView) dialog.findViewById(R.id.tvNote)).getText().toString());
+        dialog.dismiss();
+    }
+
     @Test public void failedCalendarCanRetry() throws Exception {
         failLoad = true; openSchedule();
         await(() -> activity.findViewById(R.id.progressBar).getVisibility() == View.GONE);
@@ -280,6 +402,7 @@ public class BookingApiUiTest {
         ((Spinner) activity.findViewById(R.id.spDuration)).setSelection(4);
         ((CheckBox) activity.findViewById(R.id.cbIsRecurring)).setChecked(true);
         ((EditText) activity.findViewById(R.id.etLocationName)).setText("Library");
+        ((EditText) activity.findViewById(R.id.etNote)).setText("Bring notes");
         controller.recreate(); activity = controller.get();
         activity.getSupportFragmentManager().executePendingTransactions();
         assertEquals(10, ((NumberPicker) activity.findViewById(R.id.npHour)).getValue());
@@ -287,6 +410,7 @@ public class BookingApiUiTest {
         assertEquals("Library", ((EditText) activity.findViewById(R.id.etLocationName)).getText().toString());
         assertEquals(day.format(BookingUi.DATE), ((TextView) activity.findViewById(R.id.tvSelectedDate)).getText().toString());
         assertTrue(((CheckBox) activity.findViewById(R.id.cbIsRecurring)).isChecked());
+        assertEquals("Bring notes", ((EditText) activity.findViewById(R.id.etNote)).getText().toString());
     }
 
     @Test public void doubleAcceptOnlySendsOneRequest() throws Exception {
@@ -298,6 +422,7 @@ public class BookingApiUiTest {
         dialog.dismiss();
     }
     @Test public void unrelatedUserHasReadOnlyBooking() throws Exception {
+        booking.addProperty("participantStatus", "NOT_INVOLVED");
         booking.addProperty("partnerId", "someone-else");
         booking.addProperty("status", "CONFIRMED");
         android.app.Dialog dialog = detail();

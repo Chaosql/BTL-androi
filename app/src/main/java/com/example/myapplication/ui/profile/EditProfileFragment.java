@@ -10,7 +10,6 @@ public class EditProfileFragment extends BaseProfileFragment<FragmentEditProfile
     @Override protected ProfileViews profileViews() { return new ProfileViews(binding); }
 
     @Override protected void onScreenCreated(View root, Bundle state) {
-        enableScreenCatalog(binding.tvHeaderTitle);
         binding.ivBack.setOnClickListener(view -> back());
         bindProfile(root, true);
     }

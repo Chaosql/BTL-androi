@@ -125,8 +125,7 @@
                 android:textSize="@dimen/_18ssp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Tháng 7, 2026" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -363,8 +362,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@id/layoutDayTabs"
             android:layout_marginTop="@dimen/_32sdp"
-            app:layout_constraintTop_toTopOf="@id/layoutDayTabs"
-            tools:text="13/7" />
+            app:layout_constraintTop_toTopOf="@id/layoutDayTabs" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

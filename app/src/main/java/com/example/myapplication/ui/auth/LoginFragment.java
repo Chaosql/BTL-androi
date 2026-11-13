@@ -12,7 +12,6 @@ public class LoginFragment extends BaseAuthFragment<FragmentLoginBinding> {
     public LoginFragment() { super(FragmentLoginBinding::inflate); }
     @Override protected void onScreenCreated(View root, Bundle state) {
         bindErrors(binding.tvPasswordError, binding.edtEmail, binding.edtPassword);
-        enableScreenCatalog(binding.header, binding.ivPic);
         Runnable artwork = passwordArtwork(binding.ivPic, binding.edtPassword);
         toggle(binding.ivTogglePassword, binding.edtPassword, artwork);
         AuthViewModel model = viewModel(AuthViewModel.class);

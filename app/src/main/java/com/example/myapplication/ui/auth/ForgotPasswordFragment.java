@@ -12,7 +12,6 @@ public class ForgotPasswordFragment extends BaseAuthFragment<FragmentForgotPassw
     @Override protected void onScreenCreated(View root, Bundle state) {
         bindErrors(binding.tvPasswordError, binding.edtNewPassword, binding.edtConfirmPassword);
         bindFlow(binding.tvConfirm);
-        enableScreenCatalog(binding.header, binding.ivPic);
         Runnable artwork = passwordArtwork(binding.ivPic, binding.edtNewPassword, binding.edtConfirmPassword);
         toggle(binding.ivTogglePassword, binding.edtNewPassword, artwork);
         toggle(binding.ivToggleConfirmPassword, binding.edtConfirmPassword, artwork);

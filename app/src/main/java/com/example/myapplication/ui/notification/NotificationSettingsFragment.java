@@ -9,7 +9,6 @@ public class NotificationSettingsFragment extends BaseFragment<FragmentNotificat
     public NotificationSettingsFragment() { super(FragmentNotificationSettingsBinding::inflate); }
 
     @Override protected void onScreenCreated(View root, Bundle state) {
-        enableScreenCatalog(binding.tvHeaderTitle);
         binding.btnBack.setOnClickListener(view -> back());
         NotificationSettingsViewModel preferences = viewModel(NotificationSettingsViewModel.class);
         preferences.errors().observe(getViewLifecycleOwner(), event -> {

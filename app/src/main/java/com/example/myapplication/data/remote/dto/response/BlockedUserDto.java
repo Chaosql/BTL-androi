@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import com.example.myapplication.data.model.*;
 
 public class BlockedUserDto {
-    @SerializedName("id")
+    @SerializedName(value = "userId", alternate = {"id"})
     public String id;
     @SerializedName("firstName")
     public String firstName;

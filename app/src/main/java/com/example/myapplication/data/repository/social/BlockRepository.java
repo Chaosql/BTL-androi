@@ -13,11 +13,11 @@ public final class BlockRepository extends BaseRepository {
     public BlockRepository(Context context) { super(context); }
     public BlockRepository(ApiService api) { super(api); }
 
-    public Call<BaseResponse<CommonResponse>> blockUser(String userId) {
+    public Call<BaseResponse<Object>> blockUser(String userId) {
         return api.blockUser(userId);
     }
 
-    public Call<BaseResponse<CommonResponse>> unblockUser(String userId) {
+    public Call<BaseResponse<Object>> unblockUser(String userId) {
         return api.unblockUser(userId);
     }
 

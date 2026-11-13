@@ -13,4 +13,6 @@
     <string name="social_unfriend_confirm">Hủy kết bạn với %1$s?</string>
     <string name="social_online">Đang hoạt động</string>
     <string name="social_offline">Không hoạt động</string>
+    <string name="social_block_success">Đã chặn người dùng.</string>
+    <string name="social_unblock_success">Đã bỏ chặn người dùng.</string>
 </resources>

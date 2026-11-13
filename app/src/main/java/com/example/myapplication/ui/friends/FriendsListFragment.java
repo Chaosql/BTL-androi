@@ -14,7 +14,6 @@ public class FriendsListFragment extends BaseSocialFragment<FragmentFriendsListB
     public FriendsListFragment() { super(FragmentFriendsListBinding::inflate); }
 
     @Override protected void onScreenCreated(View root, Bundle saved) {
-        enableScreenCatalog(binding.tvHeaderTitle);
         binding.btnBack.setOnClickListener(view -> back());
         binding.progressBar.setVisibility(View.GONE);
         pages = friends().friendsPage();

@@ -36,34 +36,39 @@
             android:textStyle="bold" />
     </RelativeLayout>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/_15sdp"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/tvEmptyState"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/_20sdp"
-        android:text="@string/ui_fragment_blocked_users_text_1"
-        android:textColor="@color/brown"
-        android:textSize="@dimen/_13ssp"
-        android:visibility="gone" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvBlockedUsers"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingHorizontal="@dimen/_15sdp"
-        android:paddingTop="@dimen/_8sdp"
-        android:paddingBottom="@dimen/_15sdp"
-        tools:listitem="@layout/item_blocked_user"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvBlockedUsers"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/_15sdp"
+            android:paddingTop="@dimen/_8sdp"
+            android:paddingBottom="@dimen/_15sdp"
+            tools:listitem="@layout/item_blocked_user"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        <TextView
+            android:id="@+id/tvEmptyState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/ui_fragment_blocked_users_text_1"
+            android:textColor="@color/brown"
+            android:textSize="@dimen/_13ssp"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+    </FrameLayout>
 
 </LinearLayout>

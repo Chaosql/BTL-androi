@@ -11,13 +11,35 @@ public class MainActivity extends com.example.myapplication.ui.base.BaseActivity
                 if (granted) {
                     com.example.myapplication.ui.notification.PushRegistration.register(this);
                     com.example.myapplication.ui.schedule.BookingReminders.restore(this);
+                    android.widget.Toast.makeText(this, R.string.notification_permission_granted, android.widget.Toast.LENGTH_SHORT).show();
                 } else android.widget.Toast.makeText(this, R.string.reminder_permission, android.widget.Toast.LENGTH_LONG).show();
             });
     public void enableNotifications() {
+        android.content.SharedPreferences permissions = getSharedPreferences("permission_requests", MODE_PRIVATE);
         if (android.os.Build.VERSION.SDK_INT >= 33 && androidx.core.content.ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED)
+                android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            if (permissions.getBoolean("notifications", false)
+                    && !androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    android.Manifest.permission.POST_NOTIFICATIONS)) {
+                openNotificationSettings();
+                return;
+            }
+            permissions.edit().putBoolean("notifications", true).apply();
             notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS);
-        else com.example.myapplication.ui.notification.PushRegistration.register(this);
+            return;
+        }
+        if (!androidx.core.app.NotificationManagerCompat.from(this).areNotificationsEnabled()) {
+            openNotificationSettings();
+            return;
+        }
+        com.example.myapplication.ui.notification.PushRegistration.register(this);
+        com.example.myapplication.ui.schedule.BookingReminders.restore(this);
+        android.widget.Toast.makeText(this, R.string.notification_permission_granted, android.widget.Toast.LENGTH_SHORT).show();
+    }
+    private void openNotificationSettings() {
+        android.content.Intent settings = new android.content.Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, getPackageName());
+        startActivity(settings);
     }
 
     @Override
@@ -62,17 +84,6 @@ public class MainActivity extends com.example.myapplication.ui.base.BaseActivity
         if (getSupportFragmentManager().findFragmentById(R.id.screenHost) != null)
             transaction.addToBackStack(screen.name());
         transaction.commit();
-    }
-
-    public void showScreens() {
-        UiScreen[] screens = UiScreen.values();
-        String[] labels = new String[screens.length + 1];
-        for (int i = 0; i < screens.length; i++) labels[i] = getString(screens[i].title);
-        labels[screens.length] = getString(R.string.ui_mainactivity_text_1);
-        new ChoiceListDialog(this, R.string.ui_mainactivity_text_2, labels, which -> {
-            if (which == screens.length) UiDialogs.showCatalog(this);
-            else showScreen(screens[which]);
-        }).show();
     }
 
     @Override protected void onDestroy() {

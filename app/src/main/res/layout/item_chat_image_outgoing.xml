@@ -36,8 +36,7 @@
         android:textColor="@color/hint"
         android:textSize="@dimen/_9ssp"
         app:layout_constraintEnd_toStartOf="@id/layoutAvatar"
-        app:layout_constraintTop_toBottomOf="@id/cardImage"
-        tools:text="Vừa xong" />
+        app:layout_constraintTop_toBottomOf="@id/cardImage" />
 
     <FrameLayout
         android:id="@+id/layoutAvatar"

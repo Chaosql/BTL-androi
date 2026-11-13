@@ -16,10 +16,8 @@ public final class ChatImage implements Closeable {
     public static final int MAX_INPUT_BYTES = 20 * 1024 * 1024;
     public static final int MAX_EDGE = 1280;
     private final File file;
-    private final byte[] preview;
-    private ChatImage(File file, byte[] preview) { this.file = file; this.preview = preview; }
+    private ChatImage(File file) { this.file = file; }
     public File file() { return file; }
-    public byte[] previewBytes() { return preview; }
     public MultipartBody.Part part() {
         return MultipartBody.Part.createFormData("file", file.getName(), RequestBody.create(MediaType.parse("image/jpeg"), file));
     }
@@ -90,10 +88,9 @@ public final class ChatImage implements Closeable {
             }
             checkCanceled();
             if (output.length() == 0) throw new IOException("Empty encoded image");
-            byte[] preview = java.nio.file.Files.readAllBytes(output.toPath());
             checkCanceled();
             complete = true;
-            return new ChatImage(output, preview);
+            return new ChatImage(output);
         } catch (OutOfMemoryError error) {
             throw new IOException("Insufficient memory to decode image", error);
         } finally {

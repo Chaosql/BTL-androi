@@ -13,8 +13,13 @@ public class EditIntroductionDialog extends BaseProfileDialog<DialogEditIntroduc
 
     @Override protected void bind(View content, AlertDialog dialog) {
         binding.btnCancel.setOnClickListener(view -> dialog.dismiss());
+        ProfileUi.clearOnEdit(binding.etStatusTag, binding.tvFormError);
         loadUser(binding.btnSave, user -> binding.etStatusTag.setText(ProfileUi.value(user.statusTag)));
-        binding.btnSave.setOnClickListener(view -> submit(model.updateStatusTag(userId,
-                new UpdateStatusTagRequest(ProfileUi.value(binding.etStatusTag))), binding.btnSave, binding.btnCancel, dialog));
+        binding.btnSave.setOnClickListener(view -> {
+            ProfileUi.clearErrors(binding.tvFormError);
+            submit(model.updateStatusTag(userId,
+                new UpdateStatusTagRequest(ProfileUi.value(binding.etStatusTag))), binding.btnSave, binding.btnCancel, dialog);
+        });
     }
+    @Override protected void error(String message) { ProfileUi.showError(binding.tvFormError, message); }
 }

@@ -34,9 +34,20 @@ public final class BookingReminders {
         if (!member || !"CONFIRMED".equals(booking.status) || time == null || !settings.appointmentEnabled() || !settings.remindersEnabled()) {
             cancel(context, booking.id); return;
         }
-        long trigger = time.toInstant().toEpochMilli() - 30 * 60 * 1000L;
-        if (trigger <= System.currentTimeMillis()) { cancel(context, booking.id); return; }
+        long startsAt = time.toInstant().toEpochMilli();
+        long trigger = startsAt - 30 * 60 * 1000L;
+        if (startsAt <= System.currentTimeMillis()) { unschedule(context, owner, booking.id); return; }
         store(context).edit().putString(key(owner, booking.id), new Gson().toJson(booking)).apply();
+        if (trigger <= System.currentTimeMillis()) {
+            cancelAlarm(context, owner, booking.id);
+            SharedPreferences delivered = context.getSharedPreferences("studydate_reminder_deliveries", 0);
+            if (delivered.getLong(key(owner, booking.id), 0) != startsAt && show(context, owner, booking.id,
+                    context.getString(R.string.reminder_channel), context.getString(R.string.reminder_body,
+                    BookingUi.value(booking.locationName), time.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))))) {
+                delivered.edit().putLong(key(owner, booking.id), startsAt).apply();
+            }
+            return;
+        }
         AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (manager == null) return;
         PendingIntent intent = alarm(context, owner, booking.id);
@@ -47,10 +58,16 @@ public final class BookingReminders {
     }
     public static void cancel(Context context, String id) {
         String owner = new PreferenceManager(context).getUserId();
+        unschedule(context, owner, id);
+        NotificationManagerCompat.from(context).cancel(key(owner, id), 0);
+    }
+    private static void cancelAlarm(Context context, String owner, String id) {
         AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (manager != null) manager.cancel(alarm(context, owner, id));
+    }
+    private static void unschedule(Context context, String owner, String id) {
+        cancelAlarm(context, owner, id);
         store(context).edit().remove(key(owner, id)).apply();
-        NotificationManagerCompat.from(context).cancel(key(owner, id), 0);
     }
     public static void clear(Context context) {
         String owner = new PreferenceManager(context).getUserId();
@@ -70,21 +87,29 @@ public final class BookingReminders {
                 context.getString(R.string.reminder_channel), NotificationManager.IMPORTANCE_DEFAULT));
     }
     @android.annotation.SuppressLint("MissingPermission")
-    public static void show(Context context, String owner, String booking, String title, String body) {
+    public static boolean show(Context context, String owner, String booking, String title, String body) {
         PreferenceManager session = new PreferenceManager(context);
         NotificationPreferences settings = new NotificationPreferences(context);
-        if (!session.isLogin() || !owner.equals(session.getUserId()) || !NotificationManagerCompat.from(context).areNotificationsEnabled()) return;
-        if (booking != null && !settings.appointmentEnabled()) return;
+        if (!session.isLogin() || !owner.equals(session.getUserId()) || !NotificationManagerCompat.from(context).areNotificationsEnabled()) return false;
+        if (Build.VERSION.SDK_INT >= 33 && androidx.core.content.ContextCompat.checkSelfPermission(context,
+                android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) return false;
+        if (booking != null && !settings.appointmentEnabled()) return false;
         channels(context);
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        NotificationChannel channel = manager == null ? null : manager.getNotificationChannel(CHANNEL);
+        if (channel != null && channel.getImportance() == NotificationManager.IMPORTANCE_NONE) return false;
         Intent open = new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 .putExtra(OWNER, owner).setData(new Uri.Builder().scheme("studydate").authority("notification").appendPath(owner)
                         .appendPath(booking == null ? "inbox" : booking).build());
         if (booking != null) open.putExtra(BOOKING, booking);
         PendingIntent tap = PendingIntent.getActivity(context, 0, open, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        NotificationManagerCompat.from(context).notify(booking == null ? "inbox" : key(owner, booking), 0,
-                new NotificationCompat.Builder(context, CHANNEL).setSmallIcon(R.drawable.ic_notification)
-                        .setContentTitle(title).setContentText(body).setStyle(new NotificationCompat.BigTextStyle().bigText(body))
-                        .setAutoCancel(true).setContentIntent(tap).build());
+        try {
+            NotificationManagerCompat.from(context).notify(booking == null ? "inbox" : key(owner, booking), 0,
+                    new NotificationCompat.Builder(context, CHANNEL).setSmallIcon(R.drawable.ic_notification)
+                            .setContentTitle(title).setContentText(body).setStyle(new NotificationCompat.BigTextStyle().bigText(body))
+                            .setOnlyAlertOnce(true).setAutoCancel(true).setContentIntent(tap).build());
+            return true;
+        } catch (SecurityException denied) { return false; }
     }
     static void receive(Context context, String owner, String id) {
         if (id == null || owner == null || !owner.equals(new PreferenceManager(context).getUserId())) return;
@@ -92,12 +117,7 @@ public final class BookingReminders {
         if (json.isEmpty()) return;
         BookingDto booking;
         try { booking = new Gson().fromJson(json, BookingDto.class); } catch (RuntimeException error) { cancel(context, id); return; }
-        cancel(context, id);
-        if (!new NotificationPreferences(context).remindersEnabled()) return;
-        java.time.ZonedDateTime time = BookingUi.time(booking.scheduledAt);
-        if (!"CONFIRMED".equals(booking.status) || time == null || time.toInstant().toEpochMilli() <= System.currentTimeMillis()) return;
-        show(context, owner, id, context.getString(R.string.reminder_channel),
-                context.getString(R.string.reminder_body, BookingUi.value(booking.locationName), time.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))));
+        sync(context, booking);
     }
     private BookingReminders() { }
 }

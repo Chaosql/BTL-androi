@@ -34,8 +34,7 @@
             android:layout_weight="1"
             android:textColor="@color/brown"
             android:textSize="@dimen/_16ssp"
-            android:textStyle="bold"
-            tools:text="Tạo cuộc hẹn với Nam Phong" />
+            android:textStyle="bold" />
     </LinearLayout>
 
     <ScrollView
@@ -233,13 +232,35 @@
                     android:textSize="@dimen/_10ssp" />
             </LinearLayout>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_12sdp"
+                android:labelFor="@id/etNote"
+                android:text="@string/booking_note_label"
+                android:textColor="@color/brown"
+                android:textSize="@dimen/_10ssp" />
+
+            <EditText
+                android:id="@+id/etNote"
+                style="@style/StudyDateInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_3sdp"
+                android:gravity="top|start"
+                android:hint="@string/booking_note_hint"
+                android:inputType="textCapSentences|textMultiLine"
+                android:minLines="3"
+                android:maxLines="5"
+                android:padding="@dimen/_10sdp"
+                android:textSize="@dimen/_10ssp" />
+
             <TextView style="@style/StudyDateErrorText"
                 android:id="@+id/tvErrorMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_3sdp"
-                android:textSize="@dimen/_11ssp"
-                tools:text="Vui lòng nhập đầy đủ thông tin" />
+                android:textSize="@dimen/_11ssp" />
 
             <CheckBox
                 android:id="@+id/cbIsRecurring"

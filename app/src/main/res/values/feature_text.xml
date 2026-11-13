@@ -34,4 +34,15 @@
     <string name="feature_enable">Bật</string>
     <string name="feature_disable">Tắt</string>
     <string name="password_policy">Mật khẩu cần ít nhất 8 ký tự, có chữ thường và chữ số, không chứa khoảng trắng.</string>
+    <string name="notification_permission_granted">Đã cấp quyền hiển thị thông báo.</string>
+    <string name="admin_list_unavailable">Chưa tải được danh sách người dùng. Máy chủ chưa trả danh sách hợp lệ.</string>
+    <string name="booking_cancel_reason_required">Vui lòng nhập lý do hủy cuộc hẹn.</string>
+    <string name="admin_reason">Lý do</string>
+    <string name="admin_reason_hint">Nhập lý do khóa hoặc mở khóa</string>
+    <string name="admin_reason_required">Vui lòng nhập lý do.</string>
+    <string name="admin_report_id">Mã báo cáo (nếu có)</string>
+    <string name="admin_report_id_hint">Nhập mã báo cáo liên quan</string>
+    <string name="admin_status_unconfirmed">Chưa xác nhận được trạng thái mới. Vui lòng tải lại.</string>
+    <string name="admin_locked_success">Đã khóa tài khoản.</string>
+    <string name="admin_unlocked_success">Đã mở khóa tài khoản.</string>
 </resources>

@@ -10,7 +10,6 @@ public class BlockedUsersFragment extends BaseSocialFragment<FragmentBlockedUser
     private BlockedUsersAdapter adapter;
     public BlockedUsersFragment() { super(FragmentBlockedUsersBinding::inflate); }
     @Override protected void onScreenCreated(View root, Bundle state) {
-        enableScreenCatalog(binding.tvHeaderTitle);
         binding.btnBack.setOnClickListener(view -> back());
         binding.progressBar.setVisibility(View.GONE);
         adapter = new BlockedUsersAdapter(item -> new ConfirmDeleteDialog(host(),

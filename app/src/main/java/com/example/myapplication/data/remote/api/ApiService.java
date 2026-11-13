@@ -8,14 +8,14 @@ import retrofit2.Call;
 import retrofit2.http.*;
 
 public interface ApiService {
-    @GET("api/v1/admin/users")
-    Call<BaseResponse<PageResponse<AdminUserDto>>> getAdminUsers(@Query("page") int page, @Query("size") int size);
-    @GET("api/v1/admin/users/{id}")
+    @GET("api/v1/user")
+    Call<BaseResponse<PageResponse<AdminUserDto>>> getAdminUsers(@Query("pageNum") int page, @Query("pageSize") int size);
+    @GET("api/v1/user/{id}")
     Call<BaseResponse<AdminUserDto>> getAdminUser(@Path("id") String id);
-    @PATCH("api/v1/admin/users/{id}/lock")
-    Call<BaseResponse<AdminUserDto>> lockAdminUser(@Path("id") String id);
-    @PATCH("api/v1/admin/users/{id}/unlock")
-    Call<BaseResponse<AdminUserDto>> unlockAdminUser(@Path("id") String id);
+    @PATCH("api/v1/user/{id}/lock")
+    Call<BaseResponse<Object>> lockAdminUser(@Path("id") String id, @Body AccountStatusRequest request);
+    @PATCH("api/v1/user/{id}/unlock")
+    Call<BaseResponse<Object>> unlockAdminUser(@Path("id") String id, @Body AccountStatusRequest request);
     @POST("api/v1/auth/login")
     Call<LoginResponse> login(@Body LoginRequest request);
 
@@ -205,10 +205,10 @@ public interface ApiService {
     Call<BaseResponse<OnlineStatusDto>> getUserOnlineStatus(@Path("userId") String userId);
 
     @POST("api/v1/users/block/{userId}")
-    Call<BaseResponse<CommonResponse>> blockUser(@Path("userId") String userId);
+    Call<BaseResponse<Object>> blockUser(@Path("userId") String userId);
 
     @DELETE("api/v1/users/block/{userId}")
-    Call<BaseResponse<CommonResponse>> unblockUser(@Path("userId") String userId);
+    Call<BaseResponse<Object>> unblockUser(@Path("userId") String userId);
 
     @GET("api/v1/users/blocked")
     Call<BaseResponse<List<BlockedUserDto>>> getBlockedUsers();

@@ -52,8 +52,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/btnAction"
         app:layout_constraintStart_toEndOf="@id/layoutAvatar"
-        app:layout_constraintTop_toTopOf="@id/layoutAvatar"
-        tools:text="Nguyễn Văn A" />
+        app:layout_constraintTop_toTopOf="@id/layoutAvatar" />
 
     <TextView
         android:id="@+id/tvUserPhone"
@@ -66,8 +65,7 @@
         android:textSize="@dimen/_11ssp"
         app:layout_constraintEnd_toStartOf="@id/btnAction"
         app:layout_constraintStart_toEndOf="@id/layoutAvatar"
-        app:layout_constraintTop_toBottomOf="@id/tvUserName"
-        tools:text="0987654321" />
+        app:layout_constraintTop_toBottomOf="@id/tvUserName" />
 
     <TextView
         android:id="@+id/btnAction"
@@ -81,7 +79,6 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Kết bạn" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,7 +9,6 @@ public class InputEmailFragment extends BaseAuthFragment<FragmentInputEmailBindi
     @Override protected void onScreenCreated(View root, Bundle state) {
         bindErrors(binding.tvEmailError, binding.edtEmail);
         bindFlow(binding.btnSendEmail);
-        enableScreenCatalog(binding.tvTitle);
         binding.btnBack.setOnClickListener(view -> back());
         binding.btnSendEmail.setOnClickListener(view -> {
             clearError();

@@ -37,8 +37,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/brown"
                 android:textSize="@dimen/_16ssp"
-                android:textStyle="bold"
-                tools:text="Nam Phong" />
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:id="@+id/layoutOnlineStatus"
@@ -61,8 +60,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/hint"
-                    android:textSize="@dimen/_10ssp"
-                    tools:text="Đang hoạt động" />
+                    android:textSize="@dimen/_10ssp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -73,22 +71,28 @@
 
     </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/tvEmptyState"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="12dp"
-        android:text="@string/chat_empty"
-        android:textColor="@color/brown"
-        android:visibility="gone" />
+        android:layout_height="48dp">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <TextView
+            android:layout_gravity="center"
+            android:id="@+id/tvEmptyState"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="12dp"
+            android:text="@string/chat_empty"
+            android:textColor="@color/brown"
+            android:visibility="gone" />
+    </FrameLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvChatMessages"
@@ -153,6 +157,7 @@
                 android:id="@+id/btnCreateSchedule"
                 android:layout_width="@dimen/_18sdp"
                 android:layout_height="@dimen/_18sdp"
+                android:layout_marginEnd="@dimen/_8sdp"
                 android:src="@drawable/ic_calendar"
                 app:tint="@color/brown" />
 
@@ -162,7 +167,6 @@
                 android:layout_height="@dimen/_20sdp"
                 android:contentDescription="@string/send"
                 android:src="@drawable/ic_send"
-                android:visibility="gone"
                 app:tint="@color/brown" />
 
         </LinearLayout>

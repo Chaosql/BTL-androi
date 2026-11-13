@@ -316,47 +316,32 @@ public class ChatApiUiTest {
         activity.getActivityResultRegistry().dispatchResult(picker.requestCode, android.app.Activity.RESULT_OK,
                 new android.content.Intent().setData(uri));
     }
-    @Test public void selectedImageNeedsConfirmationThenUploadsOnce() throws Exception {
+    @Test public void selectedImageUploadsImmediatelyOnceWithoutPreview() throws Exception {
         open();
         ((EditText) activity.findViewById(R.id.etMessage)).setText("Keep text draft");
         int before = imageFiles();
         chooseImage(photo(), "photo.png");
-        await(() -> ShadowDialog.getLatestDialog() != null && ShadowDialog.getLatestDialog().findViewById(R.id.btnSendImage) != null);
-        android.app.Dialog preview = ShadowDialog.getLatestDialog();
-        assertTrue(uploads.isEmpty());
-        preview.findViewById(R.id.btnSendImage).performClick();
-        preview.findViewById(R.id.btnSendImage).performClick();
-        await(() -> !preview.isShowing() && adapter().contains("image-1"));
+        await(() -> adapter().contains("image-1") && activity.findViewById(R.id.btnGallery).isEnabled());
         assertEquals(1, uploads.size());
         assertTrue(uploads.get(0).contains("name=\"file\""));
         assertTrue(uploads.get(0).contains("Content-Type: image/jpeg"));
         assertEquals("Keep text draft", ((EditText) activity.findViewById(R.id.etMessage)).getText().toString());
         assertEquals(3, adapter().getItemCount());
+        assertTrue(ShadowDialog.getLatestDialog() == null || !ShadowDialog.getLatestDialog().isShowing());
         await(() -> imageFiles() == before);
     }
-    @Test public void cancellingPreviewDoesNotUploadAndRemovesTemporaryImage() throws Exception {
-        open(); int before = imageFiles();
-        chooseImage(photo(), "photo.png");
-        await(() -> ShadowDialog.getLatestDialog() != null && ShadowDialog.getLatestDialog().findViewById(R.id.btnSendImage) != null);
-        ShadowDialog.getLatestDialog().findViewById(R.id.btnCancel).performClick();
-        assertTrue(uploads.isEmpty());
-        await(() -> imageFiles() == before);
-        assertTrue(activity.findViewById(R.id.btnGallery).isEnabled());
-    }
-    @Test public void failedUploadKeepsPreviewForExplicitRetry() throws Exception {
+    @Test public void failedUploadAllowsSelectingAgainAndRemovesTemporaryImage() throws Exception {
         open(); failAction = true;
+        int before = imageFiles();
         chooseImage(photo(), "photo.png");
-        await(() -> ShadowDialog.getLatestDialog() != null && ShadowDialog.getLatestDialog().findViewById(R.id.btnSendImage) != null);
-        android.app.Dialog preview = ShadowDialog.getLatestDialog();
-        preview.findViewById(R.id.btnSendImage).performClick();
-        await(() -> preview.findViewById(R.id.btnSendImage).isEnabled());
-        assertTrue(preview.isShowing());
-        assertEquals("Rejected", ((TextView) preview.findViewById(R.id.tvStatus)).getText().toString());
+        await(() -> uploads.size() == 1 && activity.findViewById(R.id.btnGallery).isEnabled());
         assertEquals(2, adapter().getItemCount());
+        await(() -> imageFiles() == before);
         failAction = false;
-        preview.findViewById(R.id.btnSendImage).performClick();
-        await(() -> !preview.isShowing() && adapter().contains("image-1"));
+        chooseImage(photo(), "photo.png");
+        await(() -> adapter().contains("image-1") && activity.findViewById(R.id.btnGallery).isEnabled());
         assertEquals(2, uploads.size());
+        await(() -> imageFiles() == before);
     }
     @Test public void invalidSelectionDoesNotCallUpload() throws Exception {
         open(); int before = imageFiles();
@@ -380,16 +365,6 @@ public class ChatApiUiTest {
         assertNull(ChatUi.imageUrl(image));
         image.content = "content://private/photo";
         assertNull(ChatUi.imageUrl(image));
-    }
-    @Test public void leavingChatClosesImagePreviewAndRemovesTemporaryFile() throws Exception {
-        open(); int before = imageFiles();
-        chooseImage(photo(), "photo.png");
-        await(() -> ShadowDialog.getLatestDialog() != null && ShadowDialog.getLatestDialog().findViewById(R.id.btnSendImage) != null);
-        android.app.Dialog preview = ShadowDialog.getLatestDialog();
-        activity.showScreen(UiScreen.PROFILE);
-        activity.getSupportFragmentManager().executePendingTransactions();
-        await(() -> !preview.isShowing() && imageFiles() == before);
-        assertTrue(uploads.isEmpty());
     }
     @Test public void cancellingImagePickerKeepsDraftAndDoesNotUpload() throws Exception {
         open();

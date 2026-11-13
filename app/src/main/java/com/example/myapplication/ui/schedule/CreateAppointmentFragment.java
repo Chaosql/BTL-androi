@@ -58,7 +58,6 @@ public class CreateAppointmentFragment extends BaseFragment<FragmentCreateAppoin
     }
 
     @Override protected void onScreenCreated(View root, Bundle state) {
-        enableScreenCatalog(binding.tvScreenTitle);
         binding.ivBack.setOnClickListener(view -> back());
         Bundle data = state != null ? state : getArguments();
         conversationId = data == null ? "" : data.getString(CONVERSATION_ID, "");
@@ -76,6 +75,7 @@ public class CreateAppointmentFragment extends BaseFragment<FragmentCreateAppoin
         if (state != null) {
             binding.spDuration.setSelection(state.getInt("duration", 0));
             binding.cbIsRecurring.setChecked(state.getBoolean("recurring", false));
+            binding.etNote.setText(state.getString("note", ""));
         }
         dateText();
         binding.layoutDateField.setOnClickListener(view -> {
@@ -117,6 +117,7 @@ public class CreateAppointmentFragment extends BaseFragment<FragmentCreateAppoin
         binding.spDuration.setEnabled(!value); binding.cbIsRecurring.setEnabled(!value);
         binding.etLocationName.setEnabled(!value); binding.etStreet.setEnabled(!value);
         binding.etDistrict.setEnabled(!value); binding.etProvince.setEnabled(!value);
+        binding.etNote.setEnabled(!value);
     }
     private void error(String message) {
         binding.tvErrorMessage.setText(message); binding.tvErrorMessage.setVisibility(View.VISIBLE);
@@ -196,7 +197,7 @@ public class CreateAppointmentFragment extends BaseFragment<FragmentCreateAppoin
                 time.atZone(BookingUi.ZONE).toInstant().toString(), duration,
                 binding.etLocationName.getText().toString().trim(), binding.etStreet.getText().toString().trim(),
                 binding.etDistrict.getText().toString().trim(), binding.etProvince.getText().toString().trim(),
-                "", binding.cbIsRecurring.isChecked(), 15);
+                binding.etNote.getText().toString().trim(), binding.cbIsRecurring.isChecked(), 15);
         request(viewModel(com.example.myapplication.ui.schedule.BookingViewModel.class).createBookingInConversation(conversationId, change), response -> {
             MainActivity activity = (MainActivity) requireActivity();
             Bundle result = new Bundle();
@@ -218,6 +219,7 @@ public class CreateAppointmentFragment extends BaseFragment<FragmentCreateAppoin
             state.putInt("hour", binding.npHour.getValue()); state.putInt("minute", binding.npMinute.getValue());
             state.putInt("duration", binding.spDuration.getSelectedItemPosition());
             state.putBoolean("recurring", binding.cbIsRecurring.isChecked());
+            state.putString("note", binding.etNote.getText().toString());
         }
         super.onSaveInstanceState(state);
     }

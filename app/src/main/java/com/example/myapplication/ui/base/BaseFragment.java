@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.example.myapplication.R;
 import com.example.myapplication.ui.main.MainActivity;
-import com.example.myapplication.ui.main.UiDialogs;
 import com.example.myapplication.ui.main.UiScreen;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -61,13 +60,6 @@ public abstract class BaseFragment<B extends androidx.viewbinding.ViewBinding> e
 
     protected abstract void onScreenCreated(View root, Bundle state);
 
-    protected void enableScreenCatalog(View... headings) {
-        for (View heading : headings) heading.setOnLongClickListener(view -> {
-            ((MainActivity) requireActivity()).showScreens();
-            return true;
-        });
-    }
-
     protected void genderSpinner(Spinner view) {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(view.getContext(), R.layout.item_spinner_gender,
                 Arrays.asList("Nam", getString(R.string.ui_dialog_edit_personal_info_text_5), getString(R.string.ui_dialog_edit_personal_info_text_6)));
@@ -80,10 +72,6 @@ public abstract class BaseFragment<B extends androidx.viewbinding.ViewBinding> e
         ((MainActivity) requireActivity()).showScreen(next, arguments);
     }
 
-    public void dialog(int layout) { UiDialogs.show((MainActivity) requireActivity(), layout); }
-    public void previewNotice() {
-        Toast.makeText(requireContext(), getString(R.string.ui_studyscreenfragment_text_22), Toast.LENGTH_SHORT).show();
-    }
     protected void back() { requireActivity().getOnBackPressedDispatcher().onBackPressed(); }
 
     protected static void text(TextView view, String text) {

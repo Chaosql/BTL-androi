@@ -15,19 +15,6 @@
         android:orientation="vertical"
         android:paddingVertical="@dimen/_8sdp">
 
-        <TextView
-            android:id="@+id/tvOptionPin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:paddingHorizontal="@dimen/_15sdp"
-            android:paddingVertical="@dimen/_10sdp"
-            android:text="@string/option_pin"
-            android:textColor="@color/brown"
-            android:textSize="@dimen/_13ssp" />
-
 
         <TextView
             android:id="@+id/tvOptionViewProfile"

@@ -99,20 +99,25 @@ public class ChatImageTest {
         com.example.myapplication.ui.chat.ChatViewModel model = new androidx.lifecycle.ViewModelProvider(() -> store,
                 new androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory(RuntimeEnvironment.getApplication()))
                 .get(com.example.myapplication.ui.chat.ChatViewModel.class);
+        com.example.myapplication.data.local.PreferenceManager preferences =
+                new com.example.myapplication.data.local.PreferenceManager(RuntimeEnvironment.getApplication());
+        preferences.saveLogin(new com.example.myapplication.data.remote.dto.response.LoginData(
+                "Bearer", "token", "refresh", "self", null), "test@example.com");
+        model.initialize("c1", "", false, null, 0, null);
         try {
             model.prepareImage(uri);
             long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(5);
             while (files() != before + 1 && System.nanoTime() < deadline) Thread.sleep(10);
             assertEquals(before + 1, files());
             Thread.sleep(100);
-            assertNull(model.images().getValue());
+
             store.clear();
             deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(5);
             while (files() != before && System.nanoTime() < deadline) {
                 Shadows.shadowOf(android.os.Looper.getMainLooper()).idle(); Thread.sleep(10);
             }
-            assertEquals(before, files()); assertNull(model.images().getValue());
-        } finally { store.clear(); }
+            assertEquals(before, files());
+        } finally { store.clear(); preferences.logout(); }
     }
     public static class ImageProvider extends ContentProvider {
         @Override public boolean onCreate() { return true; }

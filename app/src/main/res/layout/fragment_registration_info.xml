@@ -243,6 +243,14 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/tvFormError"
+                style="@style/StudyDateErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:accessibilityLiveRegion="polite" />
+
+            <TextView
                 android:id="@+id/btnSave"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_42sdp"

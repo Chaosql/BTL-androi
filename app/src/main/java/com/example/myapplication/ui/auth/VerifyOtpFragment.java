@@ -12,7 +12,6 @@ public class VerifyOtpFragment extends BaseAuthFragment<FragmentVerifyOtpBinding
     @Override protected void onScreenCreated(View root, Bundle state) {
         bindErrors(binding.tvOtpError, binding.edtOtp1, binding.edtOtp2, binding.edtOtp3, binding.edtOtp4, binding.edtOtp5);
         bindFlow(binding.btnVerify, binding.btnResend);
-        enableScreenCatalog(binding.header, binding.ivPic);
         binding.ivBack.setOnClickListener(view -> back());
         boolean reset = getArguments() != null && getArguments().getBoolean(ARG_RESET_PASSWORD);
         boolean alreadySent = getArguments() != null && getArguments().getBoolean(ARG_OTP_SENT);

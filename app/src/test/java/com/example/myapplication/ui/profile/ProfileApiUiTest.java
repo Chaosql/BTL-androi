@@ -37,9 +37,10 @@ public class ProfileApiUiTest {
     private volatile boolean failSubject;
     private volatile boolean failAcademic;
     private volatile boolean failIntroduction;
+    private volatile boolean failPassword;
 
     @Before public void setup() throws Exception {
-        user = JsonParser.parseString("{\"id\":\"user-1\",\"email\":\"test@example.com\",\"firstName\":\"Hoang\",\"lastName\":\"Nguyen\",\"gender\":\"MALE\",\"dateOfBirth\":\"2005-08-15\",\"university\":\"School\",\"majorName\":\"Java\",\"phone\":\"0901234567\",\"location\":\"Hanoi\",\"statusTag\":\"Hello\",\"trustScore\":97.5}").getAsJsonObject();
+        user = JsonParser.parseString("{\"id\":\"user-1\",\"email\":\"test@example.com\",\"firstName\":\"Hoang\",\"lastName\":\"Nguyen\",\"gender\":\"MALE\",\"dateOfBirth\":\"2005-08-15\",\"university\":\"School\",\"majorName\":\"Java\",\"phone\":\"0901234567\",\"location\":\"Hanoi\",\"statusTag\":\"Hello\",\"trustScore\":97.5,\"buddyActive\":false}").getAsJsonObject();
         subjects = JsonParser.parseString("[{\"id\":\"s1\",\"name\":\"Java\",\"type\":\"STRENGTH\"}]").getAsJsonArray();
         server = new MockWebServer();
         server.setDispatcher(new Dispatcher() {
@@ -53,6 +54,8 @@ public class ProfileApiUiTest {
                 String body = request.getBody().readUtf8();
                 mutations.add(request.getMethod() + " " + path + " " + body);
                 if (path.endsWith("/avatar")) return response(user);
+                if (path.endsWith("/password") && failPassword)
+                    return new MockResponse().setResponseCode(422).setBody("{\"message\":\"Password rejected\"}");
                 if (path.endsWith("/academic-info") && failAcademic)
                     return new MockResponse().setResponseCode(503).setBody("{\"message\":\"Try again\"}");
                 if (path.endsWith("/status-tag") && failIntroduction)
@@ -122,6 +125,35 @@ public class ProfileApiUiTest {
         assertEquals("97.5", ((TextView) activity.findViewById(R.id.tvFavoriteRating)).getText().toString());
     }
 
+    @Test public void viewingProfileRequiresEditScreenForPersonalChanges() throws Exception {
+        open(UiScreen.PROFILE);
+        assertFalse(activity.findViewById(R.id.cvInfo).hasOnClickListeners());
+        assertFalse(activity.findViewById(R.id.tvBuddyStatus).hasOnClickListeners());
+        assertFalse(activity.findViewById(R.id.cvInfo).performClick());
+        assertFalse(activity.findViewById(R.id.tvBuddyStatus).performClick());
+        assertTrue(mutations.isEmpty());
+        activity.findViewById(R.id.btnUpdateProfile).performClick();
+        activity.getSupportFragmentManager().executePendingTransactions();
+        await(() -> activity.findViewById(R.id.tvAddInfo) != null);
+        assertTrue(activity.findViewById(R.id.cvInfo).hasOnClickListeners());
+        assertFalse(activity.findViewById(R.id.tvBuddyStatus).hasOnClickListeners());
+    }
+
+    @Test public void radarCanOnlyBeChangedFromAccountSettings() throws Exception {
+        activity.showScreen(UiScreen.ACCOUNT_SETTINGS);
+        activity.getSupportFragmentManager().executePendingTransactions();
+        com.google.android.material.materialswitch.MaterialSwitch radar = activity.findViewById(R.id.switchRadar);
+        await(radar::isEnabled);
+        assertFalse(radar.isChecked());
+        radar.performClick();
+        await(() -> radar.isEnabled() && user.get("buddyActive").getAsBoolean());
+        assertTrue(radar.isChecked());
+        radar.performClick();
+        await(() -> radar.isEnabled() && !user.get("buddyActive").getAsBoolean());
+        assertFalse(radar.isChecked());
+        assertEquals(2, mutations.size());
+    }
+
     @Test public void introductionUpdatesApiAndVisibleProfile() throws Exception {
         open(UiScreen.EDIT_PROFILE);
         activity.findViewById(R.id.tvIntroduction).performClick();
@@ -142,6 +174,7 @@ public class ProfileApiUiTest {
         dialog.findViewById(R.id.btnSave).performClick();
         await(() -> dialog.findViewById(R.id.btnSave).isEnabled());
         assertTrue(dialog.isShowing());
+        assertEquals(View.VISIBLE, dialog.findViewById(R.id.tvFormError).getVisibility());
         assertEquals("Keep this text", ((EditText) dialog.findViewById(R.id.etStatusTag)).getText().toString());
         assertTrue(dialog.findViewById(R.id.btnCancel).isEnabled());
         dialog.dismiss();
@@ -154,7 +187,8 @@ public class ProfileApiUiTest {
         EditText firstName = dialog.findViewById(R.id.etFirstName);
         firstName.setText("");
         dialog.findViewById(R.id.btnSave).performClick();
-        assertNotNull(firstName.getError());
+        assertNull(firstName.getError());
+        assertEquals(View.VISIBLE, dialog.findViewById(R.id.tvErrorFirstName).getVisibility());
         assertEquals(0, mutations.size());
         firstName.setText("Updated");
         ((EditText) dialog.findViewById(R.id.etDateOfBirth)).setText("31/02/2005");
@@ -184,6 +218,7 @@ public class ProfileApiUiTest {
         await(() -> dialog.findViewById(R.id.btnSave).isEnabled());
         assertTrue(dialog.isShowing());
         assertTrue(dialog.findViewById(R.id.etFirstName).isEnabled());
+        assertEquals(View.VISIBLE, dialog.findViewById(R.id.tvFormError).getVisibility());
         failAcademic = false;
         dialog.findViewById(R.id.btnSave).performClick();
         await(() -> !dialog.isShowing());
@@ -264,6 +299,35 @@ public class ProfileApiUiTest {
         await(() -> activity.findViewById(R.id.btnSave).isEnabled());
         assertTrue(mutations.get(0).contains("test@example.com"));
         assertTrue(mutations.get(0).contains("0901234567"));
+    }
+
+    @Test public void changePasswordUsesInlineErrorsAndClearsThemOnEdit() throws Exception {
+        activity.showScreen(UiScreen.CHANGE_PASSWORD);
+        activity.getSupportFragmentManager().executePendingTransactions();
+        EditText old = activity.findViewById(R.id.etOldPassword);
+        EditText next = activity.findViewById(R.id.etNewPassword);
+        EditText confirm = activity.findViewById(R.id.etConfirmPassword);
+        activity.findViewById(R.id.btnOk).performClick();
+        assertEquals(View.VISIBLE, activity.findViewById(R.id.tvOldPasswordError).getVisibility());
+        assertNull(old.getError());
+        old.setText("oldpass123");
+        assertEquals(View.GONE, activity.findViewById(R.id.tvOldPasswordError).getVisibility());
+        next.setText("short");
+        activity.findViewById(R.id.btnOk).performClick();
+        assertEquals(View.VISIBLE, activity.findViewById(R.id.tvNewPasswordError).getVisibility());
+        assertNull(next.getError());
+        next.setText("newpass123"); confirm.setText("different123");
+        activity.findViewById(R.id.btnOk).performClick();
+        assertEquals(View.VISIBLE, activity.findViewById(R.id.tvConfirmPasswordError).getVisibility());
+        assertTrue(mutations.isEmpty());
+        confirm.setText("newpass123"); failPassword = true;
+        activity.findViewById(R.id.btnOk).performClick();
+        await(() -> activity.findViewById(R.id.btnOk).isEnabled());
+        assertEquals(View.VISIBLE, activity.findViewById(R.id.tvFormError).getVisibility());
+        assertEquals("Password rejected", ((TextView) activity.findViewById(R.id.tvFormError)).getText().toString());
+        assertEquals("newpass123", next.getText().toString());
+        old.setText("correctold123");
+        assertEquals(View.GONE, activity.findViewById(R.id.tvFormError).getVisibility());
     }
 
     @Test public void avatarPickerUploadsMultipartImage() throws Exception {

@@ -22,7 +22,6 @@ public class NotificationFragment extends BaseFragment<FragmentNotificationBindi
     private androidx.appcompat.app.AlertDialog readAllDialog;
     public NotificationFragment() { super(FragmentNotificationBinding::inflate); }
     @Override protected void onScreenCreated(View root, Bundle state) {
-        enableScreenCatalog(binding.tvScreenTitle);
         binding.ivBack.setOnClickListener(view -> back());
         model = viewModel(NotificationViewModel.class);
         recent = new NotificationAdapter(this::select, this::delete);
